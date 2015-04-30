@@ -43,3 +43,7 @@
 
    - deploy :: Make a request for deployment from the rollout git
                repository.
+
+\begin{figure}
+\includegraphics{images/beta_deployement.png}
+\end{figure}
