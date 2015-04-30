@@ -1,0 +1,46 @@
+digraph {
+        rankdir=LR;
+        rank = same; a; b; c;
+
+        subgraph action_0 {
+                a[label="db\ncreation"];
+                af[label="email\nadmin"];
+                a->af[label="failure", color="red"];
+                af->a[label="restart", color="blue"];
+        }
+
+        subgraph action_1 {
+                b[label="git\nbranch"];
+                bf[label="email\nadmin"];
+                b->bf[label="failure", color="red"];
+                bf->b[label="restart", color="blue"];
+        }
+
+        subgraph action_2 {
+                c[label="create\nconfigs"];
+                cf[label="email\nadmin"];
+                c->cf[label="failure", color="red"];
+                cf->c[label="restart", color="blue"];
+        }
+
+        subgraph action_3 {
+                d[label="git\ncommit"]
+                df[label="email\nadmin"]
+                d->df[label="failure", color="red"]
+                df->d[label="restart", color="blue"]
+        }
+
+        subgraph action_4 {
+                e[label="git tag\ncompile"];
+                ef[label="email\nadmin"];
+                e->ef[label="failure", color="red"];
+                ef->e[label="restart", color="blue"];
+        }
+
+        a->b[label="success"];
+        b->c[label="success"];
+        c->d[label="success"];
+        d->e[label="success"];
+        f[label="deploy beta", color="green"];
+        e->f[label="success"];
+}

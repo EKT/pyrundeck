@@ -1,0 +1,45 @@
+#+TITLE: System for automated DSpace installation
+#+LATEX_HEADER: \DeclareGraphicsRule{*}{mps}{*}{}
+
+* SaaS automation
+
+** Initial beta workflow
+
+   - db creation :: Request credentials for two databases, one for
+                    production one for beta. Request the locations of
+                    the installations as well (servers names, install
+                    directories, etc).
+
+   - git branch :: Create two new branches on the git repository for
+                   the organization repository: ~<name>-dev~ and
+                   ~<name>-master~
+
+   - create confs :: Using data from the repository wizard, and the db
+                     creation step create the necessary configuration
+                     files for DSpace:
+
+     + ~<name>-beta.properties~ & ~<name>-production.properties~
+     + ~dspace/config/dspace.cfg~
+     + ~dspace/config/input-forms.xml & dspace/config/input-forms_el.xml~
+     + ~dspace/config/registries/ekt_schema.xml~ (?)
+     + ~dspace/config/spring/api/discovery.xml~
+     + ~dspace/config/spring/api/itemsigning.xml~
+     + ~dspace/config/spring/api/requestitem.xml~ (?)
+     + ~dspace/config/workflow.xml~ (?)
+     + ~dspace/config/registration-form.xml~
+     + ~dspace/config/ekt2csl-metadata.cfg~ &
+       ~dspace/config/ekt2csl-types.cfg~ (?)
+
+   - git commit :: make a commit in the appropriate directory of the
+                   git repository ~dspace-compilation-properties~ for
+                   the ~*.properties~ files and one in newly created
+                   branch ~<name>-dev~ for the other configurations.
+
+   - git tag compile :: Tries to compile the code in the branch
+        ~<name>-dev~. If successful merges (fast forward) ~<name>-dev~
+        to ~<name>-master~ and tags the merge commit. Commit the
+        resulting compiled code to the appropriate rollout git
+        repository.
+
+   - deploy :: Make a request for deployment from the rollout git
+               repository.
