@@ -3,3 +3,4 @@
 /doc/images/beta_deployement.png
 __pycache__/
 *.pyc
+*.png
