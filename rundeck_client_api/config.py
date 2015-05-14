@@ -31,24 +31,5 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
-import requests
-from rundeck_client_api import config
-import nose.tools as nt
 
-class TestRundeckClientAPIFunctional:
-    def setup(self):
-        with open(config.rundeck_token_file) as fl:
-            token = fl.readline().strip()
-            root_url = 'https://rundeck.ekt.gr'
-            self.client = RundeckApiClient(token, root_url)
-
-    def functional_client_test(self):
-        # Find what endpoints are available
-        endpoints = self.client.endpoints
-        nt.assert_is_not_none(endpoints)
-
-        # Find out what jobs are available
-        nt.assert_is_not_none(endpoints.get('jobs'))
-        status, data = self.client.perform_request('jobs')
-
-        # TODO fill the assertions
+rundeck_token_file = '../rundeck_token'  # path to the token file
