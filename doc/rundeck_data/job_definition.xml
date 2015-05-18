@@ -1,0 +1,14 @@
+<joblist>
+  <job>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>echo "Test Job 2"</exec>
+      </command>
+    </sequence>
+    <description></description>
+    <name>test_job_2</name>
+    <context>
+      <project>API_client_development</project>
+    </context>
+  </job>
+</joblist>
