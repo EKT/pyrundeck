@@ -32,5 +32,5 @@
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-rundeck_token_file = '../local_rundeck_token'  # path to the token file
+rundeck_token_file = '../rundeck_token'  # path to the token file
 root_url = 'http://192.168.50.2:4400'
