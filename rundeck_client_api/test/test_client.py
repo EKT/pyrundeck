@@ -31,24 +31,76 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
-import requests
-from rundeck_client_api import config
+
+# from unittest.mock import patch
 import nose.tools as nt
+from lxml import etree
+
+
+from rundeck_client_api import config
+
 
 class TestRundeckClientAPIFunctional:
     def setup(self):
         with open(config.rundeck_token_file) as fl:
             token = fl.readline().strip()
-            root_url = 'https://rundeck.ekt.gr'
-            self.client = RundeckApiClient(token, root_url)
+            self.client = RundeckApiClient(token, config.root_url)
 
-    def functional_client_test(self):
+    def pretty_print_xml(self, data):
+        return etree.tostring(data, pretty_print=True).decode('utf-8')
+
+    def functional_api_test(self, mock_get):
         # Find what endpoints are available
         endpoints = self.client.endpoints
         nt.assert_is_not_none(endpoints)
 
-        # Find out what jobs are available
-        nt.assert_is_not_none(endpoints.get('jobs'))
-        status, data = self.client.perform_request('jobs')
+        # --Import a new job
 
-        # TODO fill the assertions
+        # Verify that the import job endpoint is implemented
+        nt.assert_is_not_none(endpoints.get('import_job'))
+
+        # Try to import a good job
+        with open('test_data/good_job_definition.xml') as fl:
+            good_job = fl.read()
+        status_code, data = self.client.perform_request('import_job', data={'xmlBatch': good_job})
+
+        # Verify that the call returned 200 [OK] and that it successfully created a job
+        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
+        nt.assert_dict_contains_subset({'count': '1'}, data.find(".//succeeded"),
+                                       'Failed to create job. Error message:\n{}'.format(data.find('.//error').text))
+
+        # Try to import a bad job
+        with open('test_data/bad_job_definition.xml') as fl:
+            bad_job = fl.read()
+        status_code, data = self.client.perform_request('import_job', data={'xmlBatch': bad_job})
+
+        # Verify that the call returned 200 [OK] and that it failed to create a job
+        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
+        nt.assert_dict_contains_subset({'count': '0'}, data.find(".//succeeded"),
+                                       'Did not fail to create job. API returned:\n{}'.format(self.pretty_print_xml(
+                                           data)))
+
+        # --Find out what jobs are available
+
+        # Verify that the list jobs endpoint is implemented
+        nt.assert_is_not_none(endpoints.get('list_jobs'))
+        status_code, data = self.client.perform_request('list_jobs', project='')
+
+        # Verify that the call returned status 200
+        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
+
+        # Verify that the newly created job exists in the list
+        nt.assert_in('test_job_2', [j.name for j in data.iterfind('.//name')],
+                     'Created job not found. API response:\n{}'.format(self.pretty_print_xml(data)))
+
+        # Run the new job
+
+        # Verify the results of the run
+
+        # Delete the new job
+
+        # Get the available jobs
+
+        # Verify that the new job has been deleted
+
+
