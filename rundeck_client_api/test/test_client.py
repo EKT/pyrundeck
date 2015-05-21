@@ -32,37 +32,28 @@
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-# from unittest.mock import patch
 import nose.tools as nt
 from lxml import etree
 
-
-from rundeck_client_api import config
+from rundeck_client_api import config, api
 
 
 class TestRundeckClientAPIFunctional:
     def setup(self):
         with open(config.rundeck_token_file) as fl:
             token = fl.readline().strip()
-            self.client = RundeckApiClient(token, config.root_url)
+            self.client = api.RundeckApiClient(token, config.root_url)
 
     def pretty_print_xml(self, data):
         return etree.tostring(data, pretty_print=True).decode('utf-8')
 
-    def functional_api_test(self, mock_get):
-        # Find what endpoints are available
-        endpoints = self.client.endpoints
-        nt.assert_is_not_none(endpoints)
-
+    def functional_api_test(self):
         # --Import a new job
-
-        # Verify that the import job endpoint is implemented
-        nt.assert_is_not_none(endpoints.get('import_job'))
 
         # Try to import a good job
         with open('test_data/good_job_definition.xml') as fl:
-            good_job = fl.read()
-        status_code, data = self.client.import_job(data={'xmlBatch': good_job})
+            good_def = fl.read()
+        status_code, data = self.client.import_job(data={'xmlBatch': good_def})
 
         # Verify that the call returned 200 [OK] and that it successfully created a job
         nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
@@ -71,8 +62,8 @@ class TestRundeckClientAPIFunctional:
 
         # Try to import a bad job
         with open('test_data/bad_job_definition.xml') as fl:
-            bad_job = fl.read()
-        status_code, data = self.client.import_job(data={'xmlBatch': bad_job})
+            bad_def = fl.read()
+        status_code, data = self.client.import_job(data={'xmlBatch': bad_def})
 
         # Verify that the call returned 200 [OK] and that it failed to create a job
         nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
@@ -81,7 +72,7 @@ class TestRundeckClientAPIFunctional:
                                            data)))
 
         # --Find out what jobs are available
-        status_code, data = self.client.list_jobs(project='')  # TODO configure project id
+        status_code, data = self.client.list_jobs(project=config.test_project)
 
         # Verify that the call returned status 200
         nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
@@ -124,5 +115,5 @@ class TestRundeckClientAPIFunctional:
                         'Delete request failed. API returned:\n{}'.format(self.pretty_print_xml(data)))
 
         # Verify that the new job has been deleted
-        status_code, data = self.client.list_jobs(project='')  # TODO configure project id
+        status_code, data = self.client.list_jobs(project=config.test_project)
         nt.assert_not_in(job_id, [j.get('id') for j in data.iter('job')], 'Job deletion failed.')

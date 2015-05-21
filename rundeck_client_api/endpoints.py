@@ -30,8 +30,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
+__author__ = 'kutsurak'
 
-rundeck_token_file = '../rundeck_token'  # path to the token file
-root_url = 'http://192.168.50.2:4400'
-test_project = 'API_client_development'
+class EndpointDefs:
+    def import_job(self, **params):
+        pass
