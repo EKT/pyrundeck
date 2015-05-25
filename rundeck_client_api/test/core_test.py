@@ -30,11 +30,75 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = 'kutsurak'
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 import nose.tools as nt
 from unittest.mock import patch
 
+import rundeck_client_api as rca
+from rundeck_client_api import config, api
+
+
 class TestCoreRundeckAPIClient:
-    def test_correct_url_is_called(self):
-        assert False
+    def setup(self):
+        with open(config.rundeck_token_file) as fl:
+            self.token = fl.readline().strip()
+            self.client = api.RundeckApiClient(self.token, config.root_url)
+            self.api_version = config.api_version
+
+    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    def test_get_method_correctly_calls_perform(self, mock_perform):
+        url = 'https://rundeck.example.com/api/13/foo'
+        params = {
+            'a': 'b',
+            'c': 'd'
+        }
+        self.client.get(url, params=params)
+        mock_perform.assert_called_once_with(url, params=params, method='GET')
+
+    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    def test_post_method_correctly_calls_perform(self, mock_perform):
+        url = 'https://rundeck.example.com/api/13/foo'
+        params = {
+            'a': 'b',
+            'c': 'd'
+        }
+        self.client.post(url, params=params)
+        mock_perform.assert_called_once_with(url, params=params, method='POST')
+
+    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    def test_delete_method_correctly_calls_perform(self, mock_perform):
+        url = 'https://rundeck.example.com/api/13/foo'
+        params = {
+            'a': 'b',
+            'c': 'd'
+        }
+        self.client.delete(url, params=params)
+        mock_perform.assert_called_once_with(url, params=params, method='DELETE')
+
+    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    def test_all_methods_return_correctly_result_of_perform_request(self, mock_perform):
+        ret = 'mock_perform_value'
+        mock_perform.return_value = ret
+        res1 = self.client.get('foo')
+        nt.assert_equal(res1, ret)
+
+        res2 = self.client.post('foo')
+        nt.assert_equal(res2, ret)
+
+        res3 = self.client.post('foo')
+        nt.assert_equal(res3, ret)
+
+    @patch('requests.get')
+    def test_perform_request_sets_correct_headers(self, mock_get):
+        url = 'https://rundeck.example.com/api/13/foo'
+
+        self.client._perform_request(url)
+        args = mock_get.call_args
+        nt.assert_equal(2, len(args))
+        nt.assert_equal(url, args[0])
+        nt.assert_in('headers', args[1])
+        headers = args[1]['headers']
+        nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
+                                        'User-Agent': 'PyRundeck v ' + rca.__version__}, headers)
+

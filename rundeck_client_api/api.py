@@ -30,11 +30,22 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = 'kutsurak'
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 from rundeck_client_api.endpoints import EndpointDefs
 
 class RundeckApiClient(EndpointDefs):
     def __init__(self, token, root_url):
+        self.root_url = root_url
+
+    def _perform_request(self, url, method='GET', params=None):
         pass
 
+    def get(self, url, params=None):
+        return self._perform_request(url, method='GET', params=params)
+
+    def post(self, url, params=None):
+        return self._perform_request(url, method='POST', params=params)
+
+    def delete(self, url, params=None):
+        return self._perform_request(url, method='DELETE', params=params)

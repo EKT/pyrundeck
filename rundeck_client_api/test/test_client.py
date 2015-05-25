@@ -72,7 +72,7 @@ class TestRundeckClientAPIFunctional:
                                            data)))
 
         # --Find out what jobs are available
-        status_code, data = self.client.list_jobs(project=config.test_project)
+        status_code, data = self.client.list_jobs(data={'project': config.test_project})
 
         # Verify that the call returned status 200
         nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
@@ -115,5 +115,5 @@ class TestRundeckClientAPIFunctional:
                         'Delete request failed. API returned:\n{}'.format(self.pretty_print_xml(data)))
 
         # Verify that the new job has been deleted
-        status_code, data = self.client.list_jobs(project=config.test_project)
+        status_code, data = self.client.list_jobs(data={'project': config.test_project})
         nt.assert_not_in(job_id, [j.get('id') for j in data.iter('job')], 'Job deletion failed.')

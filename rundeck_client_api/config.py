@@ -35,3 +35,7 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 rundeck_token_file = '../rundeck_token'  # path to the token file
 root_url = 'http://192.168.50.2:4400'
 test_project = 'API_client_development'
+api_version = 13
+url_endpoint_template_map = {
+    'jobs': ''
+}
