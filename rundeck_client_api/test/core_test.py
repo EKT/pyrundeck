@@ -29,15 +29,15 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
+from lxml import etree
 
 import nose.tools as nt
 from unittest.mock import patch
+import requests
 
-import rundeck_client_api as rca
-from rundeck_client_api import config, api
+from rundeck_client_api import config, api, __version__
 
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class TestCoreRundeckAPIClient:
     def setup(self):
@@ -45,6 +45,23 @@ class TestCoreRundeckAPIClient:
             self.token = fl.readline().strip()
             self.client = api.RundeckApiClient(self.token, config.root_url)
             self.api_version = config.api_version
+
+            class Object(object):
+                pass
+            self.resp = Object()   # Dummy response object
+            self.resp.status_code = 200
+            self.resp.text = '<test_xml attribute="foo">\n    <element other_attribute="lala">Text</element>\n    <element>Other Text</element>\n</test_xml>\n'
+
+    def test_initialization_sets_up_client_correctly(self):
+        nt.assert_equal(self.token, self.client.token)
+        nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
+                                        'User-Agent': 'PyRundeck v ' + __version__}, self.client.client_args['headers'])
+
+        new_client = api.RundeckApiClient(self.token, config.root_url,
+                                          client_args={'headers': {'User-Agent': 'dummy agent string'}})
+        nt.assert_equal(self.token, new_client.token)
+        nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
+                                        'User-Agent': 'dummy agent string'}, new_client.client_args['headers'])
 
     @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
     def test_get_method_correctly_calls_perform(self, mock_perform):
@@ -89,16 +106,45 @@ class TestCoreRundeckAPIClient:
         res3 = self.client.post('foo')
         nt.assert_equal(res3, ret)
 
-    @patch('requests.get')
-    def test_perform_request_sets_correct_headers(self, mock_get):
-        url = 'https://rundeck.example.com/api/13/foo'
+    @patch('requests.request')
+    def test_perform_request_performs_correct_call_for_get_method(self, mock_request):
+        url = 'https://rundeck.example.com/api/13/test_endpoint'
+        mock_request.return_value = self.resp
 
         self.client._perform_request(url)
-        args = mock_get.call_args
+        args = mock_request.call_args
         nt.assert_equal(2, len(args))
-        nt.assert_equal(url, args[0])
+        nt.assert_equal(('GET', url,), args[0])
         nt.assert_in('headers', args[1])
         headers = args[1]['headers']
         nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
-                                        'User-Agent': 'PyRundeck v ' + rca.__version__}, headers)
+                                        'User-Agent': 'PyRundeck v ' + __version__}, headers)
+
+    @patch('requests.request')
+    def test_perform_requests_performs_correct_call_for_post_method(self, mock_request):
+        url = 'https://rundeck.example.com/api/13/test_endpoint'
+        mock_request.return_value = self.resp
+
+        self.client._perform_request(url, method='POST', params={'xmlBatch': '123\n456'})
+
+        args = mock_request.call_args
+        nt.assert_equal(2, len(args))
+        nt.assert_equal(('POST', url,), args[0])
+        nt.assert_in('headers', args[1])
+        nt.assert_in('data', args[1])
+        headers = args[1]['headers']
+        nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
+                                        'User-Agent': 'PyRundeck v ' + __version__}, headers)
+        data = args[1]['data']
+        nt.assert_dict_contains_subset({'xmlBatch': '123\n456'}, data)
+
+    @patch('requests.request')
+    def test_perform_requests_returns_correctly_for_get_method(self, mock_get):
+
+        mock_get.return_value = self.resp
+
+        url = 'https://rundeck.example.com/api/13/test_endpoint'
+        status, data = self.client._perform_request(url)
+        nt.assert_equal(200, status)
+        nt.assert_equal(self.resp.text, etree.tostring(data, pretty_print=True).decode('utf-8'))
 

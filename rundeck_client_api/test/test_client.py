@@ -30,13 +30,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
-
 import nose.tools as nt
 from lxml import etree
+import time
 
 from rundeck_client_api import config, api
 
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class TestRundeckClientAPIFunctional:
     def setup(self):
@@ -53,50 +53,52 @@ class TestRundeckClientAPIFunctional:
         # Try to import a good job
         with open('test_data/good_job_definition.xml') as fl:
             good_def = fl.read()
-        status_code, data = self.client.import_job(data={'xmlBatch': good_def})
+        status_code, data = self.client.import_job(xmlBatch=good_def)
 
         # Verify that the call returned 200 [OK] and that it successfully created a job
-        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
-        nt.assert_dict_contains_subset({'count': '1'}, data.find(".//succeeded").attrib,
-                                       'Failed to create job. Error message:\n{}'.format(data.find('.//error').text))
+        nt.assert_equal(status_code, 200, 'API call did not return status OK:')
+        nt.assert_dict_contains_subset({'count': '1'}, data.find(".//succeeded").attrib, 'Failed to create job.')
 
         # Try to import a bad job
         with open('test_data/bad_job_definition.xml') as fl:
             bad_def = fl.read()
-        status_code, data = self.client.import_job(data={'xmlBatch': bad_def})
+        status_code, data = self.client.import_job(xmlBatch=bad_def)
 
         # Verify that the call returned 200 [OK] and that it failed to create a job
-        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
-        nt.assert_dict_contains_subset({'count': '0'}, data.find(".//succeeded").attrib,
-                                       'Did not fail to create job. API returned:\n{}'.format(self.pretty_print_xml(
-                                           data)))
+        nt.assert_equal(status_code, 200, 'API call did not return status OK')
+        nt.assert_dict_contains_subset({'count': '0'}, data.find(".//succeeded").attrib, 'Did not fail to create job.')
 
         # --Find out what jobs are available
-        status_code, data = self.client.list_jobs(data={'project': config.test_project})
+        status_code, data = self.client.list_jobs(project=config.test_project)
 
         # Verify that the call returned status 200
-        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
+        nt.assert_equal(status_code, 200, 'API call did not return status OK')
 
         # Verify that the newly created job exists in the list
         nt.assert_in('test_job_2', [j.text for j in data.iterfind('.//name')],
                      'Created job not found. API response:\n{}'.format(self.pretty_print_xml(data)))
 
         # --Run the new job
-        for job in data.iter("jobs"):
+        job_id = None
+        for job in data.iter("job"):
             if job.find('.//name').text == 'test_job_2':
                 job_id = job.get('id')
+
+        if job_id is None:
+            nt.assert_true(False, "job id not found")
 
         status_code, data = self.client.run_job(id=job_id)
 
         # Verify that the call returned 200 [OK]
-        nt.assert_equal(status_code, 200, 'API call did not return status OK:\n{}'.format(data.find(".//message").text))
+        nt.assert_equal(status_code, 200, 'API call did not return status OK')
         # Verify the results of the run
-        nt.assert_dict_contains_subset({'count': '1'}, data.attrib,
-                                       'Failed to run job. API returned:\n{}'.format(self.pretty_print_xml(data)))
+        nt.assert_dict_contains_subset({'success': 'true'}, data.attrib, 'Failed to run job.')
         execution_id = data.find(".//execution").get('id')
 
         # Verify that the execution succeeded
-        status_code, data = self.client.execution(id=execution_id)
+        time.sleep(5)  # wait for the execution to finish
+        status_code, data = self.client.execution_info(id=execution_id)
+        nt.assert_equal(status_code, 200, 'API call did not return status OK')
         nt.assert_dict_contains_subset({'status': 'succeeded'}, data.find('.//execution').attrib)
 
         # Try to run a nonexistent job
@@ -111,8 +113,7 @@ class TestRundeckClientAPIFunctional:
         # --Delete the new job
         status_code, data = self.client.delete_job(id=job_id)
 
-        nt.assert_equal(status_code, 204,
-                        'Delete request failed. API returned:\n{}'.format(self.pretty_print_xml(data)))
+        nt.assert_equal(status_code, 204, 'Delete request failed.')
 
         # Verify that the new job has been deleted
         status_code, data = self.client.list_jobs(data={'project': config.test_project})

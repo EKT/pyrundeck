@@ -29,17 +29,54 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from lxml import etree
+import requests
+
+from rundeck_client_api.endpoints import EndpointMixins
+from rundeck_client_api import __version__
+from rundeck_client_api.helpers import _transparent_params
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-from rundeck_client_api.endpoints import EndpointDefs
 
-class RundeckApiClient(EndpointDefs):
-    def __init__(self, token, root_url):
+class RundeckApiClient(EndpointMixins):
+    def __init__(self, token, root_url, client_args=None):
         self.root_url = root_url
+        self.token = token
+
+        default_headers = {'User-Agent': 'PyRundeck v ' + __version__}
+
+        self.client_args = client_args or {}
+        if 'headers' not in self.client_args:
+            self.client_args['headers'] = default_headers
+        elif 'User-Agent' not in self.client_args['headers']:
+            self.client_args['headers'].update(default_headers)
+
+        auth_token_header = {'X-Rundeck-Auth-Token': self.token}
+        self.client_args['headers'].update(auth_token_header)
 
     def _perform_request(self, url, method='GET', params=None):
-        pass
+        params = params or {}
+
+        params, files = _transparent_params(params)
+        requests_args = {}
+        for k, v in self.client_args.items():
+            requests_args[k] = v
+
+        if method == 'POST':
+            requests_args.update({
+                'data': params,
+                'files': files,
+            })
+        else:
+            requests_args['params'] = params
+
+        response = requests.request(method, url, **requests_args)
+
+        if response.text != '':
+            return response.status_code, etree.fromstring(response.text)
+        else:
+            return response.status_code, None
 
     def get(self, url, params=None):
         return self._perform_request(url, method='GET', params=params)

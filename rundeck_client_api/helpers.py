@@ -29,6 +29,30 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-__version__ = '0.1'
+# The following code is copied shamelessly from twython (https://github.com/ryanmcgrath/twython)
+
+basestring = (str, bytes)
+numeric_types = (int, float)
+
+def _transparent_params(_params):
+    params = {}
+    files = {}
+    for k, v in _params.items():
+        if hasattr(v, 'read') and callable(v.read):
+            files[k] = v  # pragma: no cover
+        elif isinstance(v, bool):
+            if v:
+                params[k] = 'true'
+            else:
+                params[k] = 'false'
+        elif isinstance(v, basestring) or isinstance(v, numeric_types):
+            params[k] = v
+        elif isinstance(v, list):
+            try:
+                params[k] = ','.join(v)
+            except TypeError:
+                params[k] = ','.join(map(str, v))
+        else:
+            continue  # pragma: no cover
+    return params, files

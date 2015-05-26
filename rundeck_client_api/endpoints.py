@@ -29,9 +29,40 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from rundeck_client_api.exceptions import RundeckException
 
 __author__ = 'kutsurak'
 
-class EndpointDefs:
+class EndpointMixins:
     def import_job(self, **params):
-        pass
+        return self.post('{}/api/1/jobs/import'.format(self.root_url), params)
+
+    def list_jobs(self, **params):
+        return self.get('{}/api/1/jobs'.format(self.root_url), params)
+
+    def run_job(self, **params):
+        job_id = None
+        try:
+            job_id = params.pop('id')
+        except KeyError:
+            raise RundeckException(message="job id is required for job execution")
+
+        return self.get('{}/api/1/job/{}/run'.format(self.root_url, job_id))
+
+    def execution_info(self, **params):
+        execution_id = None
+        try:
+            execution_id = params.pop('id')
+        except KeyError:
+            raise RundeckException(message="execution id is required for execution info")
+
+        return self.get('{}/api/1/execution/{}'.format(self.root_url, execution_id))
+
+    def delete_job(self, **params):
+        job_id = None
+        try:
+            job_id = params.pop('id')
+        except KeyError:
+            raise RundeckException(message="job id is required for job deletion")
+
+        return self.delete('{}/api/1/job/{}'.format(self.root_url, job_id))
