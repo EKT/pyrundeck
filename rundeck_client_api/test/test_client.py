@@ -39,10 +39,12 @@ from rundeck_client_api import config, api
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class TestRundeckClientAPIFunctional:
-    def setup(self):
+    def __init__(self):
         with open(config.rundeck_token_file) as fl:
-            token = fl.readline().strip()
-            self.client = api.RundeckApiClient(token, config.root_url)
+            self.token = fl.readline().strip()
+
+    def setup(self):
+        self.client = api.RundeckApiClient(self.token, config.root_url)
 
     def pretty_print_xml(self, data):
         return etree.tostring(data, pretty_print=True).decode('utf-8')
@@ -51,7 +53,7 @@ class TestRundeckClientAPIFunctional:
         # --Import a new job
 
         # Try to import a good job
-        with open('test_data/good_job_definition.xml') as fl:
+        with open(config.rundeck_test_data_dir + '/good_job_definition.xml') as fl:
             good_def = fl.read()
         status_code, data = self.client.import_job(xmlBatch=good_def)
 
@@ -60,7 +62,7 @@ class TestRundeckClientAPIFunctional:
         nt.assert_dict_contains_subset({'count': '1'}, data.find(".//succeeded").attrib, 'Failed to create job.')
 
         # Try to import a bad job
-        with open('test_data/bad_job_definition.xml') as fl:
+        with open(config.rundeck_test_data_dir + '/bad_job_definition.xml') as fl:
             bad_def = fl.read()
         status_code, data = self.client.import_job(xmlBatch=bad_def)
 

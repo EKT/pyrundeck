@@ -44,7 +44,6 @@ class TestCoreRundeckAPIClient:
         with open(config.rundeck_token_file) as fl:
             self.token = fl.readline().strip()
             self.client = api.RundeckApiClient(self.token, config.root_url)
-            self.api_version = config.api_version
 
             class Object(object):
                 pass

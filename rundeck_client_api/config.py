@@ -32,10 +32,14 @@
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-rundeck_token_file = '../rundeck_token'  # path to the token file
+"""
+This configuration file is intended for the functional test. A live rundeck server is required and this file lists
+some configuration parameters that are needed for the test to run. If want to just run the unit tests execute:
+
+$ nosetests rundeck_client_api/test/core_tests.py
+"""
+
+rundeck_token_file = '/home/kutsurak/work/src/python/rundeck_client_api/rundeck_token'  # path to the token file
+rundeck_test_data_dir = '/home/kutsurak/work/src/python/rundeck_client_api/test/test_data'
 root_url = 'http://192.168.50.2:4440'
 test_project = 'API_client_development'
-api_version = 13
-url_endpoint_template_map = {
-    'jobs': ''
-}
