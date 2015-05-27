@@ -29,13 +29,13 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from lxml import etree
-
-import nose.tools as nt
 from unittest.mock import patch
-import requests
 
-from rundeck_client_api import config, api, __version__
+from lxml import etree
+import nose.tools as nt
+
+from pyrundeck import api, __version__
+from pyrundeck.test import config
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
@@ -62,7 +62,7 @@ class TestCoreRundeckAPIClient:
         nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
                                         'User-Agent': 'dummy agent string'}, new_client.client_args['headers'])
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.api.RundeckApiClient._perform_request')
     def test_get_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
         params = {
@@ -72,7 +72,7 @@ class TestCoreRundeckAPIClient:
         self.client.get(url, params=params)
         mock_perform.assert_called_once_with(url, params=params, method='GET')
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.api.RundeckApiClient._perform_request')
     def test_post_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
         params = {
@@ -82,7 +82,7 @@ class TestCoreRundeckAPIClient:
         self.client.post(url, params=params)
         mock_perform.assert_called_once_with(url, params=params, method='POST')
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.api.RundeckApiClient._perform_request')
     def test_delete_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
         params = {
@@ -92,7 +92,7 @@ class TestCoreRundeckAPIClient:
         self.client.delete(url, params=params)
         mock_perform.assert_called_once_with(url, params=params, method='DELETE')
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.api.RundeckApiClient._perform_request')
     def test_all_methods_return_correctly_result_of_perform_request(self, mock_perform):
         ret = 'mock_perform_value'
         mock_perform.return_value = ret

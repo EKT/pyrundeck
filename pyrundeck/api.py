@@ -32,9 +32,9 @@
 from lxml import etree
 import requests
 
-from rundeck_client_api.endpoints import EndpointMixins
-from rundeck_client_api import __version__
-from rundeck_client_api.helpers import _transparent_params
+from pyrundeck.endpoints import EndpointMixins
+from pyrundeck import __version__
+from pyrundeck.helpers import _transparent_params
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
