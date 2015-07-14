@@ -41,7 +41,8 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class RundeckApiClient(EndpointMixins):
-    def __init__(self, token, root_url, client_args=None):
+    def __init__(self, token, root_url, pem_file_path=None,
+                 client_args=None, log_level=logging.DEBUG):  #TODO change default log level
         self.root_url = root_url
         self.token = token
 
@@ -56,8 +57,10 @@ class RundeckApiClient(EndpointMixins):
         auth_token_header = {'X-Rundeck-Auth-Token': self.token}
         self.client_args['headers'].update(auth_token_header)
 
-        logging.basicConfig(level=logging.DEBUG, filename='pyrundeck.log')
+        logging.basicConfig(level=log_level, filename='pyrundeck.log')
         self.logger = logging.getLogger(__name__)
+
+        self.pem_file_path = pem_file_path
 
     def _perform_request(self, url, method='GET', params=None):
         self.logger.debug('params = {}'.format(params))
@@ -76,6 +79,12 @@ class RundeckApiClient(EndpointMixins):
             })
         else:
             requests_args['params'] = params
+
+        if self.root_url.startswith('https'):
+            if self.pem_file_path is not None:
+                requests_args['verify'] = self.pem_file_path
+            else:
+                requests_args['verify'] = True
 
         self.logger.debug('request args = {}'.format(requests_args))
 
