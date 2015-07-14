@@ -29,7 +29,13 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from unittest.mock import patch
+
+# import dance of mock.patch for versions earlier than python 3.3
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
 
 from lxml import etree
 import nose.tools as nt
