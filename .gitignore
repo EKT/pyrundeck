@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 *.png
 *.log
+doc/_build
