@@ -56,6 +56,11 @@ class RundeckApiClient(EndpointMixins):
 
         auth_token_header = {'X-Rundeck-Auth-Token': self.token}
         self.client_args['headers'].update(auth_token_header)
+        if self.root_url.startswith('https'):
+            if pem_file_path is not None:
+                self.client_args['verify'] = pem_file_path
+            else:
+                self.client_args['verify'] = True
 
         logging.basicConfig(level=log_level, filename='pyrundeck.log')
         self.logger = logging.getLogger(__name__)
@@ -79,12 +84,6 @@ class RundeckApiClient(EndpointMixins):
             })
         else:
             requests_args['params'] = params
-
-        if self.root_url.startswith('https'):
-            if self.pem_file_path is not None:
-                requests_args['verify'] = self.pem_file_path
-            else:
-                requests_args['verify'] = True
 
         self.logger.debug('request args = {}'.format(requests_args))
 
