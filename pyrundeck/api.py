@@ -29,6 +29,7 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import logging
 from lxml import etree
 import requests
 
@@ -55,10 +56,15 @@ class RundeckApiClient(EndpointMixins):
         auth_token_header = {'X-Rundeck-Auth-Token': self.token}
         self.client_args['headers'].update(auth_token_header)
 
+        logging.basicConfig(level=logging.DEBUG, filename='pyrundeck.log')
+        self.logger = logging.getLogger(__name__)
+
     def _perform_request(self, url, method='GET', params=None):
+        self.logger.debug('params = {}'.format(params))
         params = params or {}
 
         params, files = _transparent_params(params)
+        self.logger.debug('params = {}'.format(params))
         requests_args = {}
         for k, v in self.client_args.items():
             requests_args[k] = v
@@ -71,7 +77,12 @@ class RundeckApiClient(EndpointMixins):
         else:
             requests_args['params'] = params
 
+        self.logger.debug('request args = {}'.format(requests_args))
+
         response = requests.request(method, url, **requests_args)
+
+        self.logger.debug('status = {}'.format(response.status_code))
+        self.logger.debug('text = {}'.format(response.text))
 
         if response.text != '':
             return response.status_code, etree.fromstring(response.text)
