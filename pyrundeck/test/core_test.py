@@ -153,3 +153,21 @@ class TestCoreRundeckAPIClient:
         nt.assert_equal(200, status)
         nt.assert_equal(self.resp.text, etree.tostring(data, pretty_print=True).decode('utf-8'))
 
+    @patch('requests.request')
+    def test_perform_requests_calls_request_correctly_with_https_initialization(self, mock_request):
+        mock_request.return_value = self.resp
+
+        https_url = 'https://rundeck.example.com'
+
+        client = RundeckApiClient(self.token, https_url)
+        client._perform_request(https_url)
+
+        args, kwargs = mock_request.call_args
+        nt.assert_dict_contains_subset({'verify': True}, kwargs)
+
+        path_to_pem = '/path/to/pem/file'
+        other_client = RundeckApiClient(self.token, https_url, pem_file_path=path_to_pem)
+        other_client._perform_request(https_url)
+        args, kwargs = mock_request.call_args
+
+        nt.assert_dict_contains_subset({'verify': path_to_pem}, kwargs)
