@@ -13,6 +13,7 @@ Contents:
 
    intro
    usage
+   modules
 
 
 Indices and tables
