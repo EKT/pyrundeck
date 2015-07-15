@@ -13,7 +13,7 @@ Import the ``RundeckApiClient`` class::
 and create an instance::
 
     >>> rundeck_api_token = 'TtC6519V5tHbfz9mJfQiih6kG4CmPoCA'
-    >>> rundeck_api_base_url = 'http://rundeck.example.com'  # The final / should not be given
+    >>> rundeck_api_base_url = 'http://rundeck.example.com'
     >>> rundeck = RundeckApiClient(rundeck_api_token, rundeck_api_base_url)
 
 This object is all you need to interact with the Rundeck installation.
