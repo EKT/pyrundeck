@@ -55,9 +55,12 @@ class RundeckApiClient(EndpointMixins):
                           notably containing a key ``'headers'``. *Default value:* ``None``.
     :param log_level:     (optional) The level at which logging happens. *Default value:* ``logging.INFO``.
     """
-    def __init__(self, token, root_url, pem_file_path=None,   #TODO strip the final / from the root url
+    def __init__(self, token, root_url, pem_file_path=None,
                  client_args=None, log_level=logging.INFO):
-        self.root_url = root_url
+        if root_url.endswith('/'):
+            self.root_url = root_url[:-1]
+        else:
+            self.root_url = root_url
         self.token = token
 
         default_headers = {'User-Agent': 'PyRundeck v ' + __version__}
