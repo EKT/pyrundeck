@@ -31,9 +31,19 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from pyrundeck.exceptions import RundeckException
 
-__author__ = 'kutsurak'
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class EndpointMixins:
+    """
+    This class contains all the API endpoints in order not to clutter the :class:`pyrundeck.api.RundeckApiClient`.
+    Note that :code:`RundeckApiClient` is a subclass of *this* class, so it inherits all the methods defined here.
+
+    The idea is to define a method for every endpoint in the Rundeck API, taking the appropriate parameters. For more
+    details consult the Rundeck API `documentation <http://rundeck.org/docs/api/index.html>`_.
+
+    .. warning:: This class should not be instantiated and used directly. Trying to do so will definitely result in
+                 runtime errors.
+    """
     def import_job(self, **params):
         return self.post('{}/api/1/jobs/import'.format(self.root_url), params)
 
