@@ -79,6 +79,12 @@ class TestCoreRundeckAPIClient:
 
         nt.assert_equal(self.token, newest_client.token)
 
+    def test_initialization_strips_final_slash_from_url(self):
+        url = 'http://rundeck.example.com/'
+        client = RundeckApiClient(self.token, url)
+
+        nt.assert_equal(client.root_url, url[:-1])
+
     @patch('pyrundeck.RundeckApiClient._perform_request')
     def test_get_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
@@ -119,7 +125,7 @@ class TestCoreRundeckAPIClient:
         res2 = self.client.post('foo')
         nt.assert_equal(res2, ret)
 
-        res3 = self.client.post('foo')
+        res3 = self.client.delete('foo')
         nt.assert_equal(res3, ret)
 
     @patch('requests.request')
@@ -155,7 +161,7 @@ class TestCoreRundeckAPIClient:
         nt.assert_dict_contains_subset({'xmlBatch': '123\n456'}, data)
 
     @patch('requests.request')
-    def test_perform_requests_returns_correctly_for_get_method(self, mock_get):
+    def test_perform_request_returns_correctly_for_get_method(self, mock_get):
         mock_get.return_value = self.resp
 
         url = 'https://rundeck.example.com/api/13/test_endpoint'
@@ -164,7 +170,7 @@ class TestCoreRundeckAPIClient:
         nt.assert_equal(self.resp.text, etree.tostring(data, pretty_print=True).decode('utf-8'))
 
     @patch('requests.request')
-    def test_perform_requests_calls_request_correctly_with_https_initialization(self, mock_request):
+    def test_perform_request_calls_request_correctly_with_https_initialization(self, mock_request):
         mock_request.return_value = self.resp
 
         https_url = 'https://rundeck.example.com'
@@ -181,3 +187,18 @@ class TestCoreRundeckAPIClient:
         args, kwargs = mock_request.call_args
 
         nt.assert_dict_contains_subset({'verify': path_to_pem}, kwargs)
+
+    @patch('requests.request')
+    def test_perform_request_returns_correctly_when_it_gets_empty_response(self, mock_request):
+        class Object:
+            pass
+
+        resp = Object()
+        resp.status_code = 200
+        resp.text = ''
+
+        mock_request.return_value = resp
+
+        response = self.client._perform_request(self.client.root_url)
+
+        nt.assert_equal(response, (200, None))
