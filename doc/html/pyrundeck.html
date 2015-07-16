@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyrundeck package &mdash; PyRundeck 0.1.0 alpha documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0 alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyRundeck 0.1.0 alpha documentation" href="index.html" />
+    <link rel="up" title="Developer Interface" href="modules.html" />
+    <link rel="prev" title="Developer Interface" href="modules.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pyrundeck">
+<span id="pyrundeck-package"></span><h1>pyrundeck package<a class="headerlink" href="#module-pyrundeck" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pyrundeck.api">
+<span id="pyrundeck-api-module"></span><h2>pyrundeck.api module<a class="headerlink" href="#module-pyrundeck.api" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyrundeck.api.RundeckApiClient">
+<em class="property">class </em><code class="descclassname">pyrundeck.api.</code><code class="descname">RundeckApiClient</code><span class="sig-paren">(</span><em>token</em>, <em>root_url</em>, <em>pem_file_path=None</em>, <em>client_args=None</em>, <em>log_level=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/api.html#RundeckApiClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.api.RundeckApiClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyrundeck.endpoints.EndpointMixins" title="pyrundeck.endpoints.EndpointMixins"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.endpoints.EndpointMixins</span></code></a></p>
+<p>The Rundeck API wrapper. This class is used to interact with the Rundeck server. In order to instantiate it you
+need to provide at least an access token and a root url for the Rundeck server.</p>
+<p>See <a class="reference internal" href="usage.html"><em>Usage</em></a> for examples.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>token</strong> &#8211; The rundeck access token.</li>
+<li><strong>root_url</strong> &#8211; The rundeck server URL.</li>
+<li><strong>pem_file_path</strong> &#8211; (optional) A file path to a CA_BUNDLE for SSL certificate validation. <em>Default value:</em>
+<code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>client_args</strong> &#8211; (optional) Default values to be passed to every request. This should be a dictionary,
+notably containing a key <code class="docutils literal"><span class="pre">'headers'</span></code>. <em>Default value:</em> <code class="docutils literal"><span class="pre">None</span></code>.</li>
+<li><strong>log_level</strong> &#8211; (optional) The level at which logging happens. <em>Default value:</em> <code class="docutils literal"><span class="pre">logging.INFO</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pyrundeck.api.RundeckApiClient.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>url</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/api.html#RundeckApiClient.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.api.RundeckApiClient.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a DELETE request to the specified url passing the specified params.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method should not be used directly. Use instead the methods defined in
+<a class="reference internal" href="#pyrundeck.endpoints.EndpointMixins" title="pyrundeck.endpoints.EndpointMixins"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.endpoints.EndpointMixins</span></code></a></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> &#8211; The URL of the request.</li>
+<li><strong>params</strong> &#8211; (optional) A dictionary containing the parameters of the request.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pair, where the first element is the status code of the request and the second is <code class="docutils literal"><span class="pre">None</span></code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.api.RundeckApiClient.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>url</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/api.html#RundeckApiClient.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.api.RundeckApiClient.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a GET request to the specified url passing the specified params.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method should not be used directly. Use instead the methods defined in
+<a class="reference internal" href="#pyrundeck.endpoints.EndpointMixins" title="pyrundeck.endpoints.EndpointMixins"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.endpoints.EndpointMixins</span></code></a></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> &#8211; The URL of the request.</li>
+<li><strong>params</strong> &#8211; (optional) A dictionary containing the parameters of the request.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pair, where the first element is the status code of the request and the second an <code class="docutils literal"><span class="pre">lxml.etree</span></code>
+object created using the server response.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.api.RundeckApiClient.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>url</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/api.html#RundeckApiClient.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.api.RundeckApiClient.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a POST request to the specified url passing the specified params.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This method should not be used directly. Use instead the methods defined in
+<a class="reference internal" href="#pyrundeck.endpoints.EndpointMixins" title="pyrundeck.endpoints.EndpointMixins"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.endpoints.EndpointMixins</span></code></a></p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> &#8211; The URL of the request.</li>
+<li><strong>params</strong> &#8211; (optional) A dictionary containing the parameters of the request.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A pair, where the first element is the status code of the request and the second an <code class="docutils literal"><span class="pre">lxml.etree</span></code>
+object created using the server response.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyrundeck.endpoints">
+<span id="pyrundeck-endpoints-module"></span><h2>pyrundeck.endpoints module<a class="headerlink" href="#module-pyrundeck.endpoints" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyrundeck.endpoints.EndpointMixins">
+<em class="property">class </em><code class="descclassname">pyrundeck.endpoints.</code><code class="descname">EndpointMixins</code><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class contains all the API endpoints in order not to clutter the <a class="reference internal" href="#pyrundeck.api.RundeckApiClient" title="pyrundeck.api.RundeckApiClient"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.api.RundeckApiClient</span></code></a>.
+Note that <code class="code docutils literal"><span class="pre">RundeckApiClient</span></code> is a subclass of <em>this</em> class, so it inherits all the methods defined here.</p>
+<p>The idea is to define a method for every endpoint in the Rundeck API, taking the appropriate parameters. For more
+details consult the Rundeck API <a class="reference external" href="http://rundeck.org/docs/api/index.html">documentation</a>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This class should not be instantiated and used directly. Trying to do so will definitely result in
+runtime errors.</p>
+</div>
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.delete_job">
+<code class="descname">delete_job</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.delete_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.delete_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.execution_info">
+<code class="descname">execution_info</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.execution_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.execution_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.import_job">
+<code class="descname">import_job</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.import_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.import_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.list_jobs">
+<code class="descname">list_jobs</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.list_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.list_jobs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.run_job">
+<code class="descname">run_job</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.run_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.run_job" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyrundeck.exceptions">
+<span id="pyrundeck-exceptions-module"></span><h2>pyrundeck.exceptions module<a class="headerlink" href="#module-pyrundeck.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="pyrundeck.exceptions.RundeckException">
+<em class="property">exception </em><code class="descclassname">pyrundeck.exceptions.</code><code class="descname">RundeckException</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/exceptions.html#RundeckException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.exceptions.RundeckException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyrundeck package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyrundeck.api">pyrundeck.api module</a></li>
+<li><a class="reference internal" href="#module-pyrundeck.endpoints">pyrundeck.endpoints module</a></li>
+<li><a class="reference internal" href="#module-pyrundeck.exceptions">pyrundeck.exceptions module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Developer Interface</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">Developer Interface</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pyrundeck.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, National Documentation Center (EKT).
+      
+      |
+      <a href="_sources/pyrundeck.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -29,40 +29,17 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-from rundeck_client_api.exceptions import RundeckException
 
-__author__ = 'kutsurak'
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-class EndpointMixins:
-    def import_job(self, **params):
-        return self.post('{}/api/1/jobs/import'.format(self.root_url), params)
+"""
+This configuration file is intended for the functional test. A live rundeck server is required and this file lists
+some configuration parameters that are needed for the test to run. If want to just run the unit tests execute:
 
-    def list_jobs(self, **params):
-        return self.get('{}/api/1/jobs'.format(self.root_url), params)
+$ nosetests pyrundeck/test/core_tests.py
+"""
 
-    def run_job(self, **params):
-        job_id = None
-        try:
-            job_id = params.pop('id')
-        except KeyError:
-            raise RundeckException(message="job id is required for job execution")
-
-        return self.get('{}/api/1/job/{}/run'.format(self.root_url, job_id))
-
-    def execution_info(self, **params):
-        execution_id = None
-        try:
-            execution_id = params.pop('id')
-        except KeyError:
-            raise RundeckException(message="execution id is required for execution info")
-
-        return self.get('{}/api/1/execution/{}'.format(self.root_url, execution_id))
-
-    def delete_job(self, **params):
-        job_id = None
-        try:
-            job_id = params.pop('id')
-        except KeyError:
-            raise RundeckException(message="job id is required for job deletion")
-
-        return self.delete('{}/api/1/job/{}'.format(self.root_url, job_id))
+rundeck_token_file = '/home/kutsurak/work/src/python/pyrundeck/rundeck_token'  # path to the token file
+rundeck_test_data_dir = '/home/kutsurak/work/src/python/pyrundeck/test/test_data'
+root_url = 'http://192.168.50.2:4440'
+test_project = 'API_client_development'

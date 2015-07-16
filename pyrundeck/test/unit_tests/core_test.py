@@ -29,40 +29,63 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# import dance of mock.patch for versions earlier than python 3.3
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
 from lxml import etree
-
 import nose.tools as nt
-from unittest.mock import patch
-import requests
 
-from rundeck_client_api import config, api, __version__
+from pyrundeck import RundeckApiClient, __version__
+from pyrundeck.test import config
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
+
 
 class TestCoreRundeckAPIClient:
     def setup(self):
         with open(config.rundeck_token_file) as fl:
             self.token = fl.readline().strip()
-            self.client = api.RundeckApiClient(self.token, config.root_url)
+            self.client = RundeckApiClient(self.token, config.root_url)
 
             class Object(object):
                 pass
-            self.resp = Object()   # Dummy response object
+
+            self.resp = Object()  # Dummy response object
             self.resp.status_code = 200
             self.resp.text = '<test_xml attribute="foo">\n    <element other_attribute="lala">Text</element>\n    <element>Other Text</element>\n</test_xml>\n'
 
-    def test_initialization_sets_up_client_correctly(self):
+    def test_initialization_sets_up_default_client_correctly(self):
         nt.assert_equal(self.token, self.client.token)
         nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
                                         'User-Agent': 'PyRundeck v ' + __version__}, self.client.client_args['headers'])
 
-        new_client = api.RundeckApiClient(self.token, config.root_url,
+        new_client = RundeckApiClient(self.token, config.root_url,
                                           client_args={'headers': {'User-Agent': 'dummy agent string'}})
         nt.assert_equal(self.token, new_client.token)
         nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
                                         'User-Agent': 'dummy agent string'}, new_client.client_args['headers'])
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+        newest_client = RundeckApiClient(self.token, config.root_url, client_args={'headers': {
+            'bogus_header': 'bogus_value'
+        }})
+
+        nt.assert_dict_contains_subset({'X-Rundeck-Auth-Token': self.token,
+                                        'User-Agent': 'PyRundeck v ' + __version__},
+                                       newest_client.client_args['headers'])
+
+        nt.assert_equal(self.token, newest_client.token)
+
+    def test_initialization_strips_final_slash_from_url(self):
+        url = 'http://rundeck.example.com/'
+        client = RundeckApiClient(self.token, url)
+
+        nt.assert_equal(client.root_url, url[:-1])
+
+    @patch('pyrundeck.RundeckApiClient._perform_request')
     def test_get_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
         params = {
@@ -72,7 +95,7 @@ class TestCoreRundeckAPIClient:
         self.client.get(url, params=params)
         mock_perform.assert_called_once_with(url, params=params, method='GET')
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.RundeckApiClient._perform_request')
     def test_post_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
         params = {
@@ -82,7 +105,7 @@ class TestCoreRundeckAPIClient:
         self.client.post(url, params=params)
         mock_perform.assert_called_once_with(url, params=params, method='POST')
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.RundeckApiClient._perform_request')
     def test_delete_method_correctly_calls_perform(self, mock_perform):
         url = 'https://rundeck.example.com/api/13/foo'
         params = {
@@ -92,7 +115,7 @@ class TestCoreRundeckAPIClient:
         self.client.delete(url, params=params)
         mock_perform.assert_called_once_with(url, params=params, method='DELETE')
 
-    @patch('rundeck_client_api.api.RundeckApiClient._perform_request')
+    @patch('pyrundeck.RundeckApiClient._perform_request')
     def test_all_methods_return_correctly_result_of_perform_request(self, mock_perform):
         ret = 'mock_perform_value'
         mock_perform.return_value = ret
@@ -102,7 +125,7 @@ class TestCoreRundeckAPIClient:
         res2 = self.client.post('foo')
         nt.assert_equal(res2, ret)
 
-        res3 = self.client.post('foo')
+        res3 = self.client.delete('foo')
         nt.assert_equal(res3, ret)
 
     @patch('requests.request')
@@ -138,8 +161,7 @@ class TestCoreRundeckAPIClient:
         nt.assert_dict_contains_subset({'xmlBatch': '123\n456'}, data)
 
     @patch('requests.request')
-    def test_perform_requests_returns_correctly_for_get_method(self, mock_get):
-
+    def test_perform_request_returns_correctly_for_get_method(self, mock_get):
         mock_get.return_value = self.resp
 
         url = 'https://rundeck.example.com/api/13/test_endpoint'
@@ -147,3 +169,36 @@ class TestCoreRundeckAPIClient:
         nt.assert_equal(200, status)
         nt.assert_equal(self.resp.text, etree.tostring(data, pretty_print=True).decode('utf-8'))
 
+    @patch('requests.request')
+    def test_perform_request_calls_request_correctly_with_https_initialization(self, mock_request):
+        mock_request.return_value = self.resp
+
+        https_url = 'https://rundeck.example.com'
+
+        client = RundeckApiClient(self.token, https_url)
+        client._perform_request(https_url)
+
+        args, kwargs = mock_request.call_args
+        nt.assert_dict_contains_subset({'verify': True}, kwargs)
+
+        path_to_pem = '/path/to/pem/file'
+        other_client = RundeckApiClient(self.token, https_url, pem_file_path=path_to_pem)
+        other_client._perform_request(https_url)
+        args, kwargs = mock_request.call_args
+
+        nt.assert_dict_contains_subset({'verify': path_to_pem}, kwargs)
+
+    @patch('requests.request')
+    def test_perform_request_returns_correctly_when_it_gets_empty_response(self, mock_request):
+        class Object:
+            pass
+
+        resp = Object()
+        resp.status_code = 200
+        resp.text = ''
+
+        mock_request.return_value = resp
+
+        response = self.client._perform_request(self.client.root_url)
+
+        nt.assert_equal(response, (200, None))

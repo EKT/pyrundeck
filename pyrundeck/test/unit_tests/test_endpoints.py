@@ -30,16 +30,38 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import nose.tools as nt
+from nose.tools import raises
+from lxml import etree
+
+from pyrundeck import RundeckApiClient, RundeckException
+from pyrundeck.test import config
+
+# import dance of mock.patch for versions earlier than python 3.3
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-"""
-This configuration file is intended for the functional test. A live rundeck server is required and this file lists
-some configuration parameters that are needed for the test to run. If want to just run the unit tests execute:
+class TestEndpoints:
+    def setup(self):
+        self.token = 'token'
+        self.root_url = 'http://rundeck.example.com'
+        self.client = RundeckApiClient(self.token, self.root_url)
 
-$ nosetests rundeck_client_api/test/core_tests.py
-"""
+        self.response = (200, etree.fromstring('<test_xml attribute="foo">\n    <element other_attribute="lala">Text</element>\n    <element>Other Text</element>\n</test_xml>\n'))
 
-rundeck_token_file = '/home/kutsurak/work/src/python/rundeck_client_api/rundeck_token'  # path to the token file
-rundeck_test_data_dir = '/home/kutsurak/work/src/python/rundeck_client_api/test/test_data'
-root_url = 'http://192.168.50.2:4440'
-test_project = 'API_client_development'
+
+    @raises(RundeckException)
+    def test_run_job_raises_exception_if_no_id(self):
+        self.client.run_job()
+
+    @raises(RundeckException)
+    def test_execution_info_raises_exception_if_no_execution_id(self):
+        self.client.execution_info()
+
+    @raises(RundeckException)
+    def test_delete_job_raises_exception_if_no_job_id(self):
+        self.client.delete_job()

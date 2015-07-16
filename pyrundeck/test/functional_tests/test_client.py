@@ -30,11 +30,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import nose.tools as nt
-from lxml import etree
 import time
 
-from rundeck_client_api import config, api
+import nose.tools as nt
+from lxml import etree
+
+from pyrundeck import api
+from pyrundeck.test import config
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 

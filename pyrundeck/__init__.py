@@ -29,6 +29,9 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
-__version__ = '0.1-alpha'
+__author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
+__version__ = '0.2'
+
+from .api import RundeckApiClient
+from .exceptions import RundeckException
