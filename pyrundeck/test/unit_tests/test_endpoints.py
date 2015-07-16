@@ -32,17 +32,27 @@
 
 import nose.tools as nt
 from nose.tools import raises
+from lxml import etree
 
 from pyrundeck import RundeckApiClient, RundeckException
 from pyrundeck.test import config
+
+# import dance of mock.patch for versions earlier than python 3.3
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class TestEndpoints:
     def setup(self):
-        with open(config.rundeck_token_file) as fl:
-            self.token = fl.readline().strip()
-            self.client = RundeckApiClient(self.token, config.root_url)
+        self.token = 'token'
+        self.root_url = 'http://rundeck.example.com'
+        self.client = RundeckApiClient(self.token, self.root_url)
+
+        self.response = (200, etree.fromstring('<test_xml attribute="foo">\n    <element other_attribute="lala">Text</element>\n    <element>Other Text</element>\n</test_xml>\n'))
+
 
     @raises(RundeckException)
     def test_run_job_raises_exception_if_no_id(self):
