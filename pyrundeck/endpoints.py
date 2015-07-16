@@ -56,7 +56,7 @@ class EndpointMixins:
 
             return self.get('{}/api/1/job/{}/run'.format(self.root_url, job_id), params)
         except KeyError:
-            raise RundeckException(message="job id is required for job execution")
+            raise RundeckException("job id is required for job execution")
 
     def execution_info(self, **params):
         try:
@@ -64,7 +64,7 @@ class EndpointMixins:
 
             return self.get('{}/api/1/execution/{}'.format(self.root_url, execution_id), params)
         except KeyError:
-            raise RundeckException(message="execution id is required for execution info")
+            raise RundeckException("execution id is required for execution info")
 
     def delete_job(self, **params):
         try:
@@ -72,4 +72,4 @@ class EndpointMixins:
 
             return self.delete('{}/api/1/job/{}'.format(self.root_url, job_id), params)
         except KeyError:
-            raise RundeckException(message="job id is required for job deletion")
+            raise RundeckException("job id is required for job deletion")
