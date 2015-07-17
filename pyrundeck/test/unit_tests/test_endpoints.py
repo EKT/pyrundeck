@@ -30,12 +30,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import nose.tools as nt
 from nose.tools import raises
 from lxml import etree
 
 from pyrundeck import RundeckApiClient, RundeckException
-from pyrundeck.test import config
 
 # import dance of mock.patch for versions earlier than python 3.3
 try:
@@ -45,6 +43,7 @@ except ImportError:
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
+
 class TestEndpoints:
     def setup(self):
         self.token = 'token'
@@ -52,7 +51,6 @@ class TestEndpoints:
         self.client = RundeckApiClient(self.token, self.root_url)
 
         self.response = (200, etree.fromstring('<test_xml attribute="foo">\n    <element other_attribute="lala">Text</element>\n    <element>Other Text</element>\n</test_xml>\n'))
-
 
     @raises(RundeckException)
     def test_run_job_raises_exception_if_no_id(self):

@@ -1,5 +1,5 @@
-Developer Interface
-===================
+pyrundeck
+=========
 
 .. toctree::
    :maxdepth: 4

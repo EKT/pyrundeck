@@ -33,15 +33,20 @@ from pyrundeck.exceptions import RundeckException
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
+
 class EndpointMixins:
-    """
-    This class contains all the API endpoints in order not to clutter the :class:`pyrundeck.api.RundeckApiClient`.
-    Note that :code:`RundeckApiClient` is a subclass of *this* class, so it inherits all the methods defined here.
+    """This class contains all the API endpoints in order not to clutter
+    the :class:`pyrundeck.api.RundeckApiClient`.  Note that
+    :code:`RundeckApiClient` is a subclass of *this* class, so it
+    inherits all the methods defined here.
 
-    The idea is to define a method for every endpoint in the Rundeck API, taking the appropriate parameters. For more
-    details consult the Rundeck API `documentation <http://rundeck.org/docs/api/index.html>`_.
+    The idea is to define a method for every endpoint in the Rundeck
+    API, taking the appropriate parameters. For more details consult
+    the Rundeck API `documentation
+    <http://rundeck.org/docs/api/index.html>`_.
 
-    .. warning:: This class should not be instantiated and used directly. Trying to do so will definitely result in
+    .. warning:: This class should not be instantiated and used
+                 directly. Trying to do so will definitely result in
                  runtime errors.
     """
     def import_job(self, **params):
@@ -54,7 +59,8 @@ class EndpointMixins:
         try:
             job_id = params.pop('id')
 
-            return self.get('{}/api/1/job/{}/run'.format(self.root_url, job_id), params)
+            return self.get('{}/api/1/job/{}/run'.format(self.root_url,
+                                                         job_id), params)
         except KeyError:
             raise RundeckException("job id is required for job execution")
 
@@ -62,7 +68,9 @@ class EndpointMixins:
         try:
             execution_id = params.pop('id')
 
-            return self.get('{}/api/1/execution/{}'.format(self.root_url, execution_id), params)
+            return self.get('{}/api/1/execution/{}'.format(self.root_url,
+                                                           execution_id),
+                            params)
         except KeyError:
             raise RundeckException("execution id is required for execution info")
 
@@ -70,6 +78,7 @@ class EndpointMixins:
         try:
             job_id = params.pop('id')
 
-            return self.delete('{}/api/1/job/{}'.format(self.root_url, job_id), params)
+            return self.delete('{}/api/1/job/{}'.format(self.root_url,
+                                                        job_id), params)
         except KeyError:
             raise RundeckException("job id is required for job deletion")
