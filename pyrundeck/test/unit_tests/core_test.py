@@ -47,16 +47,15 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class TestCoreRundeckAPIClient:
     def setup(self):
-        with open(config.rundeck_token_file) as fl:
-            self.token = fl.readline().strip()
-            self.client = RundeckApiClient(self.token, config.root_url)
+        self.token = 'dummy token'
+        self.client = RundeckApiClient(self.token, config.root_url)
 
-            class Object(object):
-                pass
+        class Object(object):
+            pass
 
-            self.resp = Object()  # Dummy response object
-            self.resp.status_code = 200
-            self.resp.text = """<test_xml attribute="foo">
+        self.resp = Object()  # Dummy response object
+        self.resp.status_code = 200
+        self.resp.text = """<test_xml attribute="foo">
   <element other_attribute="lala">Text</element>
   <element>Other Text</element>
 </test_xml>
