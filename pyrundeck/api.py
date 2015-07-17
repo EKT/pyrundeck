@@ -41,19 +41,22 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class RundeckApiClient(EndpointMixins):
-    """
-    The Rundeck API wrapper. This class is used to interact with the Rundeck server. In order to instantiate it you
-    need to provide at least an access token and a root url for the Rundeck server.
+    """The Rundeck API wrapper. This class is used to interact with the
+    Rundeck server. In order to instantiate it you need to provide at
+    least an access token and a root url for the Rundeck server.
 
     See :doc:`usage` for examples.
 
-    :param token:         The rundeck access token.
-    :param root_url:      The rundeck server URL.
-    :param pem_file_path: (optional) A file path to a CA_BUNDLE for SSL certificate validation. *Default value:*
-                          ``None``.
-    :param client_args:   (optional) Default values to be passed to every request. This should be a dictionary,
-                          notably containing a key ``'headers'``. *Default value:* ``None``.
-    :param log_level:     (optional) The level at which logging happens. *Default value:* ``logging.INFO``.
+    :param token: The rundeck access token.
+    :param root_url: The rundeck server URL.
+    :param pem_file_path: (optional) A file path to a CA_BUNDLE for SSL
+                          certificate validation. *Default value:* ``None``.
+    :param client_args: (optional) Default values to be passed to
+                        every request. This should be a dictionary,
+                        notably containing a key
+                        ``'headers'``. *Default value:* ``None``.
+    :param log_level: (optional) The level at which logging happens.
+                      *Default value:* ``logging.INFO``.
     """
     def __init__(self, token, root_url, pem_file_path=None,
                  client_args=None, log_level=logging.INFO):
@@ -79,7 +82,8 @@ class RundeckApiClient(EndpointMixins):
             else:
                 self.client_args['verify'] = True
 
-        logging.basicConfig(level=log_level, filename='pyrundeck.log')  #TODO pass this as an arg? Timestamp it?
+        # TODO pass this as an arg? Timestamp it?
+        logging.basicConfig(level=log_level, filename='pyrundeck.log')
         self.logger = logging.getLogger(__name__)
 
         self.pem_file_path = pem_file_path
@@ -115,42 +119,52 @@ class RundeckApiClient(EndpointMixins):
             return response.status_code, None
 
     def get(self, url, params=None):
-        """
-        Perform a GET request to the specified url passing the specified params.
+        """Perform a GET request to the specified url passing the specified
+        params.
 
-        .. note:: This method should not be used directly. Use instead the methods defined in
+        .. note:: This method should not be used directly. Use instead
+                  the methods defined in
                   :py:class:`pyrundeck.endpoints.EndpointMixins`
 
         :param url: The URL of the request.
-        :param params: (optional) A dictionary containing the parameters of the request.
-        :return: A pair, where the first element is the status code of the request and the second an ``lxml.etree``
-                 object created using the server response.
+        :param params: (optional) A dictionary containing the parameters
+                                  of the request.
+        :return: A pair, where the first element is the status code of
+                 the request and the second an ``lxml.etree`` object
+                 created using the server response.
+
         """
         return self._perform_request(url, method='GET', params=params)
 
     def post(self, url, params=None):
-        """
-        Perform a POST request to the specified url passing the specified params.
+        """Perform a POST request to the specified url passing the specified
+        params.
 
-        .. note:: This method should not be used directly. Use instead the methods defined in
+        .. note:: This method should not be used directly. Use instead
+                  the methods defined in
                   :py:class:`pyrundeck.endpoints.EndpointMixins`
 
         :param url: The URL of the request.
-        :param params: (optional) A dictionary containing the parameters of the request.
-        :return: A pair, where the first element is the status code of the request and the second an ``lxml.etree``
-                 object created using the server response.
+        :param params: (optional) A dictionary containing the parameters
+                       of the request.
+        :return: A pair, where the first element is the status code of
+                 the request and the second an ``lxml.etree`` object
+                 created using the server response.
         """
         return self._perform_request(url, method='POST', params=params)
 
     def delete(self, url, params=None):
-        """
-        Perform a DELETE request to the specified url passing the specified params.
+        """Perform a DELETE request to the specified url passing the
+        specified params.
 
-        .. note:: This method should not be used directly. Use instead the methods defined in
+        .. note:: This method should not be used directly. Use instead
+                  the methods defined in
                   :py:class:`pyrundeck.endpoints.EndpointMixins`
 
         :param url: The URL of the request.
-        :param params: (optional) A dictionary containing the parameters of the request.
-        :return: A pair, where the first element is the status code of the request and the second is ``None``.
+        :param params: (optional) A dictionary containing the parameters
+                       of the request.
+        :return: A pair, where the first element is the status code of the
+        request and the second is ``None``.
         """
         return self._perform_request(url, method='DELETE', params=params)
