@@ -1,2 +1,2 @@
 [run]
-omit = *doc* *test*
+omit = *doc*, *test*
