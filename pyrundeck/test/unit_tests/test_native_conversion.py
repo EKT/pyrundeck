@@ -44,6 +44,9 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class TestXMLToNativePython:
+    def setup(self):
+        self.bogus_xml = etree.fromstring('<foo/>')
+
     def test_job_creates_single_job_correctly(self):
         single_job = path.join(config.rundeck_test_data_dir,
                                'single_job_from_response.xml')
@@ -60,8 +63,7 @@ class TestXMLToNativePython:
 
     @raises(xmlp.RundeckParseError)
     def test_job_raises_if_not_job_tag(self):
-        xml_tree = etree.fromstring("<foo/>")
-        xmlp.job(xml_tree)
+        xmlp.job(self.bogus_xml)
 
     def test_job_raises_if_missing_mandatory(self):
         missing_id = ('<job><name>long job</name><group/><project>'
@@ -116,8 +118,7 @@ class TestXMLToNativePython:
 
     @raises(xmlp.RundeckParseError)
     def test_jobs_raises_if_not_jobs_tag(self):
-        xml_tree = etree.fromstring('<foo/>')
-        xmlp.jobs(xml_tree)
+        xmlp.jobs(self.bogus_xml)
 
     @raises(xmlp.RundeckParseError)
     def test_jobs_raises_if_no_count(self):
@@ -171,7 +172,10 @@ class TestXMLToNativePython:
 
     def test_execution_creates_single_execution_correctly(self):
         nt.assert_equal.__self__.maxDiff = 1000
-        xml_str = '<execution id="117" href="http://192.168.50.2:4440/execution/follow/117" status="succeeded" project="API_client_development"> <user>admin</user> <date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started> <date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended> <job id="78f491e7-714f-44c6-bddb-8b3b3a961ace" averageDuration="2716"> <name>test_job_1</name> <group/> <project>API_client_development</project> <description/> </job> <description>echo "Hello"</description> <argstring/> <successfulNodes> <node name="localhost"/> </successfulNodes> </execution>'
+        test_data_file = path.join(config.rundeck_test_data_dir,
+                                   'execution.xml')
+        with open(test_data_file) as ex_fl:
+            xml_str = ex_fl.read()
         expected = {
             'id': '117',
             'href': 'http://192.168.50.2:4440/execution/follow/117',
@@ -203,7 +207,11 @@ class TestXMLToNativePython:
         xml_tree = etree.fromstring(xml_str)
         nt.assert_equal(expected, xmlp.execution(xml_tree))
 
-    def test_parse_date_creates_dates_correctly(self):
+    @raises(xmlp.RundeckParseError)
+    def test_execution_raises_if_given_wrong_tag(self):
+        xmlp.execution(self.bogus_xml)
+
+    def test_date_creates_dates_correctly(self):
         start_str = '<date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started>'
         end_str = '<date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended>'
 
@@ -214,19 +222,17 @@ class TestXMLToNativePython:
             'unixtime': '1437474661504',
             'time': '2015-07-21T10:31:01Z'
         }
-        nt.assert_equal(start_expected, xmlp.parse_date(start_tree))
+        nt.assert_equal(start_expected, xmlp.date(start_tree))
 
         end_expected = {
             'unixtime': '1437474662344',
             'time': '2015-07-21T10:31:02Z'
         }
-        nt.assert_equal(end_expected, xmlp.parse_date(end_tree))
+        nt.assert_equal(end_expected, xmlp.date(end_tree))
 
     @raises(xmlp.RundeckParseError)
-    def test_parse_date_raises_if_given_wrong_tag(self):
-        xml_str = "<foo/>"
-        xml_tree = etree.fromstring(xml_str)
-        xmlp.parse_date(xml_tree)
+    def test_date_raises_if_given_wrong_tag(self):
+        xmlp.date(self.bogus_xml)
 
     def test_node_creates_node_correctly(self):
         xml_str = '<node name="localhost"/>'
@@ -236,9 +242,7 @@ class TestXMLToNativePython:
 
     @raises(xmlp.RundeckParseError)
     def test_node_raises_if_given_wrong_tag(self):
-        xml_str = '<foo/>'
-        xml_tree = etree.fromstring(xml_str)
-        xmlp.node(xml_tree)
+        xmlp.node(self.bogus_xml)
 
     def test_nodes_create_node_list(self):
         xml_str = ('<successfulNodes><node name="localhost"/>'
@@ -249,6 +253,39 @@ class TestXMLToNativePython:
 
     @raises(xmlp.RundeckParseError)
     def test_nodes_raises_if_given_wrong_tag(self):
-        xml_str = '<foo/>'
+        xmlp.nodes(self.bogus_xml)
+
+    def test_option_creates_option_correctly(self):
+        xml_str = '<option name="arg1" value="foo"/>'
         xml_tree = etree.fromstring(xml_str)
-        xmlp.nodes(xml_tree)
+        expected = {'name': 'arg1', 'value': 'foo'}
+        nt.assert_equal(expected, xmlp.option(xml_tree))
+
+    @raises(xmlp.RundeckParseError)
+    def test_option_raises_if_given_wrong_tag(self):
+        xmlp.option(self.bogus_xml)
+
+    def test_options_creates_option_list_correctly(self):
+        xml_str = ('<options>'
+                   '<option name="arg1" value="foo"/>'
+                   '<option name="arg2" value="bar"/>'
+                   '</options>')
+        xml_tree = etree.fromstring(xml_str)
+        expected = [
+            {'name': 'arg1', 'value': 'foo'},
+            {'name': 'arg2', 'value': 'bar'}
+        ]
+        nt.assert_equal(expected, xmlp.options(xml_tree))
+
+    @raises(xmlp.RundeckParseError)
+    def test_options_raises_if_given_wrong_tag(self):
+        xmlp.options(self.bogus_xml)
+
+    def test_executions_create_executions_array_correctly(self):
+        nt.assert_equal.__self__.maxDiff = 1000
+        test_data_file = path.join(config.rundeck_test_data_dir,
+                                   'executions.xml')
+        with open(test_data_file) as ex_fl:
+            xml_str = ex_fl.read()
+        xml_tree = etree.fromstring(xml_str)
+        # TODO: Complete me

@@ -30,23 +30,27 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
-from lxml import etree
+"""The functions in this module convert the ``lxml.etree``
+representation of the server response to native objects similar to a
+JSON representation.
 
+"""
+
+import logging  # TODO: use the logger
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class RundeckParseError(Exception):
     def __init__(self, *args, **kwargs):
-        "docstring"
+        "This class represents a parse error."
         super(RundeckParseError, self).__init__(*args, **kwargs)
 
 
 def job(xml_tree):
-    if xml_tree.tag != 'job':
-        raise RundeckParseError('expected tag <job>, got: <{}>'
-                                .format(xml_tree.tag))
+    "Parse a single job. Return a dict represeting a job."
+
+    check_root_tag(xml_tree.tag, ['job'])
 
     #  Creates a dictionary having as keys the tag names and as values
     #  the
@@ -62,9 +66,9 @@ def job(xml_tree):
 
 
 def jobs(xml_tree):
-    if xml_tree.tag != 'jobs':
-        raise RundeckParseError('expected tag <job>, got: <{}>'
-                                .format(xml_tree.tag))
+    "Parse multiple jobs. Return a list containing the jobs."
+
+    check_root_tag(xml_tree.tag, ['jobs'])
 
     if xml_tree.get('count') is None:
         raise RundeckParseError('attribute @count missing from jobs')
@@ -84,10 +88,10 @@ def jobs(xml_tree):
     return ret
 
 
-def parse_date(xml_tree):
-    if xml_tree.tag != 'date-started' and xml_tree.tag != 'date-ended':
-        raise RundeckParseError('expected tag <date-started> or <date-ended>'
-                                ', got <{}>'.format(xml_tree.tag))
+def date(xml_tree):
+    "Parse a date-started or a date-ended. Return a dict."
+
+    check_root_tag(xml_tree.tag, ['date-started', 'date-ended'])
 
     return {
         'time': xml_tree.text.strip(),
@@ -96,6 +100,7 @@ def parse_date(xml_tree):
 
 
 def node(xml_tree):
+    "Parse a node. Return a dict."
     if xml_tree.tag != 'node':
         raise RundeckParseError('expected tag <node>, got: <{}>'
                                 .format(xml_tree.tag))
@@ -103,24 +108,53 @@ def node(xml_tree):
 
 
 def nodes(xml_tree):
-    if xml_tree.tag != 'successfulNodes' and xml_tree.tag != 'failedNodes':
-        raise RundeckParseError('expected tag <successfulNodes> or <failedNodes>'
-                                ', got <{}>'.format(xml_tree.tag))
+    "Parse multiple nodes. Return a list of nodes."
+
+    check_root_tag(xml_tree.tag, ['successfulNodes', 'failedNodes'])
+
     return [node(child) for child in xml_tree]
 
 
 def execution(xml_tree):
+    "Parse a single execution. Return a dict."
+
+    check_root_tag(xml_tree.tag, ['execution'])
+
     ret = {}
     for child in xml_tree:
         current_tag = child.tag
         if current_tag == 'job':
             ret[current_tag] = job(child)
         elif current_tag.startswith('date-'):
-            ret[current_tag] = parse_date(child)
+            ret[current_tag] = date(child)
         elif current_tag.endswith('Nodes'):
             ret[current_tag] = nodes(child)
+        elif current_tag == 'options':
+            ret[current_tag] = options(child)
         else:
             ret[current_tag] = child.text
 
     ret.update(xml_tree.items())
     return ret
+
+
+def option(xml_tree):
+    "Parse a single option. Return a dict."
+
+    check_root_tag(xml_tree.tag, ['option'])
+
+    return xml_tree.attrib
+
+
+def options(xml_tree):
+    "Parse multiple options. Return a list."
+
+    check_root_tag(xml_tree.tag, ['options'])
+    return [option(c) for c in xml_tree]
+
+
+def check_root_tag(actual, expected):
+    if actual not in expected:
+        msg = "expected tag one of: " + str(expected)
+        msg += ", but got: '{}'".format(actual)
+        raise RundeckParseError(msg)
