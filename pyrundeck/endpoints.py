@@ -29,12 +29,20 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""This module contains the mappings methods to the API endpoints.
+
+Each endpoint of the API should have a corresponding method in the
+class ``EndpointMixins``. The class ``RundeckApiClient`` subclasses
+this class in order to inherit the defined methods.
+"""
+
 from pyrundeck.exceptions import RundeckException
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
-class EndpointMixins:
+class EndpointMixins(object):
     """This class contains all the API endpoints in order not to clutter
     the :class:`pyrundeck.api.RundeckApiClient`.  Note that
     :code:`RundeckApiClient` is a subclass of *this* class, so it
@@ -50,12 +58,24 @@ class EndpointMixins:
                  runtime errors.
     """
     def import_job(self, **params):
+        """Implements `import job`_
+
+        .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs
+        """
         return self.post('{}/api/1/jobs/import'.format(self.root_url), params)
 
     def list_jobs(self, **params):
+        """Implements `list jobs`_
+
+        .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs
+        """
         return self.get('{}/api/1/jobs'.format(self.root_url), params)
 
     def run_job(self, **params):
+        """Implements `run job`_
+
+        .. _run job: http://rundeck.org/docs/api/index.html#running-a-job
+        """
         try:
             job_id = params.pop('id')
 
@@ -65,6 +85,10 @@ class EndpointMixins:
             raise RundeckException("job id is required for job execution")
 
     def execution_info(self, **params):
+        """Implements `execution info`_
+
+        .. _execution info: http://rundeck.org/docs/api/index.html#execution-info
+        """
         try:
             execution_id = params.pop('id')
 
@@ -72,9 +96,14 @@ class EndpointMixins:
                                                            execution_id),
                             params)
         except KeyError:
-            raise RundeckException("execution id is required for execution info")
+            raise RundeckException("execution id is required for "
+                                   "execution info")
 
     def delete_job(self, **params):
+        """Implements `delete job`_
+
+        .. _delete job: http://rundeck.org/docs/api/index.html#deleting-a-job-definition
+        """
         try:
             job_id = params.pop('id')
 

@@ -50,7 +50,11 @@ class TestEndpoints:
         self.root_url = 'http://rundeck.example.com'
         self.client = RundeckApiClient(self.token, self.root_url)
 
-        self.response = (200, etree.fromstring('<test_xml attribute="foo">\n    <element other_attribute="lala">Text</element>\n    <element>Other Text</element>\n</test_xml>\n'))
+        self.response = (200,
+                         etree.fromstring('<test_xml attribute="foo">'
+                                          '<element other_attribute="lala">'
+                                          'Text</element><element>Other '
+                                          'Text</element>\n</test_xml>\n'))
 
     @raises(RundeckException)
     def test_run_job_raises_exception_if_no_id(self):
