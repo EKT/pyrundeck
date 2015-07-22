@@ -59,3 +59,20 @@ def parse_single_job(xml_tree):
             raise RundeckParseError('tag <{}> missing from job'.format(tag))
 
     return ret
+
+
+def parse_multiple_jobs(xml_tree):
+    if xml_tree.tag != 'jobs':
+        raise RundeckParseError('expected tag <job>, got: <{}>'
+                                .format(xml_tree.tag))
+
+    jobs = [parse_single_job(child) for child in xml_tree]
+    ret = {
+        'count': int(xml_tree.get('count')),
+        'jobs': jobs
+    }
+
+    if ret.get('count') is None:
+        raise RundeckParseError('attribute @count missing from jobs')
+
+    return ret

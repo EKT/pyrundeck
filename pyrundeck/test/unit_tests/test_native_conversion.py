@@ -44,13 +44,15 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 class TestXMLToNativePython:
     def setup(self):
-        job_xml = path.join(config.rundeck_test_data_dir, 'job_response.xml')
-        with open(job_xml) as job_fl:
-            self.jobs_etree = etree.fromstring(job_fl.read())
         single_job = path.join(config.rundeck_test_data_dir,
                                'single_job_from_response.xml')
         with open(single_job) as job_fl:
             self.single_job_etree = etree.fromstring(job_fl.read())
+
+        multiple_jobs = path.join(config.rundeck_test_data_dir,
+                                  'multiple_jobs.xml')
+        with open(multiple_jobs) as jobs_fl:
+            self.multiple_jobs = etree.fromstring(jobs_fl.read())
 
     def test_parser_creates_single_job(self):
         correct = {
@@ -61,3 +63,34 @@ class TestXMLToNativePython:
             'description': 'async testing'
         }
         nt.assert_equal(correct, xmlp.parse_single_job(self.single_job_etree))
+
+    def test_parser_creates_multiple_jobs(self):
+        correct = {
+            'count': 3,
+            'jobs':
+            [
+                {
+                    'id': "3b8a86d5-4fc3-4cc1-95a2-8b51421c2069",
+                    'name': 'job_with_args',
+                    'group': None,
+                    'project': 'API_client_development',
+                    'description': None
+                },
+                {
+                    'id': "ea17d859-32ff-45c8-8a0d-a16ac1ea3566",
+                    'name': 'long job',
+                    'group': None,
+                    'project': 'API_client_development',
+                    'description': 'async testing'
+                },
+                {
+                    'id': "78f491e7-714f-44c6-bddb-8b3b3a961ace",
+                    'name': 'test_job_1',
+                    'group': None,
+                    'project': 'API_client_development',
+                    'description': None
+                },
+            ]
+        }
+
+        nt.assert_equal(correct, xmlp.parse_multiple_jobs(self.multiple_jobs))
