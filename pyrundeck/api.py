@@ -29,6 +29,16 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""This module contains the core of the API client.
+
+The general idea is to abstract away all possible requests into three
+methods (``RundeckApiClient.get``, ``RundeckApiClient.post`` and
+``RundeckApiClient.delete``), that call the same method
+``RundeckApiClient._perform_request`` that performs the actual
+request.
+"""
+
 import logging
 from lxml import etree
 import requests
@@ -89,14 +99,19 @@ class RundeckApiClient(EndpointMixins):
         self.pem_file_path = pem_file_path
 
     def _perform_request(self, url, method='GET', params=None):
+        """Perform the request.
+
+        This method uses the ``requests`` library to perform a request
+        to the Rundeck API.
+        """
         self.logger.debug('params = {}'.format(params))
         params = params or {}
 
         params, files = _transparent_params(params)
         self.logger.debug('params = {}'.format(params))
         requests_args = {}
-        for k, v in self.client_args.items():
-            requests_args[k] = v
+        for key, val in self.client_args.items():
+            requests_args[key] = val
 
         if method == 'POST':
             requests_args.update({
@@ -165,6 +180,6 @@ class RundeckApiClient(EndpointMixins):
         :param params: (optional) A dictionary containing the parameters
                        of the request.
         :return: A pair, where the first element is the status code of the
-        request and the second is ``None``.
+                 request and the second is ``None``.
         """
         return self._perform_request(url, method='DELETE', params=params)

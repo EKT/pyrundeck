@@ -33,3 +33,12 @@ pyrundeck.exceptions module
     :undoc-members:
     :show-inheritance:
 
+pyrundeck.helpers module
+------------------------
+
+.. automodule:: pyrundeck.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
