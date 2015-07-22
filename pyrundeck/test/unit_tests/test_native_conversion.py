@@ -34,6 +34,7 @@ from os import path
 
 from lxml import etree
 import nose.tools as nt
+from nose.tools import raises
 
 from pyrundeck.test import config
 import pyrundeck.xml2native as xmlp
@@ -43,18 +44,11 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class TestXMLToNativePython:
-    def setup(self):
+    def test_parser_creates_single_job(self):
         single_job = path.join(config.rundeck_test_data_dir,
                                'single_job_from_response.xml')
         with open(single_job) as job_fl:
-            self.single_job_etree = etree.fromstring(job_fl.read())
-
-        multiple_jobs = path.join(config.rundeck_test_data_dir,
-                                  'multiple_jobs.xml')
-        with open(multiple_jobs) as jobs_fl:
-            self.multiple_jobs = etree.fromstring(jobs_fl.read())
-
-    def test_parser_creates_single_job(self):
+            single_job_etree = etree.fromstring(job_fl.read())
         correct = {
             'id': "ea17d859-32ff-45c8-8a0d-a16ac1ea3566",
             'name': 'long job',
@@ -62,9 +56,34 @@ class TestXMLToNativePython:
             'project': 'API_client_development',
             'description': 'async testing'
         }
-        nt.assert_equal(correct, xmlp.parse_single_job(self.single_job_etree))
+        nt.assert_equal(correct, xmlp.parse_single_job(single_job_etree))
+
+    @raises(xmlp.RundeckParseError)
+    def test_parse_single_job_raises_if_not_job_tag(self):
+        xml_tree = etree.fromstring("<foo/>")
+        xmlp.parse_single_job(xml_tree)
+
+    def test_parse_single_job_raises_if_missing_mandatory(self):
+        missing_id = ('<job><name>long job</name><group/><project>'
+                      'API_client_development</project><description>'
+                      'async testing</description></job>')
+        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse_single_job,
+                         etree.fromstring(missing_id))
+        missing_name = ('<job id="foo"><group/><project>API_client_development'
+                        '</project><description>async testing</description>'
+                        '</job>')
+        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse_single_job,
+                         etree.fromstring(missing_name))
+        missing_project = ('<job id="foo"><name>foo</name><group/>'
+                           '<description>asynctesting</description></job>')
+        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse_single_job,
+                         etree.fromstring(missing_project))
 
     def test_parser_creates_multiple_jobs(self):
+        multiple_jobs = path.join(config.rundeck_test_data_dir,
+                                  'multiple_jobs.xml')
+        with open(multiple_jobs) as jobs_fl:
+            multiple_jobs = etree.fromstring(jobs_fl.read())
         correct = {
             'count': 3,
             'jobs':
@@ -93,4 +112,4 @@ class TestXMLToNativePython:
             ]
         }
 
-        nt.assert_equal(correct, xmlp.parse_multiple_jobs(self.multiple_jobs))
+        nt.assert_equal(correct, xmlp.parse_multiple_jobs(multiple_jobs))
