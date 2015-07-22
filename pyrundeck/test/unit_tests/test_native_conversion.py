@@ -113,3 +113,58 @@ class TestXMLToNativePython:
         }
 
         nt.assert_equal(correct, xmlp.parse_multiple_jobs(multiple_jobs))
+
+    @raises(xmlp.RundeckParseError)
+    def test_parse_multiple_jobs_raises_if_not_jobs_tag(self):
+        xml_tree = etree.fromstring('<foo/>')
+        xmlp.parse_multiple_jobs(xml_tree)
+
+    @raises(xmlp.RundeckParseError)
+    def test_parse_multiple_jobs_raises_if_no_count(self):
+        xml_str = ('<jobs>'
+                   '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
+                   '<name>job_with_args</name>'
+                   '<group/>'
+                   '<project>API_client_development</project>'
+                   '<description/>'
+                   '</job>'
+                   '<job id="ea17d859-32ff-45c8-8a0d-a16ac1ea3566">'
+                   '<name>long job</name>'
+                   '<group/>'
+                   '<project>API_client_development</project>'
+                   '<description>async testing</description>'
+                   '</job>'
+                   '<job id="78f491e7-714f-44c6-bddb-8b3b3a961ace">'
+                   '<name>test_job_1</name>'
+                   '<group/>'
+                   '<project>API_client_development</project>'
+                   '<description/>'
+                   '</job>'
+                   '</jobs>')
+        xml_tree = etree.fromstring(xml_str)
+        xmlp.parse_multiple_jobs(xml_tree)
+
+    @raises(xmlp.RundeckParseError)
+    def test_parse_multiple_jobs_raises_if_count_neq_jobs_len(self):
+        xml_str = ('<jobs count="5">'
+                   '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
+                   '<name>job_with_args</name>'
+                   '<group/>'
+                   '<project>API_client_development</project>'
+                   '<description/>'
+                   '</job>'
+                   '<job id="ea17d859-32ff-45c8-8a0d-a16ac1ea3566">'
+                   '<name>long job</name>'
+                   '<group/>'
+                   '<project>API_client_development</project>'
+                   '<description>async testing</description>'
+                   '</job>'
+                   '<job id="78f491e7-714f-44c6-bddb-8b3b3a961ace">'
+                   '<name>test_job_1</name>'
+                   '<group/>'
+                   '<project>API_client_development</project>'
+                   '<description/>'
+                   '</job>'
+                   '</jobs>')
+        xml_tree = etree.fromstring(xml_str)
+        xmlp.parse_multiple_jobs(xml_tree)
