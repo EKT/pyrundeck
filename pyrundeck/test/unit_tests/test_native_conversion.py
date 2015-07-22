@@ -44,47 +44,47 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class TestXMLToNativePython:
-    def test_parser_creates_single_job(self):
+    def test_job_creates_single_job_correctly(self):
         single_job = path.join(config.rundeck_test_data_dir,
                                'single_job_from_response.xml')
         with open(single_job) as job_fl:
             single_job_etree = etree.fromstring(job_fl.read())
-        correct = {
+        expected = {
             'id': "ea17d859-32ff-45c8-8a0d-a16ac1ea3566",
             'name': 'long job',
             'group': None,
             'project': 'API_client_development',
             'description': 'async testing'
         }
-        nt.assert_equal(correct, xmlp.parse_single_job(single_job_etree))
+        nt.assert_equal(expected, xmlp.job(single_job_etree))
 
     @raises(xmlp.RundeckParseError)
-    def test_parse_single_job_raises_if_not_job_tag(self):
+    def test_job_raises_if_not_job_tag(self):
         xml_tree = etree.fromstring("<foo/>")
-        xmlp.parse_single_job(xml_tree)
+        xmlp.job(xml_tree)
 
-    def test_parse_single_job_raises_if_missing_mandatory(self):
+    def test_job_raises_if_missing_mandatory(self):
         missing_id = ('<job><name>long job</name><group/><project>'
                       'API_client_development</project><description>'
                       'async testing</description></job>')
-        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse_single_job,
+        nt.assert_raises(xmlp.RundeckParseError, xmlp.job,
                          etree.fromstring(missing_id))
         missing_name = ('<job id="foo"><group/><project>API_client_development'
                         '</project><description>async testing</description>'
                         '</job>')
-        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse_single_job,
+        nt.assert_raises(xmlp.RundeckParseError, xmlp.job,
                          etree.fromstring(missing_name))
         missing_project = ('<job id="foo"><name>foo</name><group/>'
                            '<description>asynctesting</description></job>')
-        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse_single_job,
+        nt.assert_raises(xmlp.RundeckParseError, xmlp.job,
                          etree.fromstring(missing_project))
 
-    def test_parser_creates_multiple_jobs(self):
+    def test_jobs_creates_multiple_jobs_correctly(self):
         multiple_jobs = path.join(config.rundeck_test_data_dir,
                                   'multiple_jobs.xml')
         with open(multiple_jobs) as jobs_fl:
             multiple_jobs = etree.fromstring(jobs_fl.read())
-        correct = {
+        expected = {
             'count': 3,
             'jobs':
             [
@@ -112,15 +112,15 @@ class TestXMLToNativePython:
             ]
         }
 
-        nt.assert_equal(correct, xmlp.parse_multiple_jobs(multiple_jobs))
+        nt.assert_equal(expected, xmlp.jobs(multiple_jobs))
 
     @raises(xmlp.RundeckParseError)
-    def test_parse_multiple_jobs_raises_if_not_jobs_tag(self):
+    def test_jobs_raises_if_not_jobs_tag(self):
         xml_tree = etree.fromstring('<foo/>')
-        xmlp.parse_multiple_jobs(xml_tree)
+        xmlp.jobs(xml_tree)
 
     @raises(xmlp.RundeckParseError)
-    def test_parse_multiple_jobs_raises_if_no_count(self):
+    def test_jobs_raises_if_no_count(self):
         xml_str = ('<jobs>'
                    '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
                    '<name>job_with_args</name>'
@@ -142,10 +142,10 @@ class TestXMLToNativePython:
                    '</job>'
                    '</jobs>')
         xml_tree = etree.fromstring(xml_str)
-        xmlp.parse_multiple_jobs(xml_tree)
+        xmlp.jobs(xml_tree)
 
     @raises(xmlp.RundeckParseError)
-    def test_parse_multiple_jobs_raises_if_count_neq_jobs_len(self):
+    def test_jobs_raises_if_count_neq_jobs_len(self):
         xml_str = ('<jobs count="5">'
                    '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
                    '<name>job_with_args</name>'
@@ -167,4 +167,88 @@ class TestXMLToNativePython:
                    '</job>'
                    '</jobs>')
         xml_tree = etree.fromstring(xml_str)
-        xmlp.parse_multiple_jobs(xml_tree)
+        xmlp.jobs(xml_tree)
+
+    def test_execution_creates_single_execution_correctly(self):
+        nt.assert_equal.__self__.maxDiff = 1000
+        xml_str = '<execution id="117" href="http://192.168.50.2:4440/execution/follow/117" status="succeeded" project="API_client_development"> <user>admin</user> <date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started> <date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended> <job id="78f491e7-714f-44c6-bddb-8b3b3a961ace" averageDuration="2716"> <name>test_job_1</name> <group/> <project>API_client_development</project> <description/> </job> <description>echo "Hello"</description> <argstring/> <successfulNodes> <node name="localhost"/> </successfulNodes> </execution>'
+        expected = {
+            'id': '117',
+            'href': 'http://192.168.50.2:4440/execution/follow/117',
+            'status': 'succeeded',
+            'project': 'API_client_development',
+            'user': 'admin',
+            'date-started': {
+                'unixtime': '1437474661504',
+                'time': '2015-07-21T10:31:01Z'
+            },
+            'date-ended': {
+                'unixtime': '1437474662344',
+                'time': '2015-07-21T10:31:02Z'
+            },
+            'job': {
+                'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
+                'averageDuration': '2716',
+                'name': 'test_job_1',
+                'group': None,
+                'project': 'API_client_development',
+                'description': None,
+            },
+            'description': 'echo "Hello"',
+            'argstring': None,
+            'successfulNodes': [
+                {'name': 'localhost'}
+            ]
+        }
+        xml_tree = etree.fromstring(xml_str)
+        nt.assert_equal(expected, xmlp.execution(xml_tree))
+
+    def test_parse_date_creates_dates_correctly(self):
+        start_str = '<date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started>'
+        end_str = '<date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended>'
+
+        start_tree = etree.fromstring(start_str)
+        end_tree = etree.fromstring(end_str)
+
+        start_expected = {
+            'unixtime': '1437474661504',
+            'time': '2015-07-21T10:31:01Z'
+        }
+        nt.assert_equal(start_expected, xmlp.parse_date(start_tree))
+
+        end_expected = {
+            'unixtime': '1437474662344',
+            'time': '2015-07-21T10:31:02Z'
+        }
+        nt.assert_equal(end_expected, xmlp.parse_date(end_tree))
+
+    @raises(xmlp.RundeckParseError)
+    def test_parse_date_raises_if_given_wrong_tag(self):
+        xml_str = "<foo/>"
+        xml_tree = etree.fromstring(xml_str)
+        xmlp.parse_date(xml_tree)
+
+    def test_node_creates_node_correctly(self):
+        xml_str = '<node name="localhost"/>'
+        xml_tree = etree.fromstring(xml_str)
+        expected = {'name': 'localhost'}
+        nt.assert_equal(expected, xmlp.node(xml_tree))
+
+    @raises(xmlp.RundeckParseError)
+    def test_node_raises_if_given_wrong_tag(self):
+        xml_str = '<foo/>'
+        xml_tree = etree.fromstring(xml_str)
+        xmlp.node(xml_tree)
+
+    def test_nodes_create_node_list(self):
+        xml_str = ('<successfulNodes><node name="localhost"/>'
+                   '<node name="otherhost"/></successfulNodes>')
+        xml_tree = etree.fromstring(xml_str)
+        expected = [{'name': 'localhost'}, {'name': 'otherhost'}]
+        nt.assert_equal(expected, xmlp.nodes(xml_tree))
+
+    @raises(xmlp.RundeckParseError)
+    def test_nodes_raises_if_given_wrong_tag(self):
+        xml_str = '<foo/>'
+        xml_tree = etree.fromstring(xml_str)
+        xmlp.nodes(xml_tree)

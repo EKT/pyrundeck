@@ -43,7 +43,7 @@ class RundeckParseError(Exception):
         super(RundeckParseError, self).__init__(*args, **kwargs)
 
 
-def parse_single_job(xml_tree):
+def job(xml_tree):
     if xml_tree.tag != 'job':
         raise RundeckParseError('expected tag <job>, got: <{}>'
                                 .format(xml_tree.tag))
@@ -61,7 +61,7 @@ def parse_single_job(xml_tree):
     return ret
 
 
-def parse_multiple_jobs(xml_tree):
+def jobs(xml_tree):
     if xml_tree.tag != 'jobs':
         raise RundeckParseError('expected tag <job>, got: <{}>'
                                 .format(xml_tree.tag))
@@ -69,7 +69,7 @@ def parse_multiple_jobs(xml_tree):
     if xml_tree.get('count') is None:
         raise RundeckParseError('attribute @count missing from jobs')
 
-    jobs = [parse_single_job(child) for child in xml_tree]
+    jobs = [job(child) for child in xml_tree]
     ret = {
         'count': int(xml_tree.get('count')),
         'jobs': jobs
@@ -81,4 +81,46 @@ def parse_multiple_jobs(xml_tree):
         raise RundeckParseError('number of jobs(={}) and count(={})'
                                 .format(ln, cnt) + ' are different')
 
+    return ret
+
+
+def parse_date(xml_tree):
+    if xml_tree.tag != 'date-started' and xml_tree.tag != 'date-ended':
+        raise RundeckParseError('expected tag <date-started> or <date-ended>'
+                                ', got <{}>'.format(xml_tree.tag))
+
+    return {
+        'time': xml_tree.text.strip(),
+        'unixtime': xml_tree.get('unixtime').strip()
+    }
+
+
+def node(xml_tree):
+    if xml_tree.tag != 'node':
+        raise RundeckParseError('expected tag <node>, got: <{}>'
+                                .format(xml_tree.tag))
+    return xml_tree.attrib
+
+
+def nodes(xml_tree):
+    if xml_tree.tag != 'successfulNodes' and xml_tree.tag != 'failedNodes':
+        raise RundeckParseError('expected tag <successfulNodes> or <failedNodes>'
+                                ', got <{}>'.format(xml_tree.tag))
+    return [node(child) for child in xml_tree]
+
+
+def execution(xml_tree):
+    ret = {}
+    for child in xml_tree:
+        current_tag = child.tag
+        if current_tag == 'job':
+            ret[current_tag] = job(child)
+        elif current_tag.startswith('date-'):
+            ret[current_tag] = parse_date(child)
+        elif current_tag.endswith('Nodes'):
+            ret[current_tag] = nodes(child)
+        else:
+            ret[current_tag] = child.text
+
+    ret.update(xml_tree.items())
     return ret
