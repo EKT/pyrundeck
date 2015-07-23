@@ -38,6 +38,7 @@ this class in order to inherit the defined methods.
 """
 
 from pyrundeck.exceptions import RundeckException
+from pyrundeck.xml2native import parse
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
@@ -57,21 +58,31 @@ class EndpointMixins(object):
                  directly. Trying to do so will definitely result in
                  runtime errors.
     """
-    def import_job(self, **params):
+    def import_job(self, native=False, **params):
         """Implements `import job`_
 
         .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs
         """
-        return self.post('{}/api/1/jobs/import'.format(self.root_url), params)
+        status, xml = self.post('{}/api/1/jobs/import'
+                                       .format(self.root_url), params)
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
 
-    def list_jobs(self, **params):
+    def list_jobs(self, native=False, **params):
         """Implements `list jobs`_
 
         .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs
         """
-        return self.get('{}/api/1/jobs'.format(self.root_url), params)
+        status, xml = self.get('{}/api/1/jobs'.format(self.root_url),
+                                      params)
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
 
-    def run_job(self, **params):
+    def run_job(self, native=False, **params):
         """Implements `run job`_
 
         .. _run job: http://rundeck.org/docs/api/index.html#running-a-job
@@ -79,12 +90,17 @@ class EndpointMixins(object):
         try:
             job_id = params.pop('id')
 
-            return self.get('{}/api/1/job/{}/run'.format(self.root_url,
-                                                         job_id), params)
+            status, xml = self.get('{}/api/1/job/{}/run'
+                                          .format(self.root_url, job_id),
+                                          params)
+            if native:
+                return status, parse(xml)
+            else:
+                return status, xml
         except KeyError:
             raise RundeckException("job id is required for job execution")
 
-    def execution_info(self, **params):
+    def execution_info(self, native=False, **params):
         """Implements `execution info`_
 
         .. _execution info: http://rundeck.org/docs/api/index.html#execution-info
@@ -92,9 +108,14 @@ class EndpointMixins(object):
         try:
             execution_id = params.pop('id')
 
-            return self.get('{}/api/1/execution/{}'.format(self.root_url,
-                                                           execution_id),
-                            params)
+            status, xml =  self.get('{}/api/1/execution/{}'
+                                    .format(self.root_url, execution_id),
+                                    params)
+            if native:
+                return status, parse(xml)
+            else:
+                return status, xml
+
         except KeyError:
             raise RundeckException("execution id is required for "
                                    "execution info")
@@ -107,7 +128,8 @@ class EndpointMixins(object):
         try:
             job_id = params.pop('id')
 
-            return self.delete('{}/api/1/job/{}'.format(self.root_url,
-                                                        job_id), params)
+            status, xml = self.delete('{}/api/1/job/{}'.format(self.root_url,
+                                                               job_id), params)
+            return status, xml
         except KeyError:
             raise RundeckException("job id is required for job deletion")
