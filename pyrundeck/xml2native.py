@@ -32,7 +32,8 @@
 
 """The functions in this module convert the ``lxml.etree``
 representation of the server response to native objects similar to a
-JSON representation.
+JSON representation. The functions in this module implement a
+recursive descent parser based on thetags of the XML representation.
 
 """
 
@@ -52,9 +53,13 @@ def job(xml_tree):
 
     check_root_tag(xml_tree.tag, ['job'])
 
-    #  Creates a dictionary having as keys the tag names and as values
-    #  the
-    ret = {child.tag: child.text for child in xml_tree}
+    ret = {}
+    for child in xml_tree:
+        current_tag = child.tag
+        if current_tag == 'options':
+            ret[current_tag] = options(child)
+        else:
+            ret[current_tag] = child.text
     ret.update(xml_tree.items())  # add any attributes of the root tag
 
     mandatory_tags = ['id', 'name', 'project']
@@ -129,12 +134,29 @@ def execution(xml_tree):
             ret[current_tag] = date(child)
         elif current_tag.endswith('Nodes'):
             ret[current_tag] = nodes(child)
-        elif current_tag == 'options':
-            ret[current_tag] = options(child)
         else:
             ret[current_tag] = child.text
 
     ret.update(xml_tree.items())
+    return ret
+
+
+def executions(xml_tree):
+    "Parse multiple executions. Return a list."
+    check_root_tag(xml_tree.tag, ['executions'])
+    ret = {}
+    if xml_tree.get('count') is None:
+        raise RundeckParseError('attribute @count missing from executions')
+
+    cnt = int(xml_tree.get('count'))
+    ret['count'] = cnt
+    ret['executions'] = [execution(c) for c in xml_tree]
+
+    ln = len(ret['executions'])
+    if cnt != ln:
+        raise RundeckParseError('number of jobs(={}) and count(={})'
+                                .format(ln, cnt) + ' are different')
+
     return ret
 
 
