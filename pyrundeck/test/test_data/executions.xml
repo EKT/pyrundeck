@@ -1,0 +1,97 @@
+<executions count="5">
+  <execution id="53" href="http://192.168.50.2:4440/execution/follow/53" status="succeeded" project="API_client_development">
+    <user>admin</user>
+    <date-started unixtime="1432809844290">2015-05-28T10:44:04Z</date-started>
+    <date-ended unixtime="1432809844967">2015-05-28T10:44:04Z</date-ended>
+    <job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069" averageDuration="1022">
+      <name>job_with_args</name>
+      <group/>
+      <project>API_client_development</project>
+      <description/>
+      <options>
+        <option name="arg1" value="foo"/>
+      </options>
+    </job>
+    <description>echo $RD_OPTION_ARG1</description>
+    <argstring>-arg1 foo</argstring>
+    <successfulNodes>
+      <node name="localhost"/>
+    </successfulNodes>
+  </execution>
+  <execution id="52" href="http://192.168.50.2:4440/execution/follow/52" status="succeeded" project="API_client_development">
+    <user>admin</user>
+    <date-started unixtime="1432809811697">2015-05-28T10:43:31Z</date-started>
+    <date-ended unixtime="1432809812305">2015-05-28T10:43:32Z</date-ended>
+    <job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069" averageDuration="1022">
+      <name>job_with_args</name>
+      <group/>
+      <project>API_client_development</project>
+      <description/>
+      <options>
+        <option name="arg1" value="foo"/>
+      </options>
+    </job>
+    <description>echo $RD_OPTION_ARG1</description>
+    <argstring>-arg1 foo</argstring>
+    <successfulNodes>
+      <node name="localhost"/>
+    </successfulNodes>
+  </execution>
+  <execution id="49" href="http://192.168.50.2:4440/execution/follow/49" status="succeeded" project="API_client_development">
+    <user>admin</user>
+    <date-started unixtime="1432806795182">2015-05-28T09:53:15Z</date-started>
+    <date-ended unixtime="1432806795789">2015-05-28T09:53:15Z</date-ended>
+    <job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069" averageDuration="1022">
+      <name>job_with_args</name>
+      <group/>
+      <project>API_client_development</project>
+      <description/>
+      <options>
+        <option name="arg1" value="faf"/>
+      </options>
+    </job>
+    <description>echo $RD_OPTION_ARG1</description>
+    <argstring>-arg1 faf</argstring>
+    <successfulNodes>
+      <node name="localhost"/>
+    </successfulNodes>
+  </execution>
+  <execution id="48" href="http://192.168.50.2:4440/execution/follow/48" status="succeeded" project="API_client_development">
+    <user>admin</user>
+    <date-started unixtime="1432806709140">2015-05-28T09:51:49Z</date-started>
+    <date-ended unixtime="1432806709852">2015-05-28T09:51:49Z</date-ended>
+    <job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069" averageDuration="1022">
+      <name>job_with_args</name>
+      <group/>
+      <project>API_client_development</project>
+      <description/>
+      <options>
+        <option name="arg1" value="foo"/>
+      </options>
+    </job>
+    <description>echo $1</description>
+    <argstring>-arg1 foo</argstring>
+    <successfulNodes>
+      <node name="localhost"/>
+    </successfulNodes>
+  </execution>
+  <execution id="46" href="http://192.168.50.2:4440/execution/follow/46" status="succeeded" project="API_client_development">
+    <user>admin</user>
+    <date-started unixtime="1432806478853">2015-05-28T09:47:58Z</date-started>
+    <date-ended unixtime="1432806481363">2015-05-28T09:48:01Z</date-ended>
+    <job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069" averageDuration="1022">
+      <name>job_with_args</name>
+      <group/>
+      <project>API_client_development</project>
+      <description/>
+      <options>
+        <option name="arg1" value="foo"/>
+      </options>
+    </job>
+    <description>echo $arg1</description>
+    <argstring>-arg1 foo</argstring>
+    <successfulNodes>
+      <node name="localhost"/>
+    </successfulNodes>
+  </execution>
+</executions>
