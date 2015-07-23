@@ -89,7 +89,7 @@ class RundeckParser(object):
                         },
                         'options': {
                             'function': 'list',
-                            'args': self.options_parse_table
+                            'parse table': self.options_parse_table
                         },
                     },
                     'mandatory_attributes': ['id', 'name', 'project']
@@ -102,27 +102,26 @@ class RundeckParser(object):
                 'element_parse_table': self.job_parse_table
             }
         }
-        self.snode_parse_table = {
+        self.nodes_parse_table = {
             'successfulNodes': {
                 'function': 'list',
                 'element_parse_table': self.node_parse_table,
                 'skip len': True
-            }
-        }
-        self.fnode_parse_table = {
+            },
             'failedNodes': {
                 'function': 'list',
                 'element_parse_table': self.node_parse_table,
                 'skip len': True
             }
         }
-        self.sdate_parse_table = {
+        # self.fnode_parse_table = {
+
+        # }
+        self.date_parse_table = {
             'date-started': {
                 'function': 'attribute text',
                 'text tag': 'time'
-            }
-        }
-        self.edate_parse_table = {
+            },
             'date-ended': {
                 'function': 'attribute text',
                 'text tag': 'time'
@@ -138,11 +137,11 @@ class RundeckParser(object):
                         },
                         'date-started': {
                             'function': 'attribute text',
-                            'args': self.sdate_parse_table
+                            'parse table': self.date_parse_table
                         },
                         'job': {
                             'function': 'non terminal',
-                            'args': self.job_parse_table
+                            'parse table': self.job_parse_table
                         },
                         'description': {
                             'function': 'terminal'
@@ -155,18 +154,18 @@ class RundeckParser(object):
                         },
                         'date-ended': {
                             'function': 'attribute text',
-                            'args': self.edate_parse_table
+                            'parse table': self.date_parse_table
                         },
                         'abortedby': {
                             'function': 'terminal'
                         },
                         'successfulNodes': {
                             'function': 'list',
-                            'args': self.snode_parse_table
+                            'parse table': self.nodes_parse_table
                         },
                         'failedNodes': {
                             'function': 'list',
-                            'args': self.fnode_parse_table
+                            'parse table': self.nodes_parse_table
                         }
                     },
                     'mandatory_attributes': [
@@ -183,11 +182,31 @@ class RundeckParser(object):
             }
         }
 
+        self.result_parse_table = {
+            'result': {
+                'function': 'non terminal',
+                'components': {
+                    'tags': {
+                        'jobs': {
+                            'function': 'list',
+                            'parse table': self.jobs_parse_table
+                        },
+                        'executions': {
+                            'function': 'list',
+                            'parse table': self.executions_parse_table
+                        },
+                    },
+                    'mandatory_attributes': []
+                }
+            }
+        }
+
     @staticmethod
-    def parse(cb_type, xml_tree, tag, parse_table):
+    def parse(cb_type, xml_tree, parse_table):
         engine = ParserEngine()
         cb = engine.callbacks[cb_type]
-        return cb(xml_tree, tag, parse_table)
+        expected_tags = list(parse_table.keys())
+        return cb(xml_tree, expected_tags, parse_table)
 
 
 class ParserEngine(object):
@@ -200,25 +219,25 @@ class ParserEngine(object):
             'non terminal':   self.non_terminal_tag
         }
 
-    def terminal_tag(self, root, tag, parse_table=None):
-        self.check_root_tag(root.tag, tag)
+    def terminal_tag(self, root, expected_tags, parse_table=None):
+        self.check_root_tag(root.tag, expected_tags)
         return root.text
 
-    def attribute_tag(self, root, tag, parse_table=None):
-        self.check_root_tag(root.tag, tag)
+    def attribute_tag(self, root, expected_tags, parse_table=None):
+        self.check_root_tag(root.tag, expected_tags)
         return root.attrib
 
-    def attribute_text_tag(self, root, tag, parse_table):
-        self.check_root_tag(root.tag, tag)
+    def attribute_text_tag(self, root, expected_tags, parse_table):
+        self.check_root_tag(root.tag, expected_tags)
         ret = root.attrib
 
-        text_tag = parse_table[tag]['text tag']
+        text_tag = parse_table[root.tag]['text tag']
         ret.update({text_tag: root.text})
 
         return ret
 
-    def list_tag(self, root, tag, parse_table):
-        self.check_root_tag(root.tag, tag)
+    def list_tag(self, root, expected_tags, parse_table):
+        self.check_root_tag(root.tag, expected_tags)
 
         element_pt = parse_table[root.tag]['element_parse_table']
         exp_tag = list(element_pt.keys())[0]
@@ -235,17 +254,17 @@ class ParserEngine(object):
 
         if cnt_str is None:
             raise RundeckParseError('attribute @count missing from <{}>'
-                                    .format(tag))
+                                    .format(root.tag))
 
         cnt = int(cnt_str)
         ln = len(lst)
         if cnt != ln:
             raise RundeckParseError('list len(={}) and count(={})'
                                     .format(ln, cnt) + ' are different')
-        return {'count': cnt, tag: lst}
+        return {'count': cnt, 'list': lst}
 
-    def non_terminal_tag(self, root, tag, parse_table):
-        self.check_root_tag(root.tag, tag)
+    def non_terminal_tag(self, root, expected_tags, parse_table):
+        self.check_root_tag(root.tag, expected_tags)
 
         pt = parse_table[root.tag]['components']
 
@@ -262,7 +281,7 @@ class ParserEngine(object):
             callback = self.callbacks[callback_type]
             if (callback_type == 'list' or callback_type == 'non terminal' or
                     callback_type == 'attribute text'):
-                args = callbacks[c_tag]['args']
+                args = callbacks[c_tag]['parse table']
                 ret[c_tag] = callback(c, c_tag, args)
             elif callback_type == 'terminal' or callback_type == 'attribute':
                 ret[c_tag] = callback(c, c_tag)
@@ -278,8 +297,8 @@ class ParserEngine(object):
         return ret
 
     def check_root_tag(self, actual, expected):
-        if actual != expected:
-            msg = "expected <{}>, but got: '{}'".format(expected, actual)
+        if actual not in expected:
+            msg = "expected one of {}, but got: '{}'".format(expected, actual)
             msg += ""
             raise RundeckParseError(msg)
 
@@ -288,8 +307,7 @@ def job(xml_tree):
     "Parse a single job. Return a dict represeting a job."
 
     parser = RundeckParser()
-    return parser.parse('non terminal', xml_tree,
-                        'job', parser.job_parse_table)
+    return parser.parse('non terminal', xml_tree, parser.job_parse_table)
 
     # check_root_tag(xml_tree.tag, ['job'])
 
@@ -314,8 +332,7 @@ def jobs(xml_tree):
     "Parse multiple jobs. Return a list containing the jobs."
 
     parser = RundeckParser()
-    return parser.parse('list', xml_tree,
-                        'jobs', parser.jobs_parse_table)
+    return parser.parse('list', xml_tree, parser.jobs_parse_table)
     # check_root_tag(xml_tree.tag, ['jobs'])
 
     # if xml_tree.get('count') is None:
@@ -339,20 +356,22 @@ def jobs(xml_tree):
 def date(xml_tree):
     "Parse a date-started or a date-ended. Return a dict."
 
-    check_root_tag(xml_tree.tag, ['date-started', 'date-ended'])
+    parser = RundeckParser()
+    return parser.parse('attribute text', xml_tree, parser.date_parse_table)
 
-    return {
-        'time': xml_tree.text.strip(),
-        'unixtime': xml_tree.get('unixtime').strip()
-    }
+    # check_root_tag(xml_tree.tag, ['date-started', 'date-ended'])
+
+    # return {
+    #     'time': xml_tree.text.strip(),
+    #     'unixtime': xml_tree.get('unixtime').strip()
+    # }
 
 
 def node(xml_tree):
     "Parse a node. Return a dict."
 
     parser = RundeckParser()
-    return parser.parse('attribute', xml_tree,
-                        'node', parser.node_parse_table)
+    return parser.parse('attribute', xml_tree, parser.node_parse_table)
     # if xml_tree.tag != 'node':
     #     raise RundeckParseError('expected tag <node>, got: <{}>'
     #                             .format(xml_tree.tag))
@@ -362,17 +381,21 @@ def node(xml_tree):
 def nodes(xml_tree):
     "Parse multiple nodes. Return a list of nodes."
 
-    check_root_tag(xml_tree.tag, ['successfulNodes', 'failedNodes'])
+    parser = RundeckParser()
+    return parser.parse('list', xml_tree, parser.nodes_parse_table)
+    # parser = RundeckParser()
+    # return parser.parse('list', xml_tree,
+    #                     'nodes', parser.nodes_parse_table)
+    # check_root_tag(xml_tree.tag, ['successfulNodes', 'failedNodes'])
 
-    return [node(child) for child in xml_tree]
+    # return [node(child) for child in xml_tree]
 
 
 def execution(xml_tree):
     "Parse a single execution. Return a dict."
 
     parser = RundeckParser()
-    return parser.parse('non terminal', xml_tree,
-                        'execution', parser.execution_parse_table)
+    return parser.parse('non terminal', xml_tree, parser.execution_parse_table)
     # check_root_tag(xml_tree.tag, ['execution'])
 
     # ret = {}
@@ -395,8 +418,7 @@ def executions(xml_tree):
     "Parse multiple executions. Return a list."
 
     parser = RundeckParser()
-    return parser.parse('list', xml_tree,
-                        'executions', parser.executions_parse_table)
+    return parser.parse('list', xml_tree, parser.executions_parse_table)
     # check_root_tag(xml_tree.tag, ['executions'])
     # ret = {}
     # if xml_tree.get('count') is None:
@@ -418,8 +440,7 @@ def option(xml_tree):
     "Parse a single option. Return a dict."
 
     parser = RundeckParser()
-    return parser.parse('attribute', xml_tree,
-                        'option', parser.option_parse_table)
+    return parser.parse('attribute', xml_tree, parser.option_parse_table)
     # check_root_tag(xml_tree.tag, ['option'])
 
     # return xml_tree.attrib
@@ -429,7 +450,6 @@ def options(xml_tree):
     "Parse multiple options. Return a list."
 
     parser = RundeckParser()
-    return parser.parse('list', xml_tree,
-                        'options', parser.options_parse_table)
+    return parser.parse('list', xml_tree, parser.options_parse_table)
     # check_root_tag(xml_tree.tag, ['options'])
     # return [option(c) for c in xml_tree]
