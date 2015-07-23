@@ -88,8 +88,7 @@ class TestXMLToNativePython:
             multiple_jobs = etree.fromstring(jobs_fl.read())
         expected = {
             'count': 3,
-            'jobs':
-            [
+            'list': [
                 {
                     'id': "3b8a86d5-4fc3-4cc1-95a2-8b51421c2069",
                     'name': 'job_with_args',
@@ -290,7 +289,7 @@ class TestXMLToNativePython:
         xml_tree = etree.fromstring(xml_str)
         expected = {
             'count': 5,
-            'executions': [
+            'list': [
                 {
                     'argstring': '-arg1 foo',
                     'date-ended': {
@@ -442,3 +441,190 @@ class TestXMLToNativePython:
                             'bad_executions.xml')) as fl:
             xml_tree = etree.fromstring(fl.read())
             xmlp.executions(xml_tree)
+
+    def test_result_with_execution(self):
+        expected = {
+            'success': 'true',
+            'apiversion': '13',
+            'executions': {
+                'count': 5,
+                'list': [
+                    {
+                        'argstring': '-arg1 foo',
+                        'date-ended': {
+                            'time': '2015-05-28T10:44:04Z',
+                            'unixtime': '1432809844967'
+                        },
+                        'date-started': {
+                            'time': '2015-05-28T10:44:04Z',
+                            'unixtime': '1432809844290'
+                        },
+                        'description': 'echo $RD_OPTION_ARG1',
+                        'href': 'http://192.168.50.2:4440/execution/follow/53',
+                        'id': '53',
+                        'job': {
+                            'averageDuration': '1022',
+                            'description': None,
+                            'group': None,
+                            'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
+                            'name': 'job_with_args',
+                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'project': 'API_client_development'
+                        },
+                        'project': 'API_client_development',
+                        'status': 'succeeded',
+                        'successfulNodes': [{'name': 'localhost'}],
+                        'user': 'admin'
+                    },
+                    {
+                        'argstring': '-arg1 foo',
+                        'date-ended': {
+                            'time': '2015-05-28T10:43:32Z',
+                            'unixtime': '1432809812305'
+                        },
+                        'date-started': {
+                            'time': '2015-05-28T10:43:31Z',
+                            'unixtime': '1432809811697'
+                        },
+                        'description': 'echo $RD_OPTION_ARG1',
+                        'href': 'http://192.168.50.2:4440/execution/follow/52',
+                        'id': '52',
+                        'job': {
+                            'averageDuration': '1022',
+                            'description': None,
+                            'group': None,
+                            'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
+                            'name': 'job_with_args',
+                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'project': 'API_client_development'
+                        },
+                        'project': 'API_client_development',
+                        'status': 'succeeded',
+                        'successfulNodes': [{'name': 'localhost'}],
+                        'user': 'admin'
+                    },
+                    {
+                        'argstring': '-arg1 faf',
+                        'date-ended': {
+                            'time': '2015-05-28T09:53:15Z',
+                            'unixtime': '1432806795789'
+                        },
+                        'date-started': {
+                            'time': '2015-05-28T09:53:15Z',
+                            'unixtime': '1432806795182'
+                        },
+                        'description': 'echo $RD_OPTION_ARG1',
+                        'href': 'http://192.168.50.2:4440/execution/follow/49',
+                        'id': '49',
+                        'job': {
+                            'averageDuration': '1022',
+                            'description': None,
+                            'group': None,
+                            'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
+                            'name': 'job_with_args',
+                            'options': [{'name': 'arg1', 'value': 'faf'}],
+                            'project': 'API_client_development'
+                        },
+                        'project': 'API_client_development',
+                        'status': 'succeeded',
+                        'successfulNodes': [{'name': 'localhost'}],
+                        'user': 'admin'
+                    },
+                    {
+                        'argstring': '-arg1 foo',
+                        'date-ended': {
+                            'time': '2015-05-28T09:51:49Z',
+                            'unixtime': '1432806709852'
+                        },
+                        'date-started': {
+                            'time': '2015-05-28T09:51:49Z',
+                            'unixtime': '1432806709140'
+                        },
+                        'description': 'echo $1',
+                        'href': 'http://192.168.50.2:4440/execution/follow/48',
+                        'id': '48',
+                        'job': {
+                            'averageDuration': '1022',
+                            'description': None,
+                            'group': None,
+                            'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
+                            'name': 'job_with_args',
+                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'project': 'API_client_development'
+                        },
+                        'project': 'API_client_development',
+                        'status': 'succeeded',
+                        'successfulNodes': [{'name': 'localhost'}],
+                        'user': 'admin'
+                    },
+                    {
+                        'argstring': '-arg1 foo',
+                        'date-ended': {
+                            'time': '2015-05-28T09:48:01Z',
+                            'unixtime': '1432806481363'
+                        },
+                        'date-started': {
+                            'time': '2015-05-28T09:47:58Z',
+                            'unixtime': '1432806478853'
+                        },
+                        'description': 'echo $arg1',
+                        'href': 'http://192.168.50.2:4440/execution/follow/46',
+                        'id': '46',
+                        'job': {
+                            'averageDuration': '1022',
+                            'description': None,
+                            'group': None,
+                            'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
+                            'name': 'job_with_args',
+                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'project': 'API_client_development'
+                        },
+                        'project': 'API_client_development',
+                        'status': 'succeeded',
+                        'successfulNodes': [{'name': 'localhost'}],
+                        'user': 'admin'
+                    }
+                ]
+            }
+        }
+        with open(path.join(config.rundeck_test_data_dir,
+                            'execution_result.xml')) as fl:
+            xml_tree = etree.fromstring(fl.read())
+            nt.assert_equal(expected, xmlp.parse(xml_tree))
+
+    def test_result_with_jobs(self):
+        expected = {
+            'apiversion': '13',
+            'jobs': {'count': 5,
+                     'list': [
+                         {'description': None,
+                          'group': None,
+                          'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
+                          'name': 'job_with_args',
+                          'project': 'API_client_development'},
+                         {'description': 'async testing',
+                          'group': None,
+                          'id': 'ea17d859-32ff-45c8-8a0d-a16ac1ea3566',
+                          'name': 'long job',
+                          'project': 'API_client_development'},
+                         {'description': None,
+                          'group': None,
+                          'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
+                          'name': 'test_job_1',
+                          'project': 'API_client_development'},
+                         {'description': None,
+                          'group': None,
+                          'id': '8d5ebfc8-d69a-4808-819e-9c57b7f288d2',
+                          'name': 'test_job_2',
+                          'project': 'API_client_development'},
+                         {'description': None,
+                          'group': None,
+                          'id': '734f8b9c-683d-49cd-a2f2-f317696b76f8',
+                          'name': 'test_job_2',
+                          'project': 'API_client_development'}
+                     ]},
+            'success': 'true'}
+        with open(path.join(config.rundeck_test_data_dir,
+                            'jobs_result.xml')) as fl:
+            xml_tree = etree.fromstring(fl.read())
+            nt.assert_equal(expected, xmlp.parse(xml_tree))
