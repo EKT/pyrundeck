@@ -49,12 +49,14 @@ class RundeckParseError(Exception):
 
 
 class RundeckParser(object):
+    "This class contains the parsing tables for various rundeck elements."
     def __init__(self):
         self.option_parse_table = {
             'option': {
                 'function': 'attribute'
             }
         }
+
         self.options_parse_table = {
             'options': {
                 'function': 'list',
@@ -62,11 +64,13 @@ class RundeckParser(object):
                 'skip len': True
             }
         }
+
         self.node_parse_table = {
             'node': {
                 'function': 'attribute',
             }
         }
+
         self.job_parse_table = {
             'job': {
                 'function': 'non terminal',
@@ -96,12 +100,14 @@ class RundeckParser(object):
                 }
             }
         }
+
         self.jobs_parse_table = {
             'jobs': {
                 'function': 'list',
                 'element_parse_table': self.job_parse_table
             }
         }
+
         self.nodes_parse_table = {
             'successfulNodes': {
                 'function': 'list',
@@ -114,9 +120,7 @@ class RundeckParser(object):
                 'skip len': True
             }
         }
-        # self.fnode_parse_table = {
 
-        # }
         self.date_parse_table = {
             'date-started': {
                 'function': 'attribute text',
@@ -127,6 +131,7 @@ class RundeckParser(object):
                 'text tag': 'time'
             }
         }
+
         self.execution_parse_table = {
             'execution': {
                 'function': 'non terminal',
@@ -175,6 +180,7 @@ class RundeckParser(object):
                 }
             }
         }
+
         self.executions_parse_table = {
             'executions': {
                 'function': 'list',
@@ -210,6 +216,7 @@ class RundeckParser(object):
 
 
 class ParserEngine(object):
+    "Internal class. The user does not need to interact with it"
     def __init__(self):
         self.callbacks = {
             'terminal':       self.terminal_tag,
@@ -220,14 +227,17 @@ class ParserEngine(object):
         }
 
     def terminal_tag(self, root, expected_tags, parse_table=None):
+        "Parse a text only tag."
         self.check_root_tag(root.tag, expected_tags)
         return root.text
 
     def attribute_tag(self, root, expected_tags, parse_table=None):
+        "Parse a tag with attributes."
         self.check_root_tag(root.tag, expected_tags)
         return root.attrib
 
     def attribute_text_tag(self, root, expected_tags, parse_table):
+        "Parse a tag with attributes and text."
         self.check_root_tag(root.tag, expected_tags)
         ret = root.attrib
 
@@ -237,6 +247,7 @@ class ParserEngine(object):
         return ret
 
     def list_tag(self, root, expected_tags, parse_table):
+        "Parse a tag that is a list of elements."
         self.check_root_tag(root.tag, expected_tags)
 
         element_pt = parse_table[root.tag]['element_parse_table']
@@ -264,6 +275,7 @@ class ParserEngine(object):
         return {'count': cnt, 'list': lst}
 
     def non_terminal_tag(self, root, expected_tags, parse_table):
+        "Parse a tag consisting of other tags."
         self.check_root_tag(root.tag, expected_tags)
 
         pt = parse_table[root.tag]['components']
@@ -301,15 +313,6 @@ class ParserEngine(object):
             msg = "expected one of {}, but got: '{}'".format(expected, actual)
             msg += ""
             raise RundeckParseError(msg)
-
-parser = RundeckParser()
-
-
-def parse(xml_tree, cb_type='non terminal',
-          parse_table=parser.result_parse_table):
-    """Main point of entry to the parser"""
-    return parser.parse(xml_tree, cb_type, parse_table)
-
 
 def job(xml_tree):
     "Parse a single job. Return a dict represeting a job."
@@ -452,3 +455,12 @@ def options(xml_tree):
     return parse(xml_tree, 'list', parser.options_parse_table)
     # check_root_tag(xml_tree.tag, ['options'])
     # return [option(c) for c in xml_tree]
+
+# The entry point for this module
+parser = RundeckParser()
+
+
+def parse(xml_tree, cb_type='non terminal',
+          parse_table=parser.result_parse_table):
+    """Main point of entry to the parser"""
+    return parser.parse(xml_tree, cb_type, parse_table)
