@@ -30,7 +30,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""The functions in this module convert the ``lxml.etree``
+"""The classes and functions in this module convert the ``lxml.etree``
 representation of the server response to native objects similar to a
 JSON representation. The functions in this module implement a
 recursive descent parser based on the tags of the XML representation.
@@ -57,6 +57,8 @@ class RundeckParser(object):
             }
         }
 
+        # The options are parsed as a list that contain many single
+        # option objects
         self.options_parse_table = {
             'options': {
                 'function': 'list',
@@ -209,14 +211,31 @@ class RundeckParser(object):
 
     @staticmethod
     def parse(xml_tree, cb_type, parse_table):
+        """This method is the external interface to the ParserEngine class.
+
+        The parse table for each element must contain a key named
+        'function' that should contain the type of the parse function
+        that should be called to parse this tag. This is the
+        ``cb_type`` argument of the parse method.
+
+        """
+        # Create a parser engine.
+
+        # TODO: It is probably a mistake to create a new engine every
+        # time this function is called. OPTIMIZE.
         engine = ParserEngine()
-        cb = engine.callbacks[cb_type]
-        expected_tags = list(parse_table.keys())
-        return cb(xml_tree, expected_tags, parse_table)
+        cb = engine.callbacks[cb_type]  # Find which call back we need to call
+        expected_tags = list(parse_table.keys())  # What tags are we parsing?
+        return cb(xml_tree, expected_tags, parse_table)  # Call the callback
 
 
 class ParserEngine(object):
-    "Internal class. The user does not need to interact with it"
+    """This is class converts the ``lxml.etree`` representation to native
+    Python objects.
+
+    The user does not need to interact with it.
+
+    """
     def __init__(self):
         self.callbacks = {
             'terminal':       self.terminal_tag,
@@ -227,17 +246,65 @@ class ParserEngine(object):
         }
 
     def terminal_tag(self, root, expected_tags, parse_table=None):
-        "Parse a text only tag."
+        # TODO: Refactor this method, renaming it to text_tag
+        """Parse a tag containing only text.
+
+        Example:
+        Input:
+        <name>Random text</name>
+        Parse table:
+        None (This is a terminal symbol in the grammar)
+        Output:
+        "Random text"
+
+        :return: The text of the tag.
+        """
         self.check_root_tag(root.tag, expected_tags)
         return root.text
 
     def attribute_tag(self, root, expected_tags, parse_table=None):
-        "Parse a tag with attributes."
+        """Parse a tag with attributes.
+
+        Example:
+        Input:
+        <option name="arg1" value="faf"/>
+        Parse table:
+        None (This is a terminal symbol in the grammar)
+        Output: {'name': 'arg1', 'value': 'faf'}
+
+        :return: A dictionary containing key value pairs for all the attributes
+        """
         self.check_root_tag(root.tag, expected_tags)
         return root.attrib
 
     def attribute_text_tag(self, root, expected_tags, parse_table):
-        "Parse a tag with attributes and text."
+        """Parse a tag with attributes and text.
+
+        Example:
+
+        Input:
+        <date-started unixtime="1437474661504">
+          2015-07-21T10:31:01Z
+        </date-started>
+        Parse table:
+        {
+          'date-started': {
+              'function': 'attribute text',
+              'text tag': 'time'
+          }
+        }
+        Output:
+        {
+          'unixtime': '1437474661504',
+          'text tag': '2015-07-21T10:31:01Z'
+        }
+
+        :return: A dictionary containing all the attributes of the
+        tag. The text of the tag is entered in the dictionary as a
+        value with key a string provided by the parse table for this
+        tag.
+
+        """
         self.check_root_tag(root.tag, expected_tags)
         ret = root.attrib
 
@@ -247,7 +314,32 @@ class ParserEngine(object):
         return ret
 
     def list_tag(self, root, expected_tags, parse_table):
-        "Parse a tag that is a list of elements."
+        """Parse a tag that is a list of elements.
+
+        Example:
+        Input:
+        <options>
+          <option name="arg1" value="foo"/>
+          <option name="arg2" value="bar"/>
+        </options>
+        Parse table:
+        {
+          'function': 'list',
+          'element_parse_table': self.option_parse_table,
+          'skip len': True
+        }
+        Output:
+        [
+          {'name': 'arg1', 'value': 'foo'},
+          {'name': 'arg2', 'value': 'bar'}
+        ]
+
+        :param root: The actual XML object that we need to parse.
+        :param expected_tags: A list containing the tags this element can
+                              start with.
+        :param parse_table: The parse table for this element.
+        :return: A list of elements specified by the parse table.
+        """
         self.check_root_tag(root.tag, expected_tags)
 
         element_pt = parse_table[root.tag]['element_parse_table']
@@ -256,6 +348,7 @@ class ParserEngine(object):
         callback = self.callbacks[callback_type]
 
         lst = [callback(c, exp_tag, element_pt) for c in root]
+        # TODO maybe remove this to make the parser more general.
         cnt_str = root.get('count')
 
         skip_len = (parse_table[root.tag].get('skip len') is not None and
@@ -275,7 +368,112 @@ class ParserEngine(object):
         return {'count': cnt, 'list': lst}
 
     def non_terminal_tag(self, root, expected_tags, parse_table):
-        "Parse a tag consisting of other tags."
+        # TODO: Refactor the name of this method to composite_tag
+        """Parse a tag consisting of other tags.
+
+        Input:
+        <execution id="117"
+           href="http://192.168.50.2:4440/execution/follow/117"
+           status="succeeded" project="API_client_development">
+          <user>admin</user>
+          <date-started unixtime="1437474661504">
+            2015-07-21T10:31:01Z
+          </date-started>
+          <date-ended unixtime="1437474662344">
+            2015-07-21T10:31:02Z
+          </date-ended>
+          <job id="78f491e7-714f-44c6-bddb-8b3b3a961ace"
+               averageDuration="2716">
+            <name>test_job_1</name>
+            <group/>
+            <project>API_client_development</project>
+            <description/>
+          </job>
+          <description>echo "Hello"</description>
+          <argstring/>
+          <successfulNodes>
+          <node name="localhost"/>
+          </successfulNodes>
+        </execution>
+        Parse table:
+        {
+          'function': 'non terminal',
+          'components': {
+            'tags': {
+              'user': {
+                'function': 'terminal',
+              },
+              'date-started': {
+                'function': 'attribute text',
+                'parse table': self.date_parse_table
+              },
+              'job': {
+                'function': 'non terminal',
+                'parse table': self.job_parse_table
+              },
+              'description': {
+                'function': 'terminal'
+              },
+              'argstring': {
+                'function': 'terminal'
+              },
+              'serverUUID': {
+                'function': 'terminal'
+              },
+              'date-ended': {
+                'function': 'attribute text',
+                 'parse table': self.date_parse_table
+              },
+              'abortedby': {
+                'function': 'terminal'
+              },
+              'successfulNodes': {
+                'function': 'list',
+                'parse table': self.nodes_parse_table
+              },
+              'failedNodes': {
+                'function': 'list',
+                'parse table': self.nodes_parse_table
+              }
+            },
+            'mandatory_attributes': [
+              'user', 'date-started',
+              'description'
+            ]
+          }
+        }
+        Output:
+        {
+            'id': '117',
+            'href': 'http://192.168.50.2:4440/execution/follow/117',
+            'status': 'succeeded',
+            'project': 'API_client_development',
+            'user': 'admin',
+            'date-started': {
+                'unixtime': '1437474661504',
+                'time': '2015-07-21T10:31:01Z'
+            },
+            'date-ended': {
+                'unixtime': '1437474662344',
+                'time': '2015-07-21T10:31:02Z'
+            },
+            'job': {
+                'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
+                'averageDuration': '2716',
+                'name': 'test_job_1',
+                'group': None,
+                'project': 'API_client_development',
+                'description': None,
+            },
+            'description': 'echo "Hello"',
+            'argstring': None,
+            'successfulNodes': [
+                {'name': 'localhost'}
+            ]
+        }
+
+        :return: A dictionary representing the XML object.
+        """
         self.check_root_tag(root.tag, expected_tags)
 
         pt = parse_table[root.tag]['components']
@@ -313,6 +511,7 @@ class ParserEngine(object):
             msg = "expected one of {}, but got: '{}'".format(expected, actual)
             msg += ""
             raise RundeckParseError(msg)
+
 
 def job(xml_tree):
     "Parse a single job. Return a dict represeting a job."
@@ -462,5 +661,5 @@ parser = RundeckParser()
 
 def parse(xml_tree, cb_type='non terminal',
           parse_table=parser.result_parse_table):
-    """Main point of entry to the parser"""
+    """Main entry point to the parser"""
     return parser.parse(xml_tree, cb_type, parse_table)
