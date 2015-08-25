@@ -43,14 +43,61 @@ __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
 class RundeckParseError(Exception):
+    # TODO refactor the name to ParseError.
     def __init__(self, *args, **kwargs):
         "This class represents a parse error."
         super(RundeckParseError, self).__init__(*args, **kwargs)
 
 
 class RundeckParser(object):
-    "This class contains the parsing tables for various rundeck elements."
+    """This class contains the parsing tables for various rundeck elements.
+
+    Each parse table describes a tag, or a set of alternative tags and
+    their components.
+
+    Every parse table is a dictonary containing at least one key. The
+    key is the tag that we are trying to parse. If the dict contains
+    more than one key then these are the alterantives for the tag. For
+    instance if the parse table is ``{'foo': {...}, 'bar': {...}}``
+    the parser will accept either the tag ``foo`` or the tag ``bar``.
+
+    Every parse table needs to specify what type of tag we are
+    parsing. This is done using the ``'function'`` key inside the dict
+    that describes the tag. Currently the
+    :py:class:`pyrundeck.xml2native.ParserEngine` recognizes the
+    following functions.
+
+    ``'terminal'``
+       A tag that contains only text.
+
+    ``'attribute'``
+       A tag that contains only attributes.
+
+    ``'attribute text'``
+       A tag that contains attributes and text.
+
+       A special parse table dict key named ``'text tag'`` should be
+       specified. It's value should be a string and it is used as the
+       key to the returned dictionary for the text. See
+       :py:meth:`RundeckParser.attribute_text_tag`
+
+    ``'list'``
+       A tag that is a list of other similar tags.
+
+       A special parse table dict key named ``'skip len'`` can be set
+       to ``True``, to prevent the check for a count attribute in this
+       tag.
+
+    ``'non terminal'``
+       A tag that is composed of other tags and attributes.
+
+    """
+
     def __init__(self):
+        # An option is just a tag with attributes. Use the attribute
+        # function to parse it.
+        # Example:
+        # <option name="arg1" value="foo"/>
         self.option_parse_table = {
             'option': {
                 'function': 'attribute'
@@ -58,7 +105,11 @@ class RundeckParser(object):
         }
 
         # The options are parsed as a list that contain many single
-        # option objects
+        # option objects.
+        # Example:
+        # <options>
+        #   <option name="arg1" value="foo"/>
+        # </options>
         self.options_parse_table = {
             'options': {
                 'function': 'list',
@@ -67,12 +118,18 @@ class RundeckParser(object):
             }
         }
 
+        # A node is an attribute tag.
+        # Example:
+        # <node name="localhost"/>
         self.node_parse_table = {
             'node': {
                 'function': 'attribute',
             }
         }
 
+        # A job is a composite tag that MUST have id, name and
+        # project, and CAN also have group, description, id and
+        # options.
         self.job_parse_table = {
             'job': {
                 'function': 'non terminal',
@@ -249,13 +306,19 @@ class ParserEngine(object):
         # TODO: Refactor this method, renaming it to text_tag
         """Parse a tag containing only text.
 
-        Example:
-        Input:
-        <name>Random text</name>
-        Parse table:
-        None (This is a terminal symbol in the grammar)
-        Output:
-        "Random text"
+        **Example**
+
+        Input::
+
+           <name>Random text</name>
+
+        Parse table::
+
+           None (This is a terminal symbol in the grammar)
+
+        Output::
+
+           "Random text"
 
         :return: The text of the tag.
         """
@@ -265,12 +328,19 @@ class ParserEngine(object):
     def attribute_tag(self, root, expected_tags, parse_table=None):
         """Parse a tag with attributes.
 
-        Example:
-        Input:
-        <option name="arg1" value="faf"/>
-        Parse table:
-        None (This is a terminal symbol in the grammar)
-        Output: {'name': 'arg1', 'value': 'faf'}
+        **Example**
+
+        Input::
+
+           <option name="arg1" value="faf"/>
+
+        Parse table::
+
+           None (This is a terminal symbol in the grammar)
+
+        Output::
+
+           {'name': 'arg1', 'value': 'faf'}
 
         :return: A dictionary containing key value pairs for all the attributes
         """
@@ -280,29 +350,34 @@ class ParserEngine(object):
     def attribute_text_tag(self, root, expected_tags, parse_table):
         """Parse a tag with attributes and text.
 
-        Example:
+        **Example**
 
-        Input:
-        <date-started unixtime="1437474661504">
-          2015-07-21T10:31:01Z
-        </date-started>
-        Parse table:
-        {
-          'date-started': {
-              'function': 'attribute text',
-              'text tag': 'time'
-          }
-        }
-        Output:
-        {
-          'unixtime': '1437474661504',
-          'text tag': '2015-07-21T10:31:01Z'
-        }
+        Input::
+
+           <date-started unixtime="1437474661504">
+             2015-07-21T10:31:01Z
+           </date-started>
+
+        Parse table::
+
+           {
+             'date-started': {
+                'function': 'attribute text',
+                'text tag': 'time'
+             }
+           }
+
+        Output::
+
+           {
+             'unixtime': '1437474661504',
+             'text tag': '2015-07-21T10:31:01Z'
+           }
 
         :return: A dictionary containing all the attributes of the
-        tag. The text of the tag is entered in the dictionary as a
-        value with key a string provided by the parse table for this
-        tag.
+                 tag. The text of the tag is entered in the dictionary
+                 as a value with key a string provided by the parse
+                 table for this tag.
 
         """
         self.check_root_tag(root.tag, expected_tags)
@@ -316,23 +391,29 @@ class ParserEngine(object):
     def list_tag(self, root, expected_tags, parse_table):
         """Parse a tag that is a list of elements.
 
-        Example:
-        Input:
-        <options>
-          <option name="arg1" value="foo"/>
-          <option name="arg2" value="bar"/>
-        </options>
-        Parse table:
-        {
-          'function': 'list',
-          'element_parse_table': self.option_parse_table,
-          'skip len': True
-        }
-        Output:
-        [
-          {'name': 'arg1', 'value': 'foo'},
-          {'name': 'arg2', 'value': 'bar'}
-        ]
+        **Example**
+
+        Input::
+
+           <options>
+             <option name="arg1" value="foo"/>
+             <option name="arg2" value="bar"/>
+           </options>
+
+        Parse table::
+
+           {
+             'function': 'list',
+             'element_parse_table': self.option_parse_table,
+             'skip len': True
+           }
+
+        Output::
+
+           [
+             {'name': 'arg1', 'value': 'foo'},
+             {'name': 'arg2', 'value': 'bar'}
+           ]
 
         :param root: The actual XML object that we need to parse.
         :param expected_tags: A list containing the tags this element can
@@ -371,106 +452,113 @@ class ParserEngine(object):
         # TODO: Refactor the name of this method to composite_tag
         """Parse a tag consisting of other tags.
 
-        Input:
-        <execution id="117"
-           href="http://192.168.50.2:4440/execution/follow/117"
-           status="succeeded" project="API_client_development">
-          <user>admin</user>
-          <date-started unixtime="1437474661504">
-            2015-07-21T10:31:01Z
-          </date-started>
-          <date-ended unixtime="1437474662344">
-            2015-07-21T10:31:02Z
-          </date-ended>
-          <job id="78f491e7-714f-44c6-bddb-8b3b3a961ace"
-               averageDuration="2716">
-            <name>test_job_1</name>
-            <group/>
-            <project>API_client_development</project>
-            <description/>
-          </job>
-          <description>echo "Hello"</description>
-          <argstring/>
-          <successfulNodes>
-          <node name="localhost"/>
-          </successfulNodes>
-        </execution>
-        Parse table:
-        {
-          'function': 'non terminal',
-          'components': {
-            'tags': {
-              'user': {
-                'function': 'terminal',
-              },
-              'date-started': {
-                'function': 'attribute text',
-                'parse table': self.date_parse_table
-              },
-              'job': {
-                'function': 'non terminal',
-                'parse table': self.job_parse_table
-              },
-              'description': {
-                'function': 'terminal'
-              },
-              'argstring': {
-                'function': 'terminal'
-              },
-              'serverUUID': {
-                'function': 'terminal'
-              },
-              'date-ended': {
-                'function': 'attribute text',
-                 'parse table': self.date_parse_table
-              },
-              'abortedby': {
-                'function': 'terminal'
-              },
-              'successfulNodes': {
-                'function': 'list',
-                'parse table': self.nodes_parse_table
-              },
-              'failedNodes': {
-                'function': 'list',
-                'parse table': self.nodes_parse_table
-              }
-            },
-            'mandatory_attributes': [
-              'user', 'date-started',
-              'description'
-            ]
-          }
-        }
-        Output:
-        {
-            'id': '117',
-            'href': 'http://192.168.50.2:4440/execution/follow/117',
-            'status': 'succeeded',
-            'project': 'API_client_development',
-            'user': 'admin',
-            'date-started': {
-                'unixtime': '1437474661504',
-                'time': '2015-07-21T10:31:01Z'
-            },
-            'date-ended': {
-                'unixtime': '1437474662344',
-                'time': '2015-07-21T10:31:02Z'
-            },
-            'job': {
-                'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
-                'averageDuration': '2716',
-                'name': 'test_job_1',
-                'group': None,
-                'project': 'API_client_development',
-                'description': None,
-            },
-            'description': 'echo "Hello"',
-            'argstring': None,
-            'successfulNodes': [
-                {'name': 'localhost'}
-            ]
-        }
+        **Example**
+
+        Input::
+
+           <execution id="117"
+              href="http://192.168.50.2:4440/execution/follow/117"
+              status="succeeded" project="API_client_development">
+             <user>admin</user>
+             <date-started unixtime="1437474661504">
+               2015-07-21T10:31:01Z
+             </date-started>
+             <date-ended unixtime="1437474662344">
+               2015-07-21T10:31:02Z
+             </date-ended>
+             <job id="78f491e7-714f-44c6-bddb-8b3b3a961ace"
+                  averageDuration="2716">
+               <name>test_job_1</name>
+               <group/>
+               <project>API_client_development</project>
+               <description/>
+             </job>
+             <description>echo "Hello"</description>
+             <argstring/>
+             <successfulNodes>
+             <node name="localhost"/>
+             </successfulNodes>
+           </execution>
+
+        Parse table::
+
+           {
+             'function': 'non terminal',
+             'components': {
+               'tags': {
+                 'user': {
+                   'function': 'terminal',
+                 },
+                 'date-started': {
+                   'function': 'attribute text',
+                   'parse table': self.date_parse_table
+                 },
+                 'job': {
+                   'function': 'non terminal',
+                   'parse table': self.job_parse_table
+                 },
+                 'description': {
+                   'function': 'terminal'
+                 },
+                 'argstring': {
+                   'function': 'terminal'
+                 },
+                 'serverUUID': {
+                   'function': 'terminal'
+                 },
+                 'date-ended': {
+                   'function': 'attribute text',
+                    'parse table': self.date_parse_table
+                 },
+                 'abortedby': {
+                   'function': 'terminal'
+                 },
+                 'successfulNodes': {
+                   'function': 'list',
+                   'parse table': self.nodes_parse_table
+                 },
+                 'failedNodes': {
+                   'function': 'list',
+                   'parse table': self.nodes_parse_table
+                 }
+               },
+               'mandatory_attributes': [
+                 'user', 'date-started',
+                 'description'
+               ]
+             }
+           }
+
+        Output::
+
+           {
+               'id': '117',
+               'href': 'http://192.168.50.2:4440/execution/follow/117',
+               'status': 'succeeded',
+               'project': 'API_client_development',
+               'user': 'admin',
+               'date-started': {
+                   'unixtime': '1437474661504',
+                   'time': '2015-07-21T10:31:01Z'
+               },
+               'date-ended': {
+                   'unixtime': '1437474662344',
+                   'time': '2015-07-21T10:31:02Z'
+               },
+               'job': {
+                   'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
+                   'averageDuration': '2716',
+                   'name': 'test_job_1',
+                   'group': None,
+                   'project': 'API_client_development',
+                   'description': None,
+               },
+               'description': 'echo "Hello"',
+               'argstring': None,
+               'successfulNodes': [
+                   {'name': 'localhost'}
+               ]
+           }
 
         :return: A dictionary representing the XML object.
         """
@@ -507,6 +595,10 @@ class ParserEngine(object):
         return ret
 
     def check_root_tag(self, actual, expected):
+        """Check that the ``actual`` tag is in the ``expected`` list or raise
+        an error.
+
+        """
         if actual not in expected:
             msg = "expected one of {}, but got: '{}'".format(expected, actual)
             msg += ""
@@ -514,7 +606,11 @@ class ParserEngine(object):
 
 
 def job(xml_tree):
-    "Parse a single job. Return a dict represeting a job."
+    """Parse a single job.
+
+    :return: A dict represeting a job.
+
+    """
 
     return parse(xml_tree, 'non terminal', parser.job_parse_table)
 
@@ -538,7 +634,11 @@ def job(xml_tree):
 
 
 def jobs(xml_tree):
-    "Parse multiple jobs. Return a list containing the jobs."
+    """Parse multiple jobs.
+
+    :return: A list containing the jobs.
+
+    """
 
     return parse(xml_tree, 'list', parser.jobs_parse_table)
     # check_root_tag(xml_tree.tag, ['jobs'])
@@ -562,7 +662,11 @@ def jobs(xml_tree):
 
 
 def date(xml_tree):
-    "Parse a date-started or a date-ended. Return a dict."
+    """Parse a date-started or a date-ended.
+
+    :return: A dict representing a date object.
+
+    """
 
     return parse(xml_tree, 'attribute text', parser.date_parse_table)
 
@@ -575,7 +679,11 @@ def date(xml_tree):
 
 
 def node(xml_tree):
-    "Parse a node. Return a dict."
+    """Parse a node.
+
+    :return: A dict representing a node object.
+
+    """
 
     return parse(xml_tree, 'attribute', parser.node_parse_table)
     # if xml_tree.tag != 'node':
@@ -585,7 +693,9 @@ def node(xml_tree):
 
 
 def nodes(xml_tree):
-    "Parse multiple nodes. Return a list of nodes."
+    """Parse multiple nodes.
+
+    :return: A list of nodes."""
 
     return parse(xml_tree, 'list', parser.nodes_parse_table)
     # parser = RundeckParser()
@@ -597,7 +707,11 @@ def nodes(xml_tree):
 
 
 def execution(xml_tree):
-    "Parse a single execution. Return a dict."
+    """Parse a single execution.
+
+    :return: A dict representing a single execution.
+
+    """
 
     return parse(xml_tree, 'non terminal', parser.execution_parse_table)
     # check_root_tag(xml_tree.tag, ['execution'])
@@ -619,7 +733,11 @@ def execution(xml_tree):
 
 
 def executions(xml_tree):
-    "Parse multiple executions. Return a list."
+    """Parse multiple executions.
+
+    :return: A list of executions.
+
+    """
 
     return parse(xml_tree, 'list', parser.executions_parse_table)
     # check_root_tag(xml_tree.tag, ['executions'])
@@ -640,7 +758,11 @@ def executions(xml_tree):
 
 
 def option(xml_tree):
-    "Parse a single option. Return a dict."
+    """Parse a single option.
+
+    :return: A dict representing an option.
+
+    """
 
     return parse(xml_tree, 'attribute', parser.option_parse_table)
     # check_root_tag(xml_tree.tag, ['option'])
@@ -649,7 +771,11 @@ def option(xml_tree):
 
 
 def options(xml_tree):
-    "Parse multiple options. Return a list."
+    """Parse multiple options.
+
+    :return: A list of options.
+
+    """
 
     return parse(xml_tree, 'list', parser.options_parse_table)
     # check_root_tag(xml_tree.tag, ['options'])
