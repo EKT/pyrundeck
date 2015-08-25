@@ -35,6 +35,10 @@ representation of the server response to native objects similar to a
 JSON representation. The functions in this module implement a
 recursive descent parser based on the tags of the XML representation.
 
+The parser is driven by parsing tables that actually describe the
+grammar the parser accepts. In this sense this library resembles tools
+like yacc and bison.
+
 """
 
 import logging  # TODO: use the logger
@@ -271,7 +275,7 @@ class RundeckParser(object):
         """This method is the external interface to the ParserEngine class.
 
         The parse table for each element must contain a key named
-        'function' that should contain the type of the parse function
+        ``'function'`` that should contain the type of the parse function
         that should be called to parse this tag. This is the
         ``cb_type`` argument of the parse method.
 
