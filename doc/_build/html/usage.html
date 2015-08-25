@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Usage &mdash; PyRundeck 0.1.0 alpha documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0 alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PyRundeck 0.1.0 alpha documentation" href="index.html" />
+    <link rel="next" title="pyrundeck" href="modules.html" />
+    <link rel="prev" title="Introduction" href="intro.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-rundeckapiclient">
+<h2>The <code class="docutils literal"><span class="pre">RundeckApiClient</span></code><a class="headerlink" href="#the-rundeckapiclient" title="Permalink to this headline">¶</a></h2>
+<p>First you need to get an API token from the rundeck installation (see the rundeck <a class="reference external" href="http://rundeck.org/docs/api/index.html#token-authentication">documentation</a> for instructions).
+At the moment PyRundeck only supports token based authentication.</p>
+<p>Import the <code class="docutils literal"><span class="pre">RundeckApiClient</span></code> class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyrundeck</span> <span class="kn">import</span> <span class="n">RundeckApiClient</span>
+</pre></div>
+</div>
+<p>and create an instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rundeck_api_token</span> <span class="o">=</span> <span class="s">&#39;TtC6519V5tHbfz9mJfQiih6kG4CmPoCA&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rundeck_api_base_url</span> <span class="o">=</span> <span class="s">&#39;http://rundeck.example.com&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rundeck</span> <span class="o">=</span> <span class="n">RundeckApiClient</span><span class="p">(</span><span class="n">rundeck_api_token</span><span class="p">,</span> <span class="n">rundeck_api_base_url</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This object is all you need to interact with the Rundeck installation.</p>
+<p>Each endpoint of the rundeck <a class="reference external" href="http://rundeck.org/docs/api/">API</a> corresponds to a method in the <code class="docutils literal"><span class="pre">RundeckClientApi</span></code>. For instance if you need to
+see the list of jobs for a specific project you need to call <code class="docutils literal"><span class="pre">rundeck.list_jobs</span></code>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">status</span><span class="p">,</span> <span class="n">jobs</span> <span class="o">=</span> <span class="n">rundeck</span><span class="o">.</span><span class="n">list_jobs</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s">&#39;API_client_development&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Every method returns a pair: the status code of the request and an instance of <code class="docutils literal"><span class="pre">lxml.etree</span></code> that represents the XML
+response of the server:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">status</span>
+<span class="go">200</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sb">``</span><span class="n">jobs</span><span class="sb">``</span>
+<span class="go">&lt;Element result at 0x7f54e01c0dd0&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">&lt;result success=&quot;true&quot; apiversion=&quot;13&quot;&gt;</span>
+<span class="go">  &lt;jobs count=&quot;4&quot;&gt;</span>
+<span class="go">    &lt;job id=&quot;3b8a86d5-4fc3-4cc1-95a2-8b51421c2069&quot;&gt;</span>
+<span class="go">      &lt;name&gt;job_with_args&lt;/name&gt;</span>
+<span class="go">      &lt;group/&gt;</span>
+<span class="go">      &lt;project&gt;API_client_development&lt;/project&gt;</span>
+<span class="go">      &lt;description/&gt;</span>
+<span class="go">    &lt;/job&gt;</span>
+<span class="go">    &lt;job id=&quot;78f491e7-714f-44c6-bddb-8b3b3a961ace&quot;&gt;</span>
+<span class="go">      &lt;name&gt;test_job_1&lt;/name&gt;</span>
+<span class="go">      &lt;group/&gt;</span>
+<span class="go">      &lt;project&gt;API_client_development&lt;/project&gt;</span>
+<span class="go">      &lt;description/&gt;</span>
+<span class="go">    &lt;/job&gt;</span>
+<span class="go">    &lt;job id=&quot;8d5ebfc8-d69a-4808-819e-9c57b7f288d2&quot;&gt;</span>
+<span class="go">      &lt;name&gt;test_job_2&lt;/name&gt;</span>
+<span class="go">      &lt;group/&gt;</span>
+<span class="go">      &lt;project&gt;API_client_development&lt;/project&gt;</span>
+<span class="go">      &lt;description/&gt;</span>
+<span class="go">    &lt;/job&gt;</span>
+<span class="go">    &lt;job id=&quot;35c01c7a-6957-49fa-970a-d549e6b5f83a&quot;&gt;</span>
+<span class="go">      &lt;name&gt;test_job_2&lt;/name&gt;</span>
+<span class="go">      &lt;group/&gt;</span>
+<span class="go">      &lt;project&gt;API_client_development&lt;/project&gt;</span>
+<span class="go">      &lt;description/&gt;</span>
+<span class="go">    &lt;/job&gt;</span>
+<span class="go">  &lt;/jobs&gt;</span>
+<span class="go">&lt;/result&gt;</span>
+</pre></div>
+</div>
+<p>For more details on how to handle <code class="docutils literal"><span class="pre">etree</span></code> objects see the <a class="reference external" href="http://lxml.de/">lxml</a> documentation.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#the-rundeckapiclient">The <code class="docutils literal"><span class="pre">RundeckApiClient</span></code></a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="intro.html" title="previous chapter">Introduction</a></li>
+      <li>Next: <a href="modules.html" title="next chapter">pyrundeck</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, National Documentation Center (EKT).
+      
+      |
+      <a href="_sources/usage.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

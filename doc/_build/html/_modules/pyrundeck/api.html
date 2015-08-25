@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyrundeck.api &mdash; PyRundeck 0.1.0 alpha documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0 alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyRundeck 0.1.0 alpha documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyrundeck.api</h1><div class="highlight"><pre>
+<span class="c"># Copyright (c) 2007-2015, National Documentation Centre (EKT, www.ekt.gr)</span>
+<span class="c"># All rights reserved.</span>
+
+<span class="c"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c"># modification, are permitted provided that the following conditions are</span>
+<span class="c"># met:</span>
+
+<span class="c">#     Redistributions of source code must retain the above copyright</span>
+<span class="c">#     notice, this list of conditions and the following disclaimer.</span>
+
+<span class="c">#     Redistributions in binary form must reproduce the above copyright</span>
+<span class="c">#     notice, this list of conditions and the following disclaimer in</span>
+<span class="c">#     the documentation and/or other materials provided with the</span>
+<span class="c">#     distribution.</span>
+
+<span class="c">#     Neither the name of the National Documentation Centre nor the</span>
+<span class="c">#     names of its contributors may be used to endorse or promote</span>
+<span class="c">#     products derived from this software without specific prior written</span>
+<span class="c">#     permission.</span>
+
+<span class="c"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR</span>
+<span class="c"># A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT</span>
+<span class="c"># HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</span>
+<span class="c"># SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="c"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains the core of the API client.</span>
+
+<span class="sd">The general idea is to abstract away all possible requests into three</span>
+<span class="sd">methods (``RundeckApiClient.get``, ``RundeckApiClient.post`` and</span>
+<span class="sd">``RundeckApiClient.delete``), that call the same method</span>
+<span class="sd">``RundeckApiClient._perform_request`` that performs the actual</span>
+<span class="sd">request.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">pyrundeck.endpoints</span> <span class="kn">import</span> <span class="n">EndpointMixins</span>
+<span class="kn">from</span> <span class="nn">pyrundeck</span> <span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">pyrundeck.helpers</span> <span class="kn">import</span> <span class="n">_transparent_params</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Panagiotis Koutsourakis &lt;kutsurak@ekt.gr&gt;&quot;</span>
+
+
+<div class="viewcode-block" id="RundeckApiClient"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.api.RundeckApiClient">[docs]</a><span class="k">class</span> <span class="nc">RundeckApiClient</span><span class="p">(</span><span class="n">EndpointMixins</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The Rundeck API wrapper. This class is used to interact with the</span>
+<span class="sd">    Rundeck server. In order to instantiate it you need to provide at</span>
+<span class="sd">    least an access token and a root url for the Rundeck server.</span>
+
+<span class="sd">    See :doc:`usage` for examples.</span>
+
+<span class="sd">    :param token: The rundeck access token.</span>
+<span class="sd">    :param root_url: The rundeck server URL.</span>
+<span class="sd">    :param pem_file_path: (optional) A file path to a CA_BUNDLE for SSL</span>
+<span class="sd">                          certificate validation. *Default value:* ``None``.</span>
+<span class="sd">    :param client_args: (optional) Default values to be passed to</span>
+<span class="sd">                        every request. This should be a dictionary,</span>
+<span class="sd">                        notably containing a key</span>
+<span class="sd">                        ``&#39;headers&#39;``. *Default value:* ``None``.</span>
+<span class="sd">    :param log_level: (optional) The level at which logging happens.</span>
+<span class="sd">                      *Default value:* ``logging.INFO``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">root_url</span><span class="p">,</span> <span class="n">pem_file_path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">client_args</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">root_url</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_url</span> <span class="o">=</span> <span class="n">root_url</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_url</span> <span class="o">=</span> <span class="n">root_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">token</span>
+
+        <span class="n">default_headers</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s">&#39;PyRundeck v &#39;</span> <span class="o">+</span> <span class="n">__version__</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span> <span class="o">=</span> <span class="n">client_args</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s">&#39;headers&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_headers</span>
+        <span class="k">elif</span> <span class="s">&#39;User-Agent&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">default_headers</span><span class="p">)</span>
+
+        <span class="n">auth_token_header</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;X-Rundeck-Auth-Token&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">[</span><span class="s">&#39;headers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">auth_token_header</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;https&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pem_file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">[</span><span class="s">&#39;verify&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pem_file_path</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="p">[</span><span class="s">&#39;verify&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c"># TODO pass this as an arg? Timestamp it?</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;pyrundeck.log&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pem_file_path</span> <span class="o">=</span> <span class="n">pem_file_path</span>
+
+    <span class="k">def</span> <span class="nf">_perform_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform the request.</span>
+
+<span class="sd">        This method uses the ``requests`` library to perform a request</span>
+<span class="sd">        to the Rundeck API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;params = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="n">params</span><span class="p">,</span> <span class="n">files</span> <span class="o">=</span> <span class="n">_transparent_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;params = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">requests_args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">requests_args</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s">&#39;POST&#39;</span><span class="p">:</span>
+            <span class="n">requests_args</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s">&#39;data&#39;</span><span class="p">:</span> <span class="n">params</span><span class="p">,</span>
+                <span class="s">&#39;files&#39;</span><span class="p">:</span> <span class="n">files</span><span class="p">,</span>
+            <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">requests_args</span><span class="p">[</span><span class="s">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;request args = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">requests_args</span><span class="p">))</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">requests_args</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;status = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;text = {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="RundeckApiClient.get"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.api.RundeckApiClient.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform a GET request to the specified url passing the specified</span>
+<span class="sd">        params.</span>
+
+<span class="sd">        .. note:: This method should not be used directly. Use instead</span>
+<span class="sd">                  the methods defined in</span>
+<span class="sd">                  :py:class:`pyrundeck.endpoints.EndpointMixins`</span>
+
+<span class="sd">        :param url: The URL of the request.</span>
+<span class="sd">        :param params: (optional) A dictionary containing the parameters</span>
+<span class="sd">                                  of the request.</span>
+<span class="sd">        :return: A pair, where the first element is the status code of</span>
+<span class="sd">                 the request and the second an ``lxml.etree`` object</span>
+<span class="sd">                 created using the server response.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perform_request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RundeckApiClient.post"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.api.RundeckApiClient.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform a POST request to the specified url passing the specified</span>
+<span class="sd">        params.</span>
+
+<span class="sd">        .. note:: This method should not be used directly. Use instead</span>
+<span class="sd">                  the methods defined in</span>
+<span class="sd">                  :py:class:`pyrundeck.endpoints.EndpointMixins`</span>
+
+<span class="sd">        :param url: The URL of the request.</span>
+<span class="sd">        :param params: (optional) A dictionary containing the parameters</span>
+<span class="sd">                       of the request.</span>
+<span class="sd">        :return: A pair, where the first element is the status code of</span>
+<span class="sd">                 the request and the second an ``lxml.etree`` object</span>
+<span class="sd">                 created using the server response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perform_request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;POST&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RundeckApiClient.delete"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.api.RundeckApiClient.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform a DELETE request to the specified url passing the</span>
+<span class="sd">        specified params.</span>
+
+<span class="sd">        .. note:: This method should not be used directly. Use instead</span>
+<span class="sd">                  the methods defined in</span>
+<span class="sd">                  :py:class:`pyrundeck.endpoints.EndpointMixins`</span>
+
+<span class="sd">        :param url: The URL of the request.</span>
+<span class="sd">        :param params: (optional) A dictionary containing the parameters</span>
+<span class="sd">                       of the request.</span>
+<span class="sd">        :return: A pair, where the first element is the status code of the</span>
+<span class="sd">                 request and the second is ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perform_request</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;DELETE&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, National Documentation Center (EKT).
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
