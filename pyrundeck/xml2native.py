@@ -251,6 +251,20 @@ class RundeckParser(object):
             }
         }
 
+        self.error_parse_table = {
+            'error': {
+                'function': 'non terminal',
+                'components': {
+                    'tags': {
+                        'message': {
+                            'function': 'terminal',
+                        }
+                    },
+                    'mandatory_attributes': []
+                }
+            }
+        }
+
         self.result_parse_table = {
             'result': {
                 'function': 'non terminal',
@@ -263,6 +277,10 @@ class RundeckParser(object):
                         'executions': {
                             'function': 'list',
                             'parse table': self.executions_parse_table
+                        },
+                        'error': {
+                            'function': 'non terminal',
+                            'parse table': self.error_parse_table
                         },
                     },
                     'mandatory_attributes': []
@@ -577,7 +595,7 @@ class ParserEngine(object):
         for c in root:
             c_tag = c.tag
             if c_tag not in allowed_tags:
-                msg = 'Unknown tag <{}> for <{}>'.format(c_tag, root.tag)
+                msg = 'Unknown tag <{}> inside <{}>'.format(c_tag, root.tag)
                 raise RundeckParseError(msg)
             callback_type = callbacks[c_tag]['function']
             callback = self.callbacks[callback_type]
@@ -588,7 +606,11 @@ class ParserEngine(object):
             elif callback_type == 'terminal' or callback_type == 'attribute':
                 ret[c_tag] = callback(c, c_tag)
 
-        ret.update(root.attrib)
+        for atk, atv in root.attrib.items():
+            if atk in ret:
+                ret[atk + '_attribute'] = atv
+            else:
+                ret[atk] = atv
 
         for elem in pt['mandatory_attributes']:
             if ret.get(elem) is None:
