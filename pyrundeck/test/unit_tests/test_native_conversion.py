@@ -60,12 +60,12 @@ class TestXMLToNativePython:
             'project': 'API_client_development',
             'description': 'async testing'
         }
-        nt.assert_equal(expected, xmlp.parse(single_job_etree, 'non terminal',
+        nt.assert_equal(expected, xmlp.parse(single_job_etree, 'composite',
                                              self.parser.job_parse_table))
 
     @raises(xmlp.RundeckParseError)
     def test_job_raises_if_not_job_tag(self):
-        xmlp.parse(self.bogus_xml, 'non terminal', self.parser.job_parse_table)
+        xmlp.parse(self.bogus_xml, 'composite', self.parser.job_parse_table)
 
     def test_job_raises_if_missing_mandatory(self):
         missing_id = ('<job><name>long job</name><group/><project>'
@@ -73,20 +73,20 @@ class TestXMLToNativePython:
                       'async testing</description></job>')
         nt.assert_raises(xmlp.RundeckParseError, xmlp.parse,
                          etree.fromstring(missing_id),
-                         'non terminal',
+                         'composite',
                          self.parser.job_parse_table)
         missing_name = ('<job id="foo"><group/><project>API_client_development'
                         '</project><description>async testing</description>'
                         '</job>')
         nt.assert_raises(xmlp.RundeckParseError, xmlp.parse,
                          etree.fromstring(missing_name),
-                         'non terminal',
+                         'composite',
                          self.parser.job_parse_table)
         missing_project = ('<job id="foo"><name>foo</name><group/>'
                            '<description>asynctesting</description></job>')
         nt.assert_raises(xmlp.RundeckParseError, xmlp.parse,
                          etree.fromstring(missing_project),
-                         'non terminal',
+                         'composite',
                          self.parser.job_parse_table)
 
     def test_jobs_creates_multiple_jobs_correctly(self):
@@ -214,12 +214,12 @@ class TestXMLToNativePython:
         }
         xml_tree = etree.fromstring(xml_str)
         nt.assert_equal(expected,
-                        xmlp.parse(xml_tree, 'non terminal',
+                        xmlp.parse(xml_tree, 'composite',
                                    self.parser.execution_parse_table))
 
     @raises(xmlp.RundeckParseError)
     def test_execution_raises_if_given_wrong_tag(self):
-        xmlp.parse(self.bogus_xml, 'non terminal',
+        xmlp.parse(self.bogus_xml, 'composite',
                    self.parser.execution_parse_table)
 
     def test_date_creates_dates_correctly(self):
@@ -259,7 +259,7 @@ class TestXMLToNativePython:
 
     @raises(xmlp.RundeckParseError)
     def test_node_raises_if_given_wrong_tag(self):
-        xmlp.parse(self.bogus_xml, 'terminal', self.parser.node_parse_table)
+        xmlp.parse(self.bogus_xml, 'text', self.parser.node_parse_table)
 
     def test_nodes_create_node_list(self):
         xml_str = ('<successfulNodes><node name="localhost"/>'

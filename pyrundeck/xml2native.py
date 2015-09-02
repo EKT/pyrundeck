@@ -71,7 +71,7 @@ class RundeckParser(object):
     :py:class:`pyrundeck.xml2native.ParserEngine` recognizes the
     following functions.
 
-    ``'terminal'``
+    ``'text'``
        A tag that contains only text.
 
     ``'attribute'``
@@ -92,7 +92,7 @@ class RundeckParser(object):
        to ``True``, to prevent the check for a count attribute in this
        tag.
 
-    ``'non terminal'``
+    ``'composite'``
        A tag that is composed of other tags and attributes.
 
     """
@@ -136,23 +136,23 @@ class RundeckParser(object):
         # options.
         self.job_parse_table = {
             'job': {
-                'function': 'non terminal',
+                'function': 'composite',
                 'components': {
                     'tags': {
                         'name': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'project': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'group': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'description': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'id': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'options': {
                             'function': 'list',
@@ -197,35 +197,35 @@ class RundeckParser(object):
 
         self.execution_parse_table = {
             'execution': {
-                'function': 'non terminal',
+                'function': 'composite',
                 'components': {
                     'tags': {
                         'user': {
-                            'function': 'terminal',
+                            'function': 'text',
                         },
                         'date-started': {
                             'function': 'attribute text',
                             'parse table': self.date_parse_table
                         },
                         'job': {
-                            'function': 'non terminal',
+                            'function': 'composite',
                             'parse table': self.job_parse_table
                         },
                         'description': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'argstring': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'serverUUID': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'date-ended': {
                             'function': 'attribute text',
                             'parse table': self.date_parse_table
                         },
                         'abortedby': {
-                            'function': 'terminal'
+                            'function': 'text'
                         },
                         'successfulNodes': {
                             'function': 'list',
@@ -253,11 +253,11 @@ class RundeckParser(object):
 
         self.error_parse_table = {
             'error': {
-                'function': 'non terminal',
+                'function': 'composite',
                 'components': {
                     'tags': {
                         'message': {
-                            'function': 'terminal',
+                            'function': 'text',
                         }
                     },
                     'mandatory_attributes': []
@@ -267,7 +267,7 @@ class RundeckParser(object):
 
         self.result_parse_table = {
             'result': {
-                'function': 'non terminal',
+                'function': 'composite',
                 'components': {
                     'tags': {
                         'jobs': {
@@ -279,7 +279,7 @@ class RundeckParser(object):
                             'parse table': self.executions_parse_table
                         },
                         'error': {
-                            'function': 'non terminal',
+                            'function': 'composite',
                             'parse table': self.error_parse_table
                         },
                     },
@@ -317,14 +317,14 @@ class ParserEngine(object):
     """
     def __init__(self):
         self.callbacks = {
-            'terminal':       self.terminal_tag,
+            'text':           self.text_tag,
             'attribute':      self.attribute_tag,
             'attribute text': self.attribute_text_tag,
             'list':           self.list_tag,
-            'non terminal':   self.non_terminal_tag
+            'composite':      self.composite_tag
         }
 
-    def terminal_tag(self, root, expected_tags, parse_table=None):
+    def text_tag(self, root, expected_tags, parse_table=None):
         # TODO: Refactor this method, renaming it to text_tag
         """Parse a tag containing only text.
 
@@ -470,8 +470,7 @@ class ParserEngine(object):
                                     .format(ln, cnt) + ' are different')
         return {'count': cnt, 'list': lst}
 
-    def non_terminal_tag(self, root, expected_tags, parse_table):
-        # TODO: Refactor the name of this method to composite_tag
+    def composite_tag(self, root, expected_tags, parse_table):
         """Parse a tag consisting of other tags.
 
         **Example**
@@ -505,35 +504,35 @@ class ParserEngine(object):
         Parse table::
 
            {
-             'function': 'non terminal',
+             'function': 'composite',
              'components': {
                'tags': {
                  'user': {
-                   'function': 'terminal',
+                   'function': 'text',
                  },
                  'date-started': {
                    'function': 'attribute text',
                    'parse table': self.date_parse_table
                  },
                  'job': {
-                   'function': 'non terminal',
+                   'function': 'composite',
                    'parse table': self.job_parse_table
                  },
                  'description': {
-                   'function': 'terminal'
+                   'function': 'text'
                  },
                  'argstring': {
-                   'function': 'terminal'
+                   'function': 'text'
                  },
                  'serverUUID': {
-                   'function': 'terminal'
+                   'function': 'text'
                  },
                  'date-ended': {
                    'function': 'attribute text',
                     'parse table': self.date_parse_table
                  },
                  'abortedby': {
-                   'function': 'terminal'
+                   'function': 'text'
                  },
                  'successfulNodes': {
                    'function': 'list',
@@ -599,11 +598,11 @@ class ParserEngine(object):
                 raise RundeckParseError(msg)
             callback_type = callbacks[c_tag]['function']
             callback = self.callbacks[callback_type]
-            if (callback_type == 'list' or callback_type == 'non terminal' or
+            if (callback_type == 'list' or callback_type == 'composite' or
                     callback_type == 'attribute text'):
                 args = callbacks[c_tag]['parse table']
                 ret[c_tag] = callback(c, c_tag, args)
-            elif callback_type == 'terminal' or callback_type == 'attribute':
+            elif callback_type == 'text' or callback_type == 'attribute':
                 ret[c_tag] = callback(c, c_tag)
 
         for atk, atv in root.attrib.items():
@@ -634,7 +633,7 @@ class ParserEngine(object):
 parser = RundeckParser()
 
 
-def parse(xml_tree, cb_type='non terminal',
+def parse(xml_tree, cb_type='composite',
           parse_table=parser.result_parse_table):
     """Main entry point to the parser"""
     return parser.parse(xml_tree, cb_type, parse_table)
