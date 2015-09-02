@@ -1,0 +1,18 @@
+<execution id="117"
+           href="http://192.168.50.2:4440/execution/follow/117"
+           status="succeeded" project="API_client_development">
+  <user>admin</user>
+  <date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started>
+  <date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended>
+  <job id="78f491e7-714f-44c6-bddb-8b3b3a961ace" averageDuration="2716">
+    <name>test_job_1</name>
+    <group/>
+    <project>API_client_development</project>
+    <description/>
+  </job>
+  <description>echo "Hello"</description>
+  <argstring/>
+  <successfulNodes>
+    <node name="localhost"/>
+  </successfulNodes>
+</execution>

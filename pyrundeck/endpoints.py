@@ -29,12 +29,21 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""This module contains the mappings methods to the API endpoints.
+
+Each endpoint of the API should have a corresponding method in the
+class ``EndpointMixins``. The class ``RundeckApiClient`` subclasses
+this class in order to inherit the defined methods.
+"""
+
 from pyrundeck.exceptions import RundeckException
+from pyrundeck.xml2native import parse
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
-class EndpointMixins:
+class EndpointMixins(object):
     """This class contains all the API endpoints in order not to clutter
     the :class:`pyrundeck.api.RundeckApiClient`.  Note that
     :code:`RundeckApiClient` is a subclass of *this* class, so it
@@ -49,36 +58,78 @@ class EndpointMixins:
                  directly. Trying to do so will definitely result in
                  runtime errors.
     """
-    def import_job(self, **params):
-        return self.post('{}/api/1/jobs/import'.format(self.root_url), params)
+    def import_job(self, native=False, **params):
+        """Implements `import job`_
 
-    def list_jobs(self, **params):
-        return self.get('{}/api/1/jobs'.format(self.root_url), params)
+        .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs
+        """
+        status, xml = self.post('{}/api/1/jobs/import'
+                                       .format(self.root_url), params)
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
 
-    def run_job(self, **params):
+    def list_jobs(self, native=False, **params):
+        """Implements `list jobs`_
+
+        .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs
+        """
+        status, xml = self.get('{}/api/1/jobs'.format(self.root_url),
+                                      params)
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
+
+    def run_job(self, native=False, **params):
+        """Implements `run job`_
+
+        .. _run job: http://rundeck.org/docs/api/index.html#running-a-job
+        """
         try:
             job_id = params.pop('id')
 
-            return self.get('{}/api/1/job/{}/run'.format(self.root_url,
-                                                         job_id), params)
+            status, xml = self.get('{}/api/1/job/{}/run'
+                                          .format(self.root_url, job_id),
+                                          params)
+            if native:
+                return status, parse(xml)
+            else:
+                return status, xml
         except KeyError:
             raise RundeckException("job id is required for job execution")
 
-    def execution_info(self, **params):
+    def execution_info(self, native=False, **params):
+        """Implements `execution info`_
+
+        .. _execution info: http://rundeck.org/docs/api/index.html#execution-info
+        """
         try:
             execution_id = params.pop('id')
 
-            return self.get('{}/api/1/execution/{}'.format(self.root_url,
-                                                           execution_id),
-                            params)
+            status, xml =  self.get('{}/api/1/execution/{}'
+                                    .format(self.root_url, execution_id),
+                                    params)
+            if native:
+                return status, parse(xml)
+            else:
+                return status, xml
+
         except KeyError:
-            raise RundeckException("execution id is required for execution info")
+            raise RundeckException("execution id is required for "
+                                   "execution info")
 
     def delete_job(self, **params):
+        """Implements `delete job`_
+
+        .. _delete job: http://rundeck.org/docs/api/index.html#deleting-a-job-definition
+        """
         try:
             job_id = params.pop('id')
 
-            return self.delete('{}/api/1/job/{}'.format(self.root_url,
-                                                        job_id), params)
+            status, xml = self.delete('{}/api/1/job/{}'.format(self.root_url,
+                                                               job_id), params)
+            return status, xml
         except KeyError:
             raise RundeckException("job id is required for job deletion")
