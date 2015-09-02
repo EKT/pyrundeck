@@ -325,7 +325,6 @@ class ParserEngine(object):
         }
 
     def text_tag(self, root, expected_tags, parse_table=None):
-        # TODO: Refactor this method, renaming it to text_tag
         """Parse a tag containing only text.
 
         **Example**

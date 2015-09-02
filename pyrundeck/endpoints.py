@@ -133,3 +133,23 @@ class EndpointMixins(object):
             return status, xml
         except KeyError:
             raise RundeckException("job id is required for job deletion")
+
+    def job_executions_info(self, native=True, **params):
+        """Implements `Job executions`_
+
+        .. Job executions: http://rundeck.org/docs/api/#getting-executions-for-a-job
+        """
+
+        try:
+            job_id = params.pop('id')
+
+            status, xml = self.get('{}/api/1/job/{}/executions'
+                                   .format(self.root_url, job_id), params)
+
+            if native:
+                return status, parse(xml)
+            else:
+                return status, xml
+
+        except KeyError:
+            raise RundeckException("job id is required for job executions")
