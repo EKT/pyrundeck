@@ -58,7 +58,7 @@ class EndpointMixins(object):
                  directly. Trying to do so will definitely result in
                  runtime errors.
     """
-    def import_job(self, native=False, **params):
+    def import_job(self, native=True, **params):
         """Implements `import job`_
 
         .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs
@@ -70,7 +70,7 @@ class EndpointMixins(object):
         else:
             return status, xml
 
-    def list_jobs(self, native=False, **params):
+    def list_jobs(self, native=True, **params):
         """Implements `list jobs`_
 
         .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs
@@ -82,7 +82,7 @@ class EndpointMixins(object):
         else:
             return status, xml
 
-    def run_job(self, native=False, **params):
+    def run_job(self, native=True, **params):
         """Implements `run job`_
 
         .. _run job: http://rundeck.org/docs/api/index.html#running-a-job
@@ -100,7 +100,7 @@ class EndpointMixins(object):
         except KeyError:
             raise RundeckException("job id is required for job execution")
 
-    def execution_info(self, native=False, **params):
+    def execution_info(self, native=True, **params):
         """Implements `execution info`_
 
         .. _execution info: http://rundeck.org/docs/api/index.html#execution-info
