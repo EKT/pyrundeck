@@ -154,6 +154,9 @@ class RundeckParser(object):
                         'id': {
                             'function': 'text'
                         },
+                        'url': {
+                            'function': 'text'
+                        },
                         'options': {
                             'function': 'list',
                             'parse table': self.options_parse_table
@@ -265,6 +268,21 @@ class RundeckParser(object):
             }
         }
 
+        self.succeeded_parse_table = {
+            'succeeded': {
+                'function': 'composite',
+                'components': {
+                    'tags': {
+                        'job': {
+                            'function': 'composite',
+                            'parse table': self.job_parse_table
+                        }
+                    },
+                    'mandatory_attributes': []
+                }
+            }
+        }
+
         self.result_parse_table = {
             'result': {
                 'function': 'composite',
@@ -281,6 +299,16 @@ class RundeckParser(object):
                         'error': {
                             'function': 'composite',
                             'parse table': self.error_parse_table
+                        },
+                        'succeeded': {
+                            'function': 'composite',
+                            'parse table': self.succeeded_parse_table
+                        },
+                        'failed': {
+                            'function': 'attribute'
+                        },
+                        'skipped': {
+                            'function': 'attribute'
                         },
                     },
                     'mandatory_attributes': []
