@@ -29,7 +29,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """This module contains the mappings methods to the API endpoints.
 
 Each endpoint of the API should have a corresponding method in the
@@ -58,13 +57,14 @@ class EndpointMixins(object):
                  directly. Trying to do so will definitely result in
                  runtime errors.
     """
+
     def import_job(self, native=True, **params):
         """Implements `import job`_
 
         .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs
         """
-        status, xml = self.post('{}/api/1/jobs/import'
-                                       .format(self.root_url), params)
+        status, xml = self.post('{}/api/1/jobs/import'.format(self.root_url),
+                                params)
         if native:
             return status, parse(xml)
         else:
@@ -75,8 +75,7 @@ class EndpointMixins(object):
 
         .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs
         """
-        status, xml = self.get('{}/api/1/jobs'.format(self.root_url),
-                                      params)
+        status, xml = self.get('{}/api/1/jobs'.format(self.root_url), params)
         if native:
             return status, parse(xml)
         else:
@@ -91,8 +90,7 @@ class EndpointMixins(object):
             job_id = params.pop('id')
 
             status, xml = self.get('{}/api/1/job/{}/run'
-                                          .format(self.root_url, job_id),
-                                          params)
+                                   .format(self.root_url, job_id), params)
             if native:
                 return status, parse(xml)
             else:
@@ -108,9 +106,9 @@ class EndpointMixins(object):
         try:
             execution_id = params.pop('id')
 
-            status, xml =  self.get('{}/api/1/execution/{}'
-                                    .format(self.root_url, execution_id),
-                                    params)
+            status, xml = self.get('{}/api/1/execution/{}'
+                                   .format(self.root_url, execution_id),
+                                   params)
             if native:
                 return status, parse(xml)
             else:
