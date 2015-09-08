@@ -235,7 +235,7 @@ class TestXMLToNativePython:
         }
         nt.assert_equal(start_expected,
                         xmlp.parse(start_tree, 'attribute text',
-                                   self.parser.date_parse_table))
+                                   self.parser.start_date_parse_table))
 
         end_expected = {
             'unixtime': '1437474662344',
@@ -243,12 +243,12 @@ class TestXMLToNativePython:
         }
         nt.assert_equal(end_expected,
                         xmlp.parse(end_tree, 'attribute text',
-                                   self.parser.date_parse_table))
+                                   self.parser.date_ended_parse_table))
 
     @raises(xmlp.RundeckParseError)
     def test_date_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'attribute text',
-                   self.parser.date_parse_table)
+                   self.parser.start_date_parse_table)
 
     def test_node_creates_node_correctly(self):
         xml_str = '<node name="localhost"/>'
@@ -268,11 +268,12 @@ class TestXMLToNativePython:
         expected = [{'name': 'localhost'}, {'name': 'otherhost'}]
         nt.assert_equal(expected,
                         xmlp.parse(xml_tree, 'list',
-                                   self.parser.nodes_parse_table))
+                                   self.parser.successful_nodes_parse_table))
 
     @raises(xmlp.RundeckParseError)
     def test_nodes_raises_if_given_wrong_tag(self):
-        xmlp.parse(self.bogus_xml, 'list', self.parser.nodes_parse_table)
+        xmlp.parse(self.bogus_xml, 'list',
+                   self.parser.successful_nodes_parse_table)
 
     def test_option_creates_option_correctly(self):
         xml_str = '<option name="arg1" value="foo"/>'
