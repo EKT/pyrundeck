@@ -368,13 +368,13 @@ class ParserEngine(object):
 
         if cnt_str is None:
             raise ParseError('attribute @count missing from <{}>'
-                                    .format(root.tag))
+                             .format(root.tag))
 
         cnt = int(cnt_str)
         ln = len(lst)
         if cnt != ln:
             raise ParseError('list len(={}) and count(={})'
-                                    .format(ln, cnt) + ' are different')
+                             .format(ln, cnt) + ' are different')
         return {'count': cnt, 'list': lst}
 
     def composite_tag(self, root, parse_table):

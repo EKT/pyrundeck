@@ -225,8 +225,12 @@ class TestXMLToNativePython:
                    self.parser.execution_parse_table)
 
     def test_date_creates_dates_correctly(self):
-        start_str = '<date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started>'
-        end_str = '<date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended>'
+        start_str = ('<date-started unixtime="1437474661504">'
+                     '2015-07-21T10:31:01Z'
+                     '</date-started>')
+        end_str = ('<date-ended unixtime="1437474662344">'
+                   '2015-07-21T10:31:02Z'
+                   '</date-ended>')
 
         start_tree = etree.fromstring(start_str)
         end_tree = etree.fromstring(end_str)
@@ -337,7 +341,9 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
@@ -364,7 +370,9 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
@@ -391,7 +399,9 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': {'list': [{'name': 'arg1', 'value': 'faf'}]},
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'faf'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
@@ -418,7 +428,9 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
@@ -445,7 +457,9 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
@@ -498,7 +512,9 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
@@ -525,7 +541,9 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
@@ -552,7 +570,9 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': {'list': [{'name': 'arg1', 'value': 'faf'}]},
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'faf'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
@@ -579,7 +599,9 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
@@ -606,7 +628,9 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
