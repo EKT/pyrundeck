@@ -44,11 +44,10 @@ like yacc and bison.
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
-class RundeckParseError(Exception):
-    # TODO refactor the name to ParseError.
+class ParseError(Exception):
     def __init__(self, *args, **kwargs):
         "This class represents a parse error."
-        super(RundeckParseError, self).__init__(*args, **kwargs)
+        super(ParseError, self).__init__(*args, **kwargs)
 
 
 class RundeckParser(object):
@@ -368,13 +367,13 @@ class ParserEngine(object):
             return {'list': lst}
 
         if cnt_str is None:
-            raise RundeckParseError('attribute @count missing from <{}>'
+            raise ParseError('attribute @count missing from <{}>'
                                     .format(root.tag))
 
         cnt = int(cnt_str)
         ln = len(lst)
         if cnt != ln:
-            raise RundeckParseError('list len(={}) and count(={})'
+            raise ParseError('list len(={}) and count(={})'
                                     .format(ln, cnt) + ' are different')
         return {'count': cnt, 'list': lst}
 
@@ -511,7 +510,7 @@ class ParserEngine(object):
             c_tag = c.tag
             if c_tag not in allowed_tags:
                 msg = 'Unknown tag <{}> inside <{}>'.format(c_tag, root.tag)
-                raise RundeckParseError(msg)
+                raise ParseError(msg)
             callback_type = pt_index[c_tag]['type']
             callback = self.callbacks[callback_type]
             if (callback_type == 'list' or callback_type == 'composite' or
@@ -531,7 +530,7 @@ class ParserEngine(object):
             if ret.get(elem) is None:
                 msg = ('expected tag <{}> not found in tag <{}>'
                        .format(elem, root.tag))
-                raise RundeckParseError(msg)
+                raise ParseError(msg)
 
         return ret
 
@@ -543,7 +542,7 @@ class ParserEngine(object):
         if actual != expected:
             msg = "expected one of {}, but got: '{}'".format(expected, actual)
             msg += ""
-            raise RundeckParseError(msg)
+            raise ParseError(msg)
 
 # The entry point for this module
 parser = RundeckParser()
