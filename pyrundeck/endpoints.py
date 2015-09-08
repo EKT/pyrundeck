@@ -37,7 +37,7 @@ this class in order to inherit the defined methods.
 """
 
 from pyrundeck.exceptions import RundeckException
-from pyrundeck.xml2native import parse
+from pyrundeck.rundeck_parser import parse
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 

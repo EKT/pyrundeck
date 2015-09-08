@@ -37,7 +37,8 @@ import nose.tools as nt
 from nose.tools import raises
 
 from pyrundeck.test import config
-import pyrundeck.xml2native as xmlp
+import pyrundeck.rundeck_parser as xmlp
+from pyrundeck.xml2native import ParseError
 
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
@@ -63,7 +64,7 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(single_job_etree, 'composite',
                                              self.parser.job_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_job_raises_if_not_job_tag(self):
         xmlp.parse(self.bogus_xml, 'composite', self.parser.job_parse_table)
 
@@ -71,20 +72,20 @@ class TestXMLToNativePython:
         missing_id = ('<job><name>long job</name><group/><project>'
                       'API_client_development</project><description>'
                       'async testing</description></job>')
-        nt.assert_raises(xmlp.ParseError, xmlp.parse,
+        nt.assert_raises(ParseError, xmlp.parse,
                          etree.fromstring(missing_id),
                          'composite',
                          self.parser.job_parse_table)
         missing_name = ('<job id="foo"><group/><project>API_client_development'
                         '</project><description>async testing</description>'
                         '</job>')
-        nt.assert_raises(xmlp.ParseError, xmlp.parse,
+        nt.assert_raises(ParseError, xmlp.parse,
                          etree.fromstring(missing_name),
                          'composite',
                          self.parser.job_parse_table)
         missing_project = ('<job id="foo"><name>foo</name><group/>'
                            '<description>asynctesting</description></job>')
-        nt.assert_raises(xmlp.ParseError, xmlp.parse,
+        nt.assert_raises(ParseError, xmlp.parse,
                          etree.fromstring(missing_project),
                          'composite',
                          self.parser.job_parse_table)
@@ -124,11 +125,11 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(multiple_jobs, 'list',
                                              self.parser.jobs_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_jobs_raises_if_not_jobs_tag(self):
         xmlp.parse(self.bogus_xml, 'list', self.parser.jobs_parse_table)
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_jobs_raises_if_no_count(self):
         xml_str = ('<jobs>'
                    '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
@@ -153,7 +154,7 @@ class TestXMLToNativePython:
         xml_tree = etree.fromstring(xml_str)
         xmlp.parse(xml_tree, 'list', self.parser.jobs_parse_table)
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_jobs_raises_if_count_neq_jobs_len(self):
         xml_str = ('<jobs count="5">'
                    '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
@@ -219,7 +220,7 @@ class TestXMLToNativePython:
                         xmlp.parse(xml_tree, 'composite',
                                    self.parser.execution_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_execution_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'composite',
                    self.parser.execution_parse_table)
@@ -251,7 +252,7 @@ class TestXMLToNativePython:
                         xmlp.parse(end_tree, 'attribute text',
                                    self.parser.date_ended_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_date_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'attribute text',
                    self.parser.start_date_parse_table)
@@ -263,7 +264,7 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(xml_tree, 'attribute',
                                              self.parser.node_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_node_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'text', self.parser.node_parse_table)
 
@@ -276,7 +277,7 @@ class TestXMLToNativePython:
                         xmlp.parse(xml_tree, 'list',
                                    self.parser.successful_nodes_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_nodes_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'list',
                    self.parser.successful_nodes_parse_table)
@@ -289,7 +290,7 @@ class TestXMLToNativePython:
                         xmlp.parse(xml_tree, 'attribute',
                                    self.parser.option_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_option_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'attribute', self.parser.option_parse_table)
 
@@ -308,7 +309,7 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(xml_tree, 'list',
                                              self.parser.options_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_options_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'list', self.parser.options_parse_table)
 
@@ -474,11 +475,11 @@ class TestXMLToNativePython:
                         xmlp.parse(xml_tree, 'list',
                                    self.parser.executions_parse_table))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_executions_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'list', self.parser.executions_parse_table)
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_executions_raises_if_count_ne_executions_len(self):
         with open(path.join(config.rundeck_test_data_dir,
                             'bad_executions.xml')) as fl:
@@ -729,7 +730,7 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(xml_tree, parse_table=parse_table,
                                              cb_type='alternatives'))
 
-    @raises(xmlp.ParseError)
+    @raises(ParseError)
     def test_alternative_type_raises_if_none_of_the_alternatives_parse(self):
         xml_str = ('<root foo="bar">'
                    '<tags>'
