@@ -56,6 +56,51 @@ class ParserEngine(object):
 
     The user does not need to interact with it.
 
+    Every parse table is a dictonary containing at least one two keys: The name
+    of the tag that we are trying to parse, specified as the string value of
+    the ``'tag'`` key and the type of the tag. This is specified as the value
+    of the ``'type'`` key inside the dict.
+
+    Currently the :py:class:`pyrundeck.xml2native.ParserEngine` recognizes the
+    following types of tags.
+
+    ``'text'``
+       A tag that contains only text.
+
+    ``'attribute'``
+       A tag that contains only attributes.
+
+    ``'attribute text'``
+       A tag that contains attributes and text.
+
+       A special parse table dict key named ``'text tag'`` should be
+       specified. It's value should be a string and it is used as the
+       key to the returned dictionary for the text. See
+       :py:meth:`RundeckParser.attribute_text_tag`
+
+    ``'list'``
+       A tag that is a homogeneous list of tags.
+
+       The value of the key ``'element parse table'''`` should be a parse table
+       that specifies how each element of the list will be parsed.
+
+       A special parse table dict key named ``'skip count'`` can be set
+       to ``True``, to prevent the check for a count attribute in this
+       tag.
+
+    ``'composite'``
+       A tag that is composed of other tags and attributes.
+
+       The value of the key ``'all''`` should be a list that contains the parse
+       tables for the mandatory child tags. The optional child tags should be
+       specified as a list value of the ``'any'`` tag.
+
+    ``'alternatives'``
+      A tag that can be parsed in multiple ways.
+
+      The value of the key ``'parse tables'`` should be the different parse
+      tables that can be used to parse this tag.
+
     """
     def __init__(self):
         self.callbacks = {
