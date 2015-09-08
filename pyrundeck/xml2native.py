@@ -231,7 +231,8 @@ class ParserEngine(object):
             'attribute':      self.attribute_tag,
             'attribute text': self.attribute_text_tag,
             'list':           self.list_tag,
-            'composite':      self.composite_tag
+            'composite':      self.composite_tag,
+            'alternatives':   self.alternatives_tag
         }
 
     def text_tag(self, root, parse_table=None):
@@ -531,6 +532,24 @@ class ParserEngine(object):
                 msg = ('expected tag <{}> not found in tag <{}>'
                        .format(elem, root.tag))
                 raise ParseError(msg)
+
+        return ret
+
+    def alternatives_tag(self, root, parse_table):
+        possible_pts = parse_table.get('parse tables', [])
+        ret = None
+        for pt in possible_pts:
+            try:
+                pt['tag'] = parse_table['tag']
+                callback = self.callbacks.get(pt.get('type'))
+                ret = callback(root, pt)
+            except ParseError:
+                ret = None
+
+        if ret is None:
+            msg = ("None of the alternatives could be parsed for tag "
+                   "{}".format(root.tag))
+            raise ParseError(msg)
 
         return ret
 
