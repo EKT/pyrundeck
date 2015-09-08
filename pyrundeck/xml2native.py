@@ -117,13 +117,13 @@ class ParserEngine(object):
 
         **Example**
 
+        Parse table::
+
+           {'tag': 'name', 'type': 'text'}
+
         Input::
 
            <name>Random text</name>
-
-        Parse table::
-
-           None (This is a terminal symbol in the grammar)
 
         Output::
 
@@ -151,13 +151,13 @@ class ParserEngine(object):
 
         **Example**
 
+        Parse table::
+
+           {'tag': 'name', 'type': 'attribute'}
+
         Input::
 
            <option name="arg1" value="faf"/>
-
-        Parse table::
-
-           None (This is a terminal symbol in the grammar)
 
         Output::
 
@@ -184,20 +184,20 @@ class ParserEngine(object):
 
         **Example**
 
+        Parse table::
+
+           {
+             'date-started': {
+                'type': 'attribute text',
+                'text tag': 'time'
+             }
+           }
+
         Input::
 
            <date-started unixtime="1437474661504">
              2015-07-21T10:31:01Z
            </date-started>
-
-        Parse table::
-
-           {
-             'date-started': {
-                'function': 'attribute text',
-                'text tag': 'time'
-             }
-           }
 
         Output::
 
@@ -231,20 +231,20 @@ class ParserEngine(object):
 
         **Example**
 
+        Parse table::
+
+           {
+             'type': 'list',
+             'element_parse_table': self.option_parse_table,
+             'skip len': True
+           }
+
         Input::
 
            <options>
              <option name="arg1" value="foo"/>
              <option name="arg2" value="bar"/>
            </options>
-
-        Parse table::
-
-           {
-             'function': 'list',
-             'element_parse_table': self.option_parse_table,
-             'skip len': True
-           }
 
         Output::
 
@@ -289,6 +289,55 @@ class ParserEngine(object):
 
         **Example**
 
+        Parse table::
+
+           {
+             'type': 'composite',
+             'components': {
+               'tags': {
+                 'user': {
+                   'type': 'text',
+                 },
+                 'date-started': {
+                   'type': 'attribute text',
+                   'parse table': self.date_parse_table
+                 },
+                 'job': {
+                   'type': 'composite',
+                   'parse table': self.job_parse_table
+                 },
+                 'description': {
+                   'type': 'text'
+                 },
+                 'argstring': {
+                   'type': 'text'
+                 },
+                 'serverUUID': {
+                   'type': 'text'
+                 },
+                 'date-ended': {
+                   'type': 'attribute text',
+                    'parse table': self.date_parse_table
+                 },
+                 'abortedby': {
+                   'type': 'text'
+                 },
+                 'successfulNodes': {
+                   'type': 'list',
+                   'parse table': self.nodes_parse_table
+                 },
+                 'failedNodes': {
+                   'type': 'list',
+                   'parse table': self.nodes_parse_table
+                 }
+               },
+               'mandatory_attributes': [
+                 'user', 'date-started',
+                 'description'
+               ]
+             }
+           }
+
         Input::
 
            <execution id="117"
@@ -314,55 +363,6 @@ class ParserEngine(object):
              <node name="localhost"/>
              </successfulNodes>
            </execution>
-
-        Parse table::
-
-           {
-             'function': 'composite',
-             'components': {
-               'tags': {
-                 'user': {
-                   'function': 'text',
-                 },
-                 'date-started': {
-                   'function': 'attribute text',
-                   'parse table': self.date_parse_table
-                 },
-                 'job': {
-                   'function': 'composite',
-                   'parse table': self.job_parse_table
-                 },
-                 'description': {
-                   'function': 'text'
-                 },
-                 'argstring': {
-                   'function': 'text'
-                 },
-                 'serverUUID': {
-                   'function': 'text'
-                 },
-                 'date-ended': {
-                   'function': 'attribute text',
-                    'parse table': self.date_parse_table
-                 },
-                 'abortedby': {
-                   'function': 'text'
-                 },
-                 'successfulNodes': {
-                   'function': 'list',
-                   'parse table': self.nodes_parse_table
-                 },
-                 'failedNodes': {
-                   'function': 'list',
-                   'parse table': self.nodes_parse_table
-                 }
-               },
-               'mandatory_attributes': [
-                 'user', 'date-started',
-                 'description'
-               ]
-             }
-           }
 
         Output::
 
@@ -437,6 +437,37 @@ class ParserEngine(object):
         return ret
 
     def alternatives_tag(self, root, parse_table):
+        """Parse a tag that can have multiple different forms.
+
+        **Example**
+
+        Parse table::
+
+           {
+             'tag': 'text_or_attribute',
+             'type': 'alternatives',
+             'parse tables': [
+               {'type': 'text'},
+               {'type': 'attribute'}
+             ]
+           }
+
+        Input::
+
+           <text_or_attribute>Example text</text_or_attribute>
+
+        Output::
+
+           "Example text"
+
+        Input::
+
+           <text_or_attribute attribute="value"/>
+
+        Output::
+
+           {'attribute': 'value'}
+        """
         possible_pts = parse_table.get('parse tables', [])
         ret = None
         for pt in possible_pts:
