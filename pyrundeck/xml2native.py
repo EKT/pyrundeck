@@ -363,10 +363,9 @@ class ParserEngine(object):
         # TODO maybe remove this to make the parser more general.
         cnt_str = root.get('count')
 
-        skip_len = (parse_table.get('skip count') is not None and
-                    parse_table.get('skip count'))
+        skip_len = parse_table.get('skip count', False)
         if skip_len:
-            return lst
+            return {'list': lst}
 
         if cnt_str is None:
             raise RundeckParseError('attribute @count missing from <{}>'

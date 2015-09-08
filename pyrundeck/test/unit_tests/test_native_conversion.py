@@ -208,9 +208,11 @@ class TestXMLToNativePython:
             },
             'description': 'echo "Hello"',
             'argstring': None,
-            'successfulNodes': [
-                {'name': 'localhost'}
-            ]
+            'successfulNodes': {
+                'list': [
+                    {'name': 'localhost'}
+                ]
+            }
         }
         xml_tree = etree.fromstring(xml_str)
         nt.assert_equal(expected,
@@ -265,7 +267,7 @@ class TestXMLToNativePython:
         xml_str = ('<successfulNodes><node name="localhost"/>'
                    '<node name="otherhost"/></successfulNodes>')
         xml_tree = etree.fromstring(xml_str)
-        expected = [{'name': 'localhost'}, {'name': 'otherhost'}]
+        expected = {'list': [{'name': 'localhost'}, {'name': 'otherhost'}]}
         nt.assert_equal(expected,
                         xmlp.parse(xml_tree, 'list',
                                    self.parser.successful_nodes_parse_table))
@@ -293,10 +295,12 @@ class TestXMLToNativePython:
                    '<option name="arg2" value="bar"/>'
                    '</options>')
         xml_tree = etree.fromstring(xml_str)
-        expected = [
-            {'name': 'arg1', 'value': 'foo'},
-            {'name': 'arg2', 'value': 'bar'}
-        ]
+        expected = {
+            'list': [
+                {'name': 'arg1', 'value': 'foo'},
+                {'name': 'arg2', 'value': 'bar'}
+            ]
+        }
         nt.assert_equal(expected, xmlp.parse(xml_tree, 'list',
                                              self.parser.options_parse_table))
 
@@ -333,12 +337,12 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -360,12 +364,12 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -387,12 +391,12 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'faf'}],
+                        'options': {'list': [{'name': 'arg1', 'value': 'faf'}]},
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -414,12 +418,12 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -441,12 +445,12 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 }
             ]
@@ -494,12 +498,12 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -521,12 +525,12 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -548,12 +552,12 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'faf'}],
+                            'options': {'list': [{'name': 'arg1', 'value': 'faf'}]},
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -575,12 +579,12 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -602,12 +606,12 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {'list': [{'name': 'arg1', 'value': 'foo'}]},
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     }
                 ]
