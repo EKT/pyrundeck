@@ -728,3 +728,25 @@ class TestXMLToNativePython:
 
         nt.assert_equal(expected, xmlp.parse(xml_tree, parse_table=parse_table,
                                              cb_type='alternatives'))
+
+    @raises(xmlp.ParseError)
+    def test_alternative_type_raises_if_none_of_the_alternatives_parse(self):
+        xml_str = ('<root foo="bar">'
+                   '<tags>'
+                   '<tag2 lala="test"/>'
+                   '<tag2 lala="test2"/>'
+                   '</tags>'
+                   '</root>')
+
+        xml_tree = etree.fromstring(xml_str)
+
+        parse_table = {
+            'tag': 'root',
+            'type': 'alternatives',
+            'parse tables': [
+                {'type': 'text'},
+                {'type': 'attribute'}
+            ]
+        }
+
+        xmlp.parse(xml_tree, cb_type='alternatives', parse_table=parse_table)

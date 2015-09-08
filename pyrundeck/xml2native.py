@@ -235,7 +235,7 @@ class ParserEngine(object):
             'alternatives':   self.alternatives_tag
         }
 
-    def text_tag(self, root, parse_table=None):
+    def text_tag(self, root, parse_table):
         """Parse a tag containing only text.
 
         **Example**
@@ -254,10 +254,22 @@ class ParserEngine(object):
 
         :return: The text of the tag.
         """
-        self.check_root_tag(root.tag, parse_table)
+        self.check_root_tag(root.tag, parse_table['tag'])
+
+        if len(root) != 0:
+            msg = ('tag <{}> is not a text tag '
+                   '(number of children = {})'.format(root.tag, len(root)))
+            raise ParseError(msg)
+
+        if len(root.keys()) != 0:
+            msg = ('tag <{}> is not a text tag '
+                   '(number of attributes = {})'.format(root.tag,
+                                                        len(root.keys())))
+            raise ParseError(msg)
+
         return root.text
 
-    def attribute_tag(self, root, parse_table=None):
+    def attribute_tag(self, root, parse_table):
         """Parse a tag with attributes.
 
         **Example**
@@ -277,6 +289,17 @@ class ParserEngine(object):
         :return: A dictionary containing key value pairs for all the attributes
         """
         self.check_root_tag(root.tag, parse_table['tag'])
+
+        if len(root) != 0:
+            msg = ('tag <{}> is not an attribute tag '
+                   '(number of children = {})'.format(root.tag, len(root)))
+            raise ParseError(msg)
+
+        if root.text is not None:
+            msg = ('tag <{}> is not an attribute tag '
+                   '({}.text = "{}")'.format(root.tag, root.tag, root.text))
+            raise ParseError(msg)
+
         return root.attrib
 
     def attribute_text_tag(self, root, parse_table):
@@ -313,6 +336,12 @@ class ParserEngine(object):
 
         """
         self.check_root_tag(root.tag, parse_table['tag'])
+
+        if len(root) != 0:
+            msg = ('tag <{}> is not a text attribute tag '
+                   '(number of children = {})'.format(root.tag, len(root)))
+            raise ParseError(msg)
+
         ret = root.attrib
 
         text_tag = parse_table['text tag']
@@ -514,12 +543,7 @@ class ParserEngine(object):
                 raise ParseError(msg)
             callback_type = pt_index[c_tag]['type']
             callback = self.callbacks[callback_type]
-            if (callback_type == 'list' or callback_type == 'composite' or
-                    callback_type == 'attribute text'):
-                args = pt_index[c_tag]
-                ret[c_tag] = callback(c, args)
-            elif callback_type == 'text' or callback_type == 'attribute':
-                ret[c_tag] = callback(c, c_tag)
+            ret[c_tag] = callback(c, pt_index[c_tag])
 
         for atk, atv in root.attrib.items():
             if atk in ret:
