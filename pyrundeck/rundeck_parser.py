@@ -39,7 +39,7 @@ class RundeckParser(object):
     """This class contains the parsing tables for various rundeck elements.
 
     Each parse table describes a specific tag. See
-    :py:class:xml2native.ParserEngine for more details.
+    :py:class:`pyrundeck.xml2native.ParserEngine` for more details.
 
     """
     def __init__(self):
@@ -146,8 +146,9 @@ class RundeckParser(object):
             ],
         }
 
-    @staticmethod
-    def parse(xml_tree, cb_type, parse_table):
+        self.engine = ParserEngine()
+
+    def parse(self, xml_tree, cb_type, parse_table):
         """This method is the external interface to the ParserEngine class.
 
         The parse table for each element must contain a key named
@@ -158,17 +159,16 @@ class RundeckParser(object):
         """
         # Create a parser engine.
 
-        # TODO: It is probably a mistake to create a new engine every
-        # time this function is called. OPTIMIZE.
-        engine = ParserEngine()
-        cb = engine.callbacks[cb_type]  # Find which call back we need to call
-        return cb(xml_tree, parse_table)  # Call the callback
+        # Find which call back we need to call...
+        cb = self.engine.callbacks[cb_type]
+        # ... and call it
+        return cb(xml_tree, parse_table)
 
 # The entry point for this module
-parser = RundeckParser()
+_parser = RundeckParser()
 
 
 def parse(xml_tree, cb_type='composite',
-          parse_table=parser.result_parse_table):
+          parse_table=_parser.result_parse_table):
     """Main entry point to the parser"""
-    return parser.parse(xml_tree, cb_type, parse_table)
+    return _parser.parse(xml_tree, cb_type, parse_table)
