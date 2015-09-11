@@ -8,6 +8,6 @@ python:
 # command to install dependencies
 install: "pip install -r requirements.txt"
 # command to run tests
-script: nosetests --with-coverage --cover-package=pyrundeck.api --cover-package=pyrundeck.endpoints --cover-erase pyrundeck/test/unit_tests
+script: nosetests --with-coverage --cover-package=pyrundeck.api --cover-package=pyrundeck.endpoints --cover-erase tests/unit_tests
 after_success:
  - coveralls --verbose
