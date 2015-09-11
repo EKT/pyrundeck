@@ -205,25 +205,31 @@ runtime errors.</p>
 
 <dl class="method">
 <dt id="pyrundeck.endpoints.EndpointMixins.execution_info">
-<code class="descname">execution_info</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.execution_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.execution_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">execution_info</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.execution_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.execution_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#execution-info">execution info</a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyrundeck.endpoints.EndpointMixins.import_job">
-<code class="descname">import_job</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.import_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.import_job" title="Permalink to this definition">¶</a></dt>
+<code class="descname">import_job</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.import_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.import_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#importing-jobs">import job</a></p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.job_executions_info">
+<code class="descname">job_executions_info</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.job_executions_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.job_executions_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/#getting-executions-for-a-job">Job executions</a></p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyrundeck.endpoints.EndpointMixins.list_jobs">
-<code class="descname">list_jobs</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.list_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.list_jobs" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list_jobs</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.list_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.list_jobs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#listing-jobs">list jobs</a></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyrundeck.endpoints.EndpointMixins.run_job">
-<code class="descname">run_job</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.run_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.run_job" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run_job</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.run_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.run_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#running-a-job">run job</a></p>
 </dd></dl>
 
@@ -242,6 +248,399 @@ runtime errors.</p>
 <div class="section" id="module-pyrundeck.helpers">
 <span id="pyrundeck-helpers-module"></span><h2>pyrundeck.helpers module<a class="headerlink" href="#module-pyrundeck.helpers" title="Permalink to this headline">¶</a></h2>
 </div>
+<div class="section" id="module-pyrundeck.rundeck_parser">
+<span id="pyrundeck-rundeck-parser-module"></span><h2>pyrundeck.rundeck_parser module<a class="headerlink" href="#module-pyrundeck.rundeck_parser" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyrundeck.rundeck_parser.RundeckParser">
+<em class="property">class </em><code class="descclassname">pyrundeck.rundeck_parser.</code><code class="descname">RundeckParser</code><a class="reference internal" href="_modules/pyrundeck/rundeck_parser.html#RundeckParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.rundeck_parser.RundeckParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class contains the parsing tables for various rundeck elements.</p>
+<p>Each parse table describes a specific tag. See
+<a class="reference internal" href="#pyrundeck.xml2native.ParserEngine" title="pyrundeck.xml2native.ParserEngine"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.xml2native.ParserEngine</span></code></a> for more details.</p>
+<dl class="method">
+<dt id="pyrundeck.rundeck_parser.RundeckParser.parse">
+<code class="descname">parse</code><span class="sig-paren">(</span><em>xml_tree</em>, <em>cb_type</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/rundeck_parser.html#RundeckParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.rundeck_parser.RundeckParser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is the external interface to the ParserEngine class.</p>
+<p>The parse table for each element must contain a key named
+<code class="docutils literal"><span class="pre">'function'</span></code> that should contain the type of the parse function
+that should be called to parse this tag. This is the
+<code class="docutils literal"><span class="pre">cb_type</span></code> argument of the parse method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pyrundeck.rundeck_parser.parse">
+<code class="descclassname">pyrundeck.rundeck_parser.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>xml_tree, cb_type='composite', parse_table={'any': [{'tag': 'jobs', 'element parse table': {'any': [{'tag': 'group', 'type': 'text'}, {'tag': 'description', 'type': 'text'}, {'tag': 'url', 'type': 'text'}, {'skip count': True, 'tag': 'options', 'element parse table': {'tag': 'option', 'type': 'attribute'}, 'type': 'list'}], 'tag': 'job', 'all': [{'tag': 'id', 'type': 'text'}, {'tag': 'name', 'type': 'text'}, {'tag': 'project', 'type': 'text'}], 'type': 'composite'}, 'type': 'list'}, {'tag': 'executions', 'element parse table': {'any': [{'any': [{'tag': 'group', 'type': 'text'}, {'tag': 'description', 'type': 'text'}, {'tag': 'url', 'type': 'text'}, {'skip count': True, 'tag': 'options', 'element parse table': {'tag': 'option', 'type': 'attribute'}, 'type': 'list'}], 'tag': 'job', 'all': [{'tag': 'id', 'type': 'text'}, {'tag': 'name', 'type': 'text'}, {'tag': 'project', 'type': 'text'}], 'type': 'composite'}, {'tag': 'argstring', 'type': 'text'}, {'tag': 'serverUUID', 'type': 'text'}, {'tag': 'abortedby', 'type': 'text'}, {'text tag': 'time', 'tag': 'date-ended', 'type': 'attribute text'}, {'skip count': True, 'tag': 'successfulNodes', 'element parse table': {'tag': 'node', 'type': 'attribute'}, 'type': 'list'}, {'skip count': True, 'tag': 'failedNodes', 'element parse table': {'tag': 'node', 'type': 'attribute'}, 'type': 'list'}], 'tag': 'execution', 'all': [{'tag': 'user', 'type': 'text'}, {'text tag': 'time', 'tag': 'date-started', 'type': 'attribute text'}, {'tag': 'description', 'type': 'text'}], 'type': 'composite'}, 'type': 'list'}, {'tag': 'error', 'all': [{'tag': 'message', 'type': 'text'}], 'type': 'composite'}], 'tag': 'result', 'type': 'composite'}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/rundeck_parser.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.rundeck_parser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main entry point to the parser</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyrundeck.xml2native">
+<span id="pyrundeck-xml2native-module"></span><h2>pyrundeck.xml2native module<a class="headerlink" href="#module-pyrundeck.xml2native" title="Permalink to this headline">¶</a></h2>
+<p>The classes and functions in this module convert the <code class="docutils literal"><span class="pre">lxml.etree</span></code>
+representation of the server response to native objects similar to a
+JSON representation. The functions in this module implement a
+recursive descent parser based on the tags of the XML representation.</p>
+<p>The parser is driven by parsing tables that actually describe the
+grammar the parser accepts. In this sense this library resembles tools
+like yacc and bison.</p>
+<dl class="exception">
+<dt id="pyrundeck.xml2native.ParseError">
+<em class="property">exception </em><code class="descclassname">pyrundeck.xml2native.</code><code class="descname">ParseError</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParseError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParseError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyrundeck.xml2native.ParserEngine">
+<em class="property">class </em><code class="descclassname">pyrundeck.xml2native.</code><code class="descname">ParserEngine</code><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This is class converts the <code class="docutils literal"><span class="pre">lxml.etree</span></code> representation to native
+Python objects.</p>
+<p>The user does not need to interact with it.</p>
+<p>Every parse table is a dictonary containing at least one two keys: The name
+of the tag that we are trying to parse, specified as the string value of
+the <code class="docutils literal"><span class="pre">'tag'</span></code> key and the type of the tag. This is specified as the value
+of the <code class="docutils literal"><span class="pre">'type'</span></code> key inside the dict.</p>
+<p>Currently the <a class="reference internal" href="#pyrundeck.xml2native.ParserEngine" title="pyrundeck.xml2native.ParserEngine"><code class="xref py py-class docutils literal"><span class="pre">pyrundeck.xml2native.ParserEngine</span></code></a> recognizes the
+following types of tags.</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">'text'</span></code></dt>
+<dd>A tag that contains only text.</dd>
+<dt><code class="docutils literal"><span class="pre">'attribute'</span></code></dt>
+<dd>A tag that contains only attributes.</dd>
+<dt><code class="docutils literal"><span class="pre">'attribute</span> <span class="pre">text'</span></code></dt>
+<dd><p class="first">A tag that contains attributes and text.</p>
+<p class="last">A special parse table dict key named <code class="docutils literal"><span class="pre">'text</span> <span class="pre">tag'</span></code> should be
+specified. It&#8217;s value should be a string and it is used as the
+key to the returned dictionary for the text. See
+<code class="xref py py-meth docutils literal"><span class="pre">RundeckParser.attribute_text_tag()</span></code></p>
+</dd>
+<dt><code class="docutils literal"><span class="pre">'list'</span></code></dt>
+<dd><p class="first">A tag that is a homogeneous list of tags.</p>
+<p>The value of the key <code class="docutils literal"><span class="pre">'element</span> <span class="pre">parse</span> <span class="pre">table'''</span></code> should be a parse table
+that specifies how each element of the list will be parsed.</p>
+<p class="last">A special parse table dict key named <code class="docutils literal"><span class="pre">'skip</span> <span class="pre">count'</span></code> can be set
+to <code class="docutils literal"><span class="pre">True</span></code>, to prevent the check for a count attribute in this
+tag.</p>
+</dd>
+<dt><code class="docutils literal"><span class="pre">'composite'</span></code></dt>
+<dd><p class="first">A tag that is composed of other tags and attributes.</p>
+<p class="last">The value of the key <code class="docutils literal"><span class="pre">'all''</span></code> should be a list that contains the parse
+tables for the mandatory child tags. The optional child tags should be
+specified as a list value of the <code class="docutils literal"><span class="pre">'any'</span></code> tag.</p>
+</dd>
+<dt><code class="docutils literal"><span class="pre">'alternatives'</span></code></dt>
+<dd><p class="first">A tag that can be parsed in multiple ways.</p>
+<p class="last">The value of the key <code class="docutils literal"><span class="pre">'parse</span> <span class="pre">tables'</span></code> should be the different parse
+tables that can be used to parse this tag.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.alternatives_tag">
+<code class="descname">alternatives_tag</code><span class="sig-paren">(</span><em>root</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.alternatives_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.alternatives_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a tag that can have multiple different forms.</p>
+<p><strong>Example</strong></p>
+<p>Parse table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;text_or_attribute&#39;</span><span class="p">,</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;alternatives&#39;</span><span class="p">,</span>
+  <span class="s">&#39;parse tables&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span><span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;text_or_attribute&gt;Example text&lt;/text_or_attribute&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;Example text&quot;</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;text_or_attribute attribute=&quot;value&quot;/&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;attribute&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.attribute_tag">
+<code class="descname">attribute_tag</code><span class="sig-paren">(</span><em>root</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.attribute_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.attribute_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a tag with attributes.</p>
+<p><strong>Example</strong></p>
+<p>Parse table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;option name=&quot;arg1&quot; value=&quot;faf&quot;/&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;arg1&#39;</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;faf&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing key value pairs for all the attributes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.attribute_text_tag">
+<code class="descname">attribute_text_tag</code><span class="sig-paren">(</span><em>root</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.attribute_text_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.attribute_text_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a tag with attributes and text.</p>
+<p><strong>Example</strong></p>
+<p>Parse table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;date-started&#39;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
+     <span class="s">&#39;text tag&#39;</span><span class="p">:</span> <span class="s">&#39;time&#39;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;date-started unixtime=&quot;1437474661504&quot;&gt;
+  2015-07-21T10:31:01Z
+&lt;/date-started&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;unixtime&#39;</span><span class="p">:</span> <span class="s">&#39;1437474661504&#39;</span><span class="p">,</span>
+  <span class="s">&#39;text tag&#39;</span><span class="p">:</span> <span class="s">&#39;2015-07-21T10:31:01Z&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing all the attributes of the
+tag. The text of the tag is entered in the dictionary
+as a value with key a string provided by the parse
+table for this tag.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.check_root_tag">
+<code class="descname">check_root_tag</code><span class="sig-paren">(</span><em>actual</em>, <em>expected</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.check_root_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.check_root_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the <code class="docutils literal"><span class="pre">actual</span></code> tag is in the <code class="docutils literal"><span class="pre">expected</span></code> list or raise
+an error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.composite_tag">
+<code class="descname">composite_tag</code><span class="sig-paren">(</span><em>root</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.composite_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.composite_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a tag consisting of other tags.</p>
+<p><strong>Example</strong></p>
+<p>Parse table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+  <span class="s">&#39;components&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;tags&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">&#39;user&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">,</span>
+      <span class="p">},</span>
+      <span class="s">&#39;date-started&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
+        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_parse_table</span>
+      <span class="p">},</span>
+      <span class="s">&#39;job&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span>
+      <span class="p">},</span>
+      <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
+      <span class="p">},</span>
+      <span class="s">&#39;argstring&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
+      <span class="p">},</span>
+      <span class="s">&#39;serverUUID&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
+      <span class="p">},</span>
+      <span class="s">&#39;date-ended&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
+         <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_parse_table</span>
+      <span class="p">},</span>
+      <span class="s">&#39;abortedby&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
+      <span class="p">},</span>
+      <span class="s">&#39;successfulNodes&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_parse_table</span>
+      <span class="p">},</span>
+      <span class="s">&#39;failedNodes&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_parse_table</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s">&#39;mandatory_attributes&#39;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;date-started&#39;</span><span class="p">,</span>
+      <span class="s">&#39;description&#39;</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;execution id=&quot;117&quot;
+   href=&quot;http://192.168.50.2:4440/execution/follow/117&quot;
+   status=&quot;succeeded&quot; project=&quot;API_client_development&quot;&gt;
+  &lt;user&gt;admin&lt;/user&gt;
+  &lt;date-started unixtime=&quot;1437474661504&quot;&gt;
+    2015-07-21T10:31:01Z
+  &lt;/date-started&gt;
+  &lt;date-ended unixtime=&quot;1437474662344&quot;&gt;
+    2015-07-21T10:31:02Z
+  &lt;/date-ended&gt;
+  &lt;job id=&quot;78f491e7-714f-44c6-bddb-8b3b3a961ace&quot;
+       averageDuration=&quot;2716&quot;&gt;
+    &lt;name&gt;test_job_1&lt;/name&gt;
+    &lt;group/&gt;
+    &lt;project&gt;API_client_development&lt;/project&gt;
+    &lt;description/&gt;
+  &lt;/job&gt;
+  &lt;description&gt;echo &quot;Hello&quot;&lt;/description&gt;
+  &lt;argstring/&gt;
+  &lt;successfulNodes&gt;
+  &lt;node name=&quot;localhost&quot;/&gt;
+  &lt;/successfulNodes&gt;
+&lt;/execution&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="s">&#39;117&#39;</span><span class="p">,</span>
+    <span class="s">&#39;href&#39;</span><span class="p">:</span> <span class="s">&#39;http://192.168.50.2:4440/execution/follow/117&#39;</span><span class="p">,</span>
+    <span class="s">&#39;status&#39;</span><span class="p">:</span> <span class="s">&#39;succeeded&#39;</span><span class="p">,</span>
+    <span class="s">&#39;project&#39;</span><span class="p">:</span> <span class="s">&#39;API_client_development&#39;</span><span class="p">,</span>
+    <span class="s">&#39;user&#39;</span><span class="p">:</span> <span class="s">&#39;admin&#39;</span><span class="p">,</span>
+    <span class="s">&#39;date-started&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;unixtime&#39;</span><span class="p">:</span> <span class="s">&#39;1437474661504&#39;</span><span class="p">,</span>
+        <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="s">&#39;2015-07-21T10:31:01Z&#39;</span>
+    <span class="p">},</span>
+    <span class="s">&#39;date-ended&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;unixtime&#39;</span><span class="p">:</span> <span class="s">&#39;1437474662344&#39;</span><span class="p">,</span>
+        <span class="s">&#39;time&#39;</span><span class="p">:</span> <span class="s">&#39;2015-07-21T10:31:02Z&#39;</span>
+    <span class="p">},</span>
+    <span class="s">&#39;job&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;id&#39;</span><span class="p">:</span> <span class="s">&#39;78f491e7-714f-44c6-bddb-8b3b3a961ace&#39;</span><span class="p">,</span>
+        <span class="s">&#39;averageDuration&#39;</span><span class="p">:</span> <span class="s">&#39;2716&#39;</span><span class="p">,</span>
+        <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;test_job_1&#39;</span><span class="p">,</span>
+        <span class="s">&#39;group&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="s">&#39;project&#39;</span><span class="p">:</span> <span class="s">&#39;API_client_development&#39;</span><span class="p">,</span>
+        <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="s">&#39;echo &quot;Hello&quot;&#39;</span><span class="p">,</span>
+    <span class="s">&#39;argstring&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;successfulNodes&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary representing the XML object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.list_tag">
+<code class="descname">list_tag</code><span class="sig-paren">(</span><em>root</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.list_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.list_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a tag that is a list of elements.</p>
+<p><strong>Example</strong></p>
+<p>Parse table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+  <span class="s">&#39;element_parse_table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_parse_table</span><span class="p">,</span>
+  <span class="s">&#39;skip len&#39;</span><span class="p">:</span> <span class="bp">True</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;options&gt;
+  &lt;option name=&quot;arg1&quot; value=&quot;foo&quot;/&gt;
+  &lt;option name=&quot;arg2&quot; value=&quot;bar&quot;/&gt;
+&lt;/options&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+  <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;arg1&#39;</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;foo&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;arg2&#39;</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">:</span> <span class="s">&#39;bar&#39;</span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>root</strong> &#8211; The actual XML object that we need to parse.</li>
+<li><strong>expected_tags</strong> &#8211; A list containing the tags this element can
+start with.</li>
+<li><strong>parse_table</strong> &#8211; The parse table for this element.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of elements specified by the parse table.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.xml2native.ParserEngine.text_tag">
+<code class="descname">text_tag</code><span class="sig-paren">(</span><em>root</em>, <em>parse_table</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine.text_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine.text_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a tag containing only text.</p>
+<p><strong>Example</strong></p>
+<p>Parse table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Input:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;name&gt;Random text&lt;/name&gt;
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;Random text&quot;</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The text of the tag.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -258,6 +657,8 @@ runtime errors.</p>
 <li><a class="reference internal" href="#module-pyrundeck.endpoints">pyrundeck.endpoints module</a></li>
 <li><a class="reference internal" href="#module-pyrundeck.exceptions">pyrundeck.exceptions module</a></li>
 <li><a class="reference internal" href="#module-pyrundeck.helpers">pyrundeck.helpers module</a></li>
+<li><a class="reference internal" href="#module-pyrundeck.rundeck_parser">pyrundeck.rundeck_parser module</a></li>
+<li><a class="reference internal" href="#module-pyrundeck.xml2native">pyrundeck.xml2native module</a></li>
 </ul>
 </li>
 </ul>

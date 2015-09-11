@@ -1,4 +1,4 @@
-# Copyright (c) 2007-2015, National Documentation Centre (EKT, www.ekt.gr)
+# Copyright (c) 2015, National Documentation Centre (EKT, www.ekt.gr)
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,8 @@ import nose.tools as nt
 from nose.tools import raises
 
 from pyrundeck.test import config
-import pyrundeck.xml2native as xmlp
+import pyrundeck.rundeck_parser as xmlp
+from pyrundeck.xml2native import ParseError
 
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
@@ -60,33 +61,33 @@ class TestXMLToNativePython:
             'project': 'API_client_development',
             'description': 'async testing'
         }
-        nt.assert_equal(expected, xmlp.parse(single_job_etree, 'non terminal',
+        nt.assert_equal(expected, xmlp.parse(single_job_etree, 'composite',
                                              self.parser.job_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_job_raises_if_not_job_tag(self):
-        xmlp.parse(self.bogus_xml, 'non terminal', self.parser.job_parse_table)
+        xmlp.parse(self.bogus_xml, 'composite', self.parser.job_parse_table)
 
     def test_job_raises_if_missing_mandatory(self):
         missing_id = ('<job><name>long job</name><group/><project>'
                       'API_client_development</project><description>'
                       'async testing</description></job>')
-        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse,
+        nt.assert_raises(ParseError, xmlp.parse,
                          etree.fromstring(missing_id),
-                         'non terminal',
+                         'composite',
                          self.parser.job_parse_table)
         missing_name = ('<job id="foo"><group/><project>API_client_development'
                         '</project><description>async testing</description>'
                         '</job>')
-        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse,
+        nt.assert_raises(ParseError, xmlp.parse,
                          etree.fromstring(missing_name),
-                         'non terminal',
+                         'composite',
                          self.parser.job_parse_table)
         missing_project = ('<job id="foo"><name>foo</name><group/>'
                            '<description>asynctesting</description></job>')
-        nt.assert_raises(xmlp.RundeckParseError, xmlp.parse,
+        nt.assert_raises(ParseError, xmlp.parse,
                          etree.fromstring(missing_project),
-                         'non terminal',
+                         'composite',
                          self.parser.job_parse_table)
 
     def test_jobs_creates_multiple_jobs_correctly(self):
@@ -124,11 +125,11 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(multiple_jobs, 'list',
                                              self.parser.jobs_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_jobs_raises_if_not_jobs_tag(self):
         xmlp.parse(self.bogus_xml, 'list', self.parser.jobs_parse_table)
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_jobs_raises_if_no_count(self):
         xml_str = ('<jobs>'
                    '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
@@ -153,7 +154,7 @@ class TestXMLToNativePython:
         xml_tree = etree.fromstring(xml_str)
         xmlp.parse(xml_tree, 'list', self.parser.jobs_parse_table)
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_jobs_raises_if_count_neq_jobs_len(self):
         xml_str = ('<jobs count="5">'
                    '<job id="3b8a86d5-4fc3-4cc1-95a2-8b51421c2069">'
@@ -208,23 +209,29 @@ class TestXMLToNativePython:
             },
             'description': 'echo "Hello"',
             'argstring': None,
-            'successfulNodes': [
-                {'name': 'localhost'}
-            ]
+            'successfulNodes': {
+                'list': [
+                    {'name': 'localhost'}
+                ]
+            }
         }
         xml_tree = etree.fromstring(xml_str)
         nt.assert_equal(expected,
-                        xmlp.parse(xml_tree, 'non terminal',
+                        xmlp.parse(xml_tree, 'composite',
                                    self.parser.execution_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_execution_raises_if_given_wrong_tag(self):
-        xmlp.parse(self.bogus_xml, 'non terminal',
+        xmlp.parse(self.bogus_xml, 'composite',
                    self.parser.execution_parse_table)
 
     def test_date_creates_dates_correctly(self):
-        start_str = '<date-started unixtime="1437474661504">2015-07-21T10:31:01Z</date-started>'
-        end_str = '<date-ended unixtime="1437474662344">2015-07-21T10:31:02Z</date-ended>'
+        start_str = ('<date-started unixtime="1437474661504">'
+                     '2015-07-21T10:31:01Z'
+                     '</date-started>')
+        end_str = ('<date-ended unixtime="1437474662344">'
+                   '2015-07-21T10:31:02Z'
+                   '</date-ended>')
 
         start_tree = etree.fromstring(start_str)
         end_tree = etree.fromstring(end_str)
@@ -235,7 +242,7 @@ class TestXMLToNativePython:
         }
         nt.assert_equal(start_expected,
                         xmlp.parse(start_tree, 'attribute text',
-                                   self.parser.date_parse_table))
+                                   self.parser.start_date_parse_table))
 
         end_expected = {
             'unixtime': '1437474662344',
@@ -243,12 +250,12 @@ class TestXMLToNativePython:
         }
         nt.assert_equal(end_expected,
                         xmlp.parse(end_tree, 'attribute text',
-                                   self.parser.date_parse_table))
+                                   self.parser.date_ended_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_date_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'attribute text',
-                   self.parser.date_parse_table)
+                   self.parser.start_date_parse_table)
 
     def test_node_creates_node_correctly(self):
         xml_str = '<node name="localhost"/>'
@@ -257,22 +264,23 @@ class TestXMLToNativePython:
         nt.assert_equal(expected, xmlp.parse(xml_tree, 'attribute',
                                              self.parser.node_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_node_raises_if_given_wrong_tag(self):
-        xmlp.parse(self.bogus_xml, 'terminal', self.parser.node_parse_table)
+        xmlp.parse(self.bogus_xml, 'text', self.parser.node_parse_table)
 
     def test_nodes_create_node_list(self):
         xml_str = ('<successfulNodes><node name="localhost"/>'
                    '<node name="otherhost"/></successfulNodes>')
         xml_tree = etree.fromstring(xml_str)
-        expected = [{'name': 'localhost'}, {'name': 'otherhost'}]
+        expected = {'list': [{'name': 'localhost'}, {'name': 'otherhost'}]}
         nt.assert_equal(expected,
                         xmlp.parse(xml_tree, 'list',
-                                   self.parser.nodes_parse_table))
+                                   self.parser.successful_nodes_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_nodes_raises_if_given_wrong_tag(self):
-        xmlp.parse(self.bogus_xml, 'list', self.parser.nodes_parse_table)
+        xmlp.parse(self.bogus_xml, 'list',
+                   self.parser.successful_nodes_parse_table)
 
     def test_option_creates_option_correctly(self):
         xml_str = '<option name="arg1" value="foo"/>'
@@ -282,7 +290,7 @@ class TestXMLToNativePython:
                         xmlp.parse(xml_tree, 'attribute',
                                    self.parser.option_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_option_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'attribute', self.parser.option_parse_table)
 
@@ -292,14 +300,16 @@ class TestXMLToNativePython:
                    '<option name="arg2" value="bar"/>'
                    '</options>')
         xml_tree = etree.fromstring(xml_str)
-        expected = [
-            {'name': 'arg1', 'value': 'foo'},
-            {'name': 'arg2', 'value': 'bar'}
-        ]
+        expected = {
+            'list': [
+                {'name': 'arg1', 'value': 'foo'},
+                {'name': 'arg2', 'value': 'bar'}
+            ]
+        }
         nt.assert_equal(expected, xmlp.parse(xml_tree, 'list',
                                              self.parser.options_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_options_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'list', self.parser.options_parse_table)
 
@@ -332,12 +342,14 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -359,12 +371,14 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -386,12 +400,14 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'faf'}],
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'faf'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -413,12 +429,14 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 },
                 {
@@ -440,12 +458,14 @@ class TestXMLToNativePython:
                         'group': None,
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
-                        'options': [{'name': 'arg1', 'value': 'foo'}],
+                        'options': {
+                            'list': [{'name': 'arg1', 'value': 'foo'}]
+                        },
                         'project': 'API_client_development'
                     },
                     'project': 'API_client_development',
                     'status': 'succeeded',
-                    'successfulNodes': [{'name': 'localhost'}],
+                    'successfulNodes': {'list': [{'name': 'localhost'}]},
                     'user': 'admin'
                 }
             ]
@@ -455,11 +475,11 @@ class TestXMLToNativePython:
                         xmlp.parse(xml_tree, 'list',
                                    self.parser.executions_parse_table))
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_executions_raises_if_given_wrong_tag(self):
         xmlp.parse(self.bogus_xml, 'list', self.parser.executions_parse_table)
 
-    @raises(xmlp.RundeckParseError)
+    @raises(ParseError)
     def test_executions_raises_if_count_ne_executions_len(self):
         with open(path.join(config.rundeck_test_data_dir,
                             'bad_executions.xml')) as fl:
@@ -493,12 +513,14 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -520,12 +542,14 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -547,12 +571,14 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'faf'}],
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'faf'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -574,12 +600,14 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     },
                     {
@@ -601,12 +629,14 @@ class TestXMLToNativePython:
                             'group': None,
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
-                            'options': [{'name': 'arg1', 'value': 'foo'}],
+                            'options': {
+                                'list': [{'name': 'arg1', 'value': 'foo'}]
+                            },
                             'project': 'API_client_development'
                         },
                         'project': 'API_client_development',
                         'status': 'succeeded',
-                        'successfulNodes': [{'name': 'localhost'}],
+                        'successfulNodes': {'list': [{'name': 'localhost'}]},
                         'user': 'admin'
                     }
                 ]
@@ -653,3 +683,71 @@ class TestXMLToNativePython:
                             'jobs_result.xml')) as fl:
             xml_tree = etree.fromstring(fl.read())
             nt.assert_equal(expected, xmlp.parse(xml_tree))
+
+    def test_alternative_type(self):
+        xml_str = ('<root foo="bar">'
+                   '<tags>'
+                   '<tag2 lala="test"/>'
+                   '<tag2 lala="test2"/>'
+                   '</tags>'
+                   '</root>')
+
+        xml_tree = etree.fromstring(xml_str)
+
+        expected = {
+            'foo': 'bar',
+            'tags': {
+                'list': [
+                    {'lala': 'test'},
+                    {'lala': 'test2'}
+                ]
+            }
+        }
+
+        actual_parse_table = {
+            'type': 'composite',
+            'all': [
+                {
+                    'tag': 'tags',
+                    'type': 'list',
+                    'skip count': True,
+                    'element parse table':
+                    {'tag': 'tag2', 'type': 'attribute'}
+                }
+            ]
+        }
+
+        alternative_parse_table = {
+            'type': 'text'
+        }
+
+        parse_table = {
+            'tag': 'root',
+            'type': 'alternatives',
+            'parse tables': [alternative_parse_table, actual_parse_table]
+        }
+
+        nt.assert_equal(expected, xmlp.parse(xml_tree, parse_table=parse_table,
+                                             cb_type='alternatives'))
+
+    @raises(ParseError)
+    def test_alternative_type_raises_if_none_of_the_alternatives_parse(self):
+        xml_str = ('<root foo="bar">'
+                   '<tags>'
+                   '<tag2 lala="test"/>'
+                   '<tag2 lala="test2"/>'
+                   '</tags>'
+                   '</root>')
+
+        xml_tree = etree.fromstring(xml_str)
+
+        parse_table = {
+            'tag': 'root',
+            'type': 'alternatives',
+            'parse tables': [
+                {'type': 'text'},
+                {'type': 'attribute'}
+            ]
+        }
+
+        xmlp.parse(xml_tree, cb_type='alternatives', parse_table=parse_table)

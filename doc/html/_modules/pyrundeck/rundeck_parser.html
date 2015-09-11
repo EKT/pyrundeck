@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyrundeck.rundeck_parser &mdash; PyRundeck 0.1.0 alpha documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0 alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyRundeck 0.1.0 alpha documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyrundeck.rundeck_parser</h1><div class="highlight"><pre>
+<span class="c"># Copyright (c) 2015, National Documentation Centre (EKT, www.ekt.gr)</span>
+<span class="c"># All rights reserved.</span>
+
+<span class="c"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c"># modification, are permitted provided that the following conditions are</span>
+<span class="c"># met:</span>
+
+<span class="c">#     Redistributions of source code must retain the above copyright</span>
+<span class="c">#     notice, this list of conditions and the following disclaimer.</span>
+
+<span class="c">#     Redistributions in binary form must reproduce the above copyright</span>
+<span class="c">#     notice, this list of conditions and the following disclaimer in</span>
+<span class="c">#     the documentation and/or other materials provided with the</span>
+<span class="c">#     distribution.</span>
+
+<span class="c">#     Neither the name of the National Documentation Centre nor the</span>
+<span class="c">#     names of its contributors may be used to endorse or promote</span>
+<span class="c">#     products derived from this software without specific prior written</span>
+<span class="c">#     permission.</span>
+
+<span class="c"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR</span>
+<span class="c"># A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT</span>
+<span class="c"># HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</span>
+<span class="c"># SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="c"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="kn">from</span> <span class="nn">pyrundeck.xml2native</span> <span class="kn">import</span> <span class="n">ParserEngine</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Panagiotis Koutsourakis &lt;kutsurak@ekt.gr&gt;&quot;</span>
+
+
+<div class="viewcode-block" id="RundeckParser"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.rundeck_parser.RundeckParser">[docs]</a><span class="k">class</span> <span class="nc">RundeckParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class contains the parsing tables for various rundeck elements.</span>
+
+<span class="sd">    Each parse table describes a specific tag. See</span>
+<span class="sd">    :py:class:`pyrundeck.xml2native.ParserEngine` for more details.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;error&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;message&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_date_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;date-started&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
+            <span class="s">&#39;text tag&#39;</span><span class="p">:</span> <span class="s">&#39;time&#39;</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">date_ended_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;date-ended&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
+            <span class="s">&#39;text tag&#39;</span><span class="p">:</span> <span class="s">&#39;time&#39;</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">successful_nodes_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;successfulNodes&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_parse_table</span><span class="p">,</span>
+            <span class="s">&#39;skip count&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed_nodes_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;failedNodes&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_parse_table</span><span class="p">,</span>
+            <span class="s">&#39;skip count&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">option_parse_table</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;option&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">options_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;options&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_parse_table</span><span class="p">,</span>
+            <span class="s">&#39;skip count&#39;</span><span class="p">:</span> <span class="bp">True</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;job&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;project&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">],</span>
+            <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;group&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;url&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options_parse_table</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">jobs_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;jobs&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">execution_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;execution&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_date_parse_table</span><span class="p">,</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span><span class="p">,</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;argstring&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;serverUUID&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;abortedby&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">date_ended_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">successful_nodes_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">failed_nodes_parse_table</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">executions_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;executions&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_parse_table</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;result&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">jobs_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">executions_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_parse_table</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">ParserEngine</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RundeckParser.parse"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.rundeck_parser.RundeckParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_tree</span><span class="p">,</span> <span class="n">cb_type</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method is the external interface to the ParserEngine class.</span>
+
+<span class="sd">        The parse table for each element must contain a key named</span>
+<span class="sd">        ``&#39;function&#39;`` that should contain the type of the parse function</span>
+<span class="sd">        that should be called to parse this tag. This is the</span>
+<span class="sd">        ``cb_type`` argument of the parse method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Create a parser engine.</span>
+
+        <span class="c"># Find which call back we need to call...</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">cb_type</span><span class="p">]</span>
+        <span class="c"># ... and call it</span>
+        <span class="k">return</span> <span class="n">cb</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">)</span>
+
+<span class="c"># The entry point for this module</span></div></div>
+<span class="n">_parser</span> <span class="o">=</span> <span class="n">RundeckParser</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.rundeck_parser.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">cb_type</span><span class="o">=</span><span class="s">&#39;composite&#39;</span><span class="p">,</span>
+          <span class="n">parse_table</span><span class="o">=</span><span class="n">_parser</span><span class="o">.</span><span class="n">result_parse_table</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main entry point to the parser&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">cb_type</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, National Documentation Center (EKT).
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

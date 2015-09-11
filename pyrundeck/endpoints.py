@@ -1,4 +1,4 @@
-# Copyright (c) 2007-2015, National Documentation Centre (EKT, www.ekt.gr)
+# Copyright (c) 2015, National Documentation Centre (EKT, www.ekt.gr)
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """This module contains the mappings methods to the API endpoints.
 
 Each endpoint of the API should have a corresponding method in the
@@ -38,7 +37,7 @@ this class in order to inherit the defined methods.
 """
 
 from pyrundeck.exceptions import RundeckException
-from pyrundeck.xml2native import parse
+from pyrundeck.rundeck_parser import parse
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
@@ -58,31 +57,31 @@ class EndpointMixins(object):
                  directly. Trying to do so will definitely result in
                  runtime errors.
     """
-    def import_job(self, native=False, **params):
+
+    def import_job(self, native=True, **params):
         """Implements `import job`_
 
         .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs
         """
-        status, xml = self.post('{}/api/1/jobs/import'
-                                       .format(self.root_url), params)
+        status, xml = self.post('{}/api/1/jobs/import'.format(self.root_url),
+                                params)
         if native:
             return status, parse(xml)
         else:
             return status, xml
 
-    def list_jobs(self, native=False, **params):
+    def list_jobs(self, native=True, **params):
         """Implements `list jobs`_
 
         .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs
         """
-        status, xml = self.get('{}/api/1/jobs'.format(self.root_url),
-                                      params)
+        status, xml = self.get('{}/api/1/jobs'.format(self.root_url), params)
         if native:
             return status, parse(xml)
         else:
             return status, xml
 
-    def run_job(self, native=False, **params):
+    def run_job(self, native=True, **params):
         """Implements `run job`_
 
         .. _run job: http://rundeck.org/docs/api/index.html#running-a-job
@@ -91,8 +90,7 @@ class EndpointMixins(object):
             job_id = params.pop('id')
 
             status, xml = self.get('{}/api/1/job/{}/run'
-                                          .format(self.root_url, job_id),
-                                          params)
+                                   .format(self.root_url, job_id), params)
             if native:
                 return status, parse(xml)
             else:
@@ -100,7 +98,7 @@ class EndpointMixins(object):
         except KeyError:
             raise RundeckException("job id is required for job execution")
 
-    def execution_info(self, native=False, **params):
+    def execution_info(self, native=True, **params):
         """Implements `execution info`_
 
         .. _execution info: http://rundeck.org/docs/api/index.html#execution-info
@@ -108,9 +106,9 @@ class EndpointMixins(object):
         try:
             execution_id = params.pop('id')
 
-            status, xml =  self.get('{}/api/1/execution/{}'
-                                    .format(self.root_url, execution_id),
-                                    params)
+            status, xml = self.get('{}/api/1/execution/{}'
+                                   .format(self.root_url, execution_id),
+                                   params)
             if native:
                 return status, parse(xml)
             else:
@@ -133,3 +131,23 @@ class EndpointMixins(object):
             return status, xml
         except KeyError:
             raise RundeckException("job id is required for job deletion")
+
+    def job_executions_info(self, native=True, **params):
+        """Implements `Job executions`_
+
+        .. _Job executions: http://rundeck.org/docs/api/#getting-executions-for-a-job
+        """
+
+        try:
+            job_id = params.pop('id')
+
+            status, xml = self.get('{}/api/1/job/{}/executions'
+                                   .format(self.root_url, job_id), params)
+
+            if native:
+                return status, parse(xml)
+            else:
+                return status, xml
+
+        except KeyError:
+            raise RundeckException("job id is required for job executions")

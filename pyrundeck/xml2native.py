@@ -1,4 +1,4 @@
-# Copyright (c) 2007-2015, National Documentation Centre (EKT, www.ekt.gr)
+# Copyright (c) 2015, National Documentation Centre (EKT, www.ekt.gr)
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -41,253 +41,13 @@ like yacc and bison.
 
 """
 
-import logging  # TODO: use the logger
-
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
-class RundeckParseError(Exception):
-    # TODO refactor the name to ParseError.
+class ParseError(Exception):
     def __init__(self, *args, **kwargs):
         "This class represents a parse error."
-        super(RundeckParseError, self).__init__(*args, **kwargs)
-
-
-class RundeckParser(object):
-    """This class contains the parsing tables for various rundeck elements.
-
-    Each parse table describes a tag, or a set of alternative tags and
-    their components.
-
-    Every parse table is a dictonary containing at least one key. The
-    key is the tag that we are trying to parse. If the dict contains
-    more than one key then these are the alterantives for the tag. For
-    instance if the parse table is ``{'foo': {...}, 'bar': {...}}``
-    the parser will accept either the tag ``foo`` or the tag ``bar``.
-
-    Every parse table needs to specify what type of tag we are
-    parsing. This is done using the ``'function'`` key inside the dict
-    that describes the tag. Currently the
-    :py:class:`pyrundeck.xml2native.ParserEngine` recognizes the
-    following functions.
-
-    ``'terminal'``
-       A tag that contains only text.
-
-    ``'attribute'``
-       A tag that contains only attributes.
-
-    ``'attribute text'``
-       A tag that contains attributes and text.
-
-       A special parse table dict key named ``'text tag'`` should be
-       specified. It's value should be a string and it is used as the
-       key to the returned dictionary for the text. See
-       :py:meth:`RundeckParser.attribute_text_tag`
-
-    ``'list'``
-       A tag that is a list of other similar tags.
-
-       A special parse table dict key named ``'skip len'`` can be set
-       to ``True``, to prevent the check for a count attribute in this
-       tag.
-
-    ``'non terminal'``
-       A tag that is composed of other tags and attributes.
-
-    """
-
-    def __init__(self):
-        # An option is just a tag with attributes. Use the attribute
-        # function to parse it.
-        # Example:
-        # <option name="arg1" value="foo"/>
-        self.option_parse_table = {
-            'option': {
-                'function': 'attribute'
-            }
-        }
-
-        # The options are parsed as a list that contain many single
-        # option objects.
-        # Example:
-        # <options>
-        #   <option name="arg1" value="foo"/>
-        # </options>
-        self.options_parse_table = {
-            'options': {
-                'function': 'list',
-                'element_parse_table': self.option_parse_table,
-                'skip len': True
-            }
-        }
-
-        # A node is an attribute tag.
-        # Example:
-        # <node name="localhost"/>
-        self.node_parse_table = {
-            'node': {
-                'function': 'attribute',
-            }
-        }
-
-        # A job is a composite tag that MUST have id, name and
-        # project, and CAN also have group, description, id and
-        # options.
-        self.job_parse_table = {
-            'job': {
-                'function': 'non terminal',
-                'components': {
-                    'tags': {
-                        'name': {
-                            'function': 'terminal'
-                        },
-                        'project': {
-                            'function': 'terminal'
-                        },
-                        'group': {
-                            'function': 'terminal'
-                        },
-                        'description': {
-                            'function': 'terminal'
-                        },
-                        'id': {
-                            'function': 'terminal'
-                        },
-                        'options': {
-                            'function': 'list',
-                            'parse table': self.options_parse_table
-                        },
-                    },
-                    'mandatory_attributes': ['id', 'name', 'project']
-                }
-            }
-        }
-
-        self.jobs_parse_table = {
-            'jobs': {
-                'function': 'list',
-                'element_parse_table': self.job_parse_table
-            }
-        }
-
-        self.nodes_parse_table = {
-            'successfulNodes': {
-                'function': 'list',
-                'element_parse_table': self.node_parse_table,
-                'skip len': True
-            },
-            'failedNodes': {
-                'function': 'list',
-                'element_parse_table': self.node_parse_table,
-                'skip len': True
-            }
-        }
-
-        self.date_parse_table = {
-            'date-started': {
-                'function': 'attribute text',
-                'text tag': 'time'
-            },
-            'date-ended': {
-                'function': 'attribute text',
-                'text tag': 'time'
-            }
-        }
-
-        self.execution_parse_table = {
-            'execution': {
-                'function': 'non terminal',
-                'components': {
-                    'tags': {
-                        'user': {
-                            'function': 'terminal',
-                        },
-                        'date-started': {
-                            'function': 'attribute text',
-                            'parse table': self.date_parse_table
-                        },
-                        'job': {
-                            'function': 'non terminal',
-                            'parse table': self.job_parse_table
-                        },
-                        'description': {
-                            'function': 'terminal'
-                        },
-                        'argstring': {
-                            'function': 'terminal'
-                        },
-                        'serverUUID': {
-                            'function': 'terminal'
-                        },
-                        'date-ended': {
-                            'function': 'attribute text',
-                            'parse table': self.date_parse_table
-                        },
-                        'abortedby': {
-                            'function': 'terminal'
-                        },
-                        'successfulNodes': {
-                            'function': 'list',
-                            'parse table': self.nodes_parse_table
-                        },
-                        'failedNodes': {
-                            'function': 'list',
-                            'parse table': self.nodes_parse_table
-                        }
-                    },
-                    'mandatory_attributes': [
-                        'user', 'date-started',
-                        'description'
-                    ]
-                }
-            }
-        }
-
-        self.executions_parse_table = {
-            'executions': {
-                'function': 'list',
-                'element_parse_table': self.execution_parse_table
-            }
-        }
-
-        self.result_parse_table = {
-            'result': {
-                'function': 'non terminal',
-                'components': {
-                    'tags': {
-                        'jobs': {
-                            'function': 'list',
-                            'parse table': self.jobs_parse_table
-                        },
-                        'executions': {
-                            'function': 'list',
-                            'parse table': self.executions_parse_table
-                        },
-                    },
-                    'mandatory_attributes': []
-                }
-            }
-        }
-
-    @staticmethod
-    def parse(xml_tree, cb_type, parse_table):
-        """This method is the external interface to the ParserEngine class.
-
-        The parse table for each element must contain a key named
-        ``'function'`` that should contain the type of the parse function
-        that should be called to parse this tag. This is the
-        ``cb_type`` argument of the parse method.
-
-        """
-        # Create a parser engine.
-
-        # TODO: It is probably a mistake to create a new engine every
-        # time this function is called. OPTIMIZE.
-        engine = ParserEngine()
-        cb = engine.callbacks[cb_type]  # Find which call back we need to call
-        expected_tags = list(parse_table.keys())  # What tags are we parsing?
-        return cb(xml_tree, expected_tags, parse_table)  # Call the callback
+        super(ParseError, self).__init__(*args, **kwargs)
 
 
 class ParserEngine(object):
@@ -296,29 +56,87 @@ class ParserEngine(object):
 
     The user does not need to interact with it.
 
+    Every parse table is a dictonary containing at least one two keys: The name
+    of the tag that we are trying to parse, specified as the string value of
+    the ``'tag'`` key and the type of the tag. This is specified as the value
+    of the ``'type'`` key inside the dict.
+
+    Currently the :py:class:`pyrundeck.xml2native.ParserEngine` recognizes the
+    following types of tags.
+
+    ``'text'``
+       A tag that contains only text::
+
+          <text_tag>Text</text_tag>
+
+    ``'attribute'``
+       A tag that contains only attributes::
+
+          <attribute_tag attrib1="foo" attrib2="bar"/>
+
+    ``'attribute text'``
+       A tag that contains attributes and text::
+
+          <tag attrib="value">Text</attrib>
+
+       A special parse table dict key named ``'text tag'`` should be
+       specified. It's value should be a string and it is used as the
+       key to the returned dictionary for the text. See
+       :py:meth:`RundeckParser.attribute_text_tag`
+
+    ``'list'``
+       A tag that is a homogeneous list of tags::
+
+          <tag>
+            <child>Child 1</child>
+            <child>Child 2</child>
+            <child>Child 3</child>
+            <child>Child 4</child>
+          </tag>
+
+       The value of the key ``'element parse table'''`` should be a parse table
+       that specifies how each element of the list will be parsed.
+
+       A special parse table dict key named ``'skip count'`` can be set
+       to ``True``, to prevent the check for a count attribute in this
+       tag.
+
+    ``'composite'``
+       A tag that is composed of other tags and attributes.
+
+       The value of the key ``'all''`` should be a list that contains the parse
+       tables for the mandatory child tags. The optional child tags should be
+       specified as a list value of the ``'any'`` tag.
+
+    ``'alternatives'``
+      A tag that can be parsed in multiple ways.
+
+      The value of the key ``'parse tables'`` should be the different parse
+      tables that can be used to parse this tag.
+
     """
     def __init__(self):
         self.callbacks = {
-            'terminal':       self.terminal_tag,
+            'text':           self.text_tag,
             'attribute':      self.attribute_tag,
             'attribute text': self.attribute_text_tag,
             'list':           self.list_tag,
-            'non terminal':   self.non_terminal_tag
+            'composite':      self.composite_tag,
+            'alternatives':   self.alternatives_tag
         }
 
-    def terminal_tag(self, root, expected_tags, parse_table=None):
-        # TODO: Refactor this method, renaming it to text_tag
+    def text_tag(self, root, parse_table):
         """Parse a tag containing only text.
 
         **Example**
 
+        Parse table::
+
+           {'tag': 'name', 'type': 'text'}
+
         Input::
 
            <name>Random text</name>
-
-        Parse table::
-
-           None (This is a terminal symbol in the grammar)
 
         Output::
 
@@ -326,21 +144,33 @@ class ParserEngine(object):
 
         :return: The text of the tag.
         """
-        self.check_root_tag(root.tag, expected_tags)
+        self.check_root_tag(root.tag, parse_table['tag'])
+
+        if len(root) != 0:
+            msg = ('tag <{}> is not a text tag '
+                   '(number of children = {})'.format(root.tag, len(root)))
+            raise ParseError(msg)
+
+        if len(root.keys()) != 0:
+            msg = ('tag <{}> is not a text tag '
+                   '(number of attributes = {})'.format(root.tag,
+                                                        len(root.keys())))
+            raise ParseError(msg)
+
         return root.text
 
-    def attribute_tag(self, root, expected_tags, parse_table=None):
+    def attribute_tag(self, root, parse_table):
         """Parse a tag with attributes.
 
         **Example**
 
+        Parse table::
+
+           {'tag': 'name', 'type': 'attribute'}
+
         Input::
 
            <option name="arg1" value="faf"/>
-
-        Parse table::
-
-           None (This is a terminal symbol in the grammar)
 
         Output::
 
@@ -348,28 +178,39 @@ class ParserEngine(object):
 
         :return: A dictionary containing key value pairs for all the attributes
         """
-        self.check_root_tag(root.tag, expected_tags)
+        self.check_root_tag(root.tag, parse_table['tag'])
+
+        if len(root) != 0:
+            msg = ('tag <{}> is not an attribute tag '
+                   '(number of children = {})'.format(root.tag, len(root)))
+            raise ParseError(msg)
+
+        if root.text is not None:
+            msg = ('tag <{}> is not an attribute tag '
+                   '({}.text = "{}")'.format(root.tag, root.tag, root.text))
+            raise ParseError(msg)
+
         return root.attrib
 
-    def attribute_text_tag(self, root, expected_tags, parse_table):
+    def attribute_text_tag(self, root, parse_table):
         """Parse a tag with attributes and text.
 
         **Example**
+
+        Parse table::
+
+           {
+             'date-started': {
+                'type': 'attribute text',
+                'text tag': 'time'
+             }
+           }
 
         Input::
 
            <date-started unixtime="1437474661504">
              2015-07-21T10:31:01Z
            </date-started>
-
-        Parse table::
-
-           {
-             'date-started': {
-                'function': 'attribute text',
-                'text tag': 'time'
-             }
-           }
 
         Output::
 
@@ -384,18 +225,32 @@ class ParserEngine(object):
                  table for this tag.
 
         """
-        self.check_root_tag(root.tag, expected_tags)
+        self.check_root_tag(root.tag, parse_table['tag'])
+
+        if len(root) != 0:
+            msg = ('tag <{}> is not a text attribute tag '
+                   '(number of children = {})'.format(root.tag, len(root)))
+            raise ParseError(msg)
+
         ret = root.attrib
 
-        text_tag = parse_table[root.tag]['text tag']
+        text_tag = parse_table['text tag']
         ret.update({text_tag: root.text})
 
         return ret
 
-    def list_tag(self, root, expected_tags, parse_table):
+    def list_tag(self, root, parse_table):
         """Parse a tag that is a list of elements.
 
         **Example**
+
+        Parse table::
+
+           {
+             'type': 'list',
+             'element_parse_table': self.option_parse_table,
+             'skip len': True
+           }
 
         Input::
 
@@ -403,14 +258,6 @@ class ParserEngine(object):
              <option name="arg1" value="foo"/>
              <option name="arg2" value="bar"/>
            </options>
-
-        Parse table::
-
-           {
-             'function': 'list',
-             'element_parse_table': self.option_parse_table,
-             'skip len': True
-           }
 
         Output::
 
@@ -425,38 +272,84 @@ class ParserEngine(object):
         :param parse_table: The parse table for this element.
         :return: A list of elements specified by the parse table.
         """
-        self.check_root_tag(root.tag, expected_tags)
+        self.check_root_tag(root.tag, parse_table['tag'])
 
-        element_pt = parse_table[root.tag]['element_parse_table']
-        exp_tag = list(element_pt.keys())[0]
-        callback_type = element_pt[exp_tag]['function']
+        element_pt = parse_table['element parse table']
+        callback_type = element_pt['type']
         callback = self.callbacks[callback_type]
 
-        lst = [callback(c, exp_tag, element_pt) for c in root]
+        lst = [callback(c, element_pt) for c in root]
         # TODO maybe remove this to make the parser more general.
         cnt_str = root.get('count')
 
-        skip_len = (parse_table[root.tag].get('skip len') is not None and
-                    parse_table[root.tag].get('skip len'))
+        skip_len = parse_table.get('skip count', False)
         if skip_len:
-            return lst
+            return {'list': lst}
 
         if cnt_str is None:
-            raise RundeckParseError('attribute @count missing from <{}>'
-                                    .format(root.tag))
+            raise ParseError('attribute @count missing from <{}>'
+                             .format(root.tag))
 
         cnt = int(cnt_str)
         ln = len(lst)
         if cnt != ln:
-            raise RundeckParseError('list len(={}) and count(={})'
-                                    .format(ln, cnt) + ' are different')
+            raise ParseError('list len(={}) and count(={})'
+                             .format(ln, cnt) + ' are different')
         return {'count': cnt, 'list': lst}
 
-    def non_terminal_tag(self, root, expected_tags, parse_table):
-        # TODO: Refactor the name of this method to composite_tag
+    def composite_tag(self, root, parse_table):
         """Parse a tag consisting of other tags.
 
         **Example**
+
+        Parse table::
+
+           {
+             'type': 'composite',
+             'components': {
+               'tags': {
+                 'user': {
+                   'type': 'text',
+                 },
+                 'date-started': {
+                   'type': 'attribute text',
+                   'parse table': self.date_parse_table
+                 },
+                 'job': {
+                   'type': 'composite',
+                   'parse table': self.job_parse_table
+                 },
+                 'description': {
+                   'type': 'text'
+                 },
+                 'argstring': {
+                   'type': 'text'
+                 },
+                 'serverUUID': {
+                   'type': 'text'
+                 },
+                 'date-ended': {
+                   'type': 'attribute text',
+                    'parse table': self.date_parse_table
+                 },
+                 'abortedby': {
+                   'type': 'text'
+                 },
+                 'successfulNodes': {
+                   'type': 'list',
+                   'parse table': self.nodes_parse_table
+                 },
+                 'failedNodes': {
+                   'type': 'list',
+                   'parse table': self.nodes_parse_table
+                 }
+               },
+               'mandatory_attributes': [
+                 'user', 'date-started',
+                 'description'
+               ]
+             }
+           }
 
         Input::
 
@@ -483,55 +376,6 @@ class ParserEngine(object):
              <node name="localhost"/>
              </successfulNodes>
            </execution>
-
-        Parse table::
-
-           {
-             'function': 'non terminal',
-             'components': {
-               'tags': {
-                 'user': {
-                   'function': 'terminal',
-                 },
-                 'date-started': {
-                   'function': 'attribute text',
-                   'parse table': self.date_parse_table
-                 },
-                 'job': {
-                   'function': 'non terminal',
-                   'parse table': self.job_parse_table
-                 },
-                 'description': {
-                   'function': 'terminal'
-                 },
-                 'argstring': {
-                   'function': 'terminal'
-                 },
-                 'serverUUID': {
-                   'function': 'terminal'
-                 },
-                 'date-ended': {
-                   'function': 'attribute text',
-                    'parse table': self.date_parse_table
-                 },
-                 'abortedby': {
-                   'function': 'terminal'
-                 },
-                 'successfulNodes': {
-                   'function': 'list',
-                   'parse table': self.nodes_parse_table
-                 },
-                 'failedNodes': {
-                   'function': 'list',
-                   'parse table': self.nodes_parse_table
-                 }
-               },
-               'mandatory_attributes': [
-                 'user', 'date-started',
-                 'description'
-               ]
-             }
-           }
 
         Output::
 
@@ -566,35 +410,91 @@ class ParserEngine(object):
 
         :return: A dictionary representing the XML object.
         """
-        self.check_root_tag(root.tag, expected_tags)
+        self.check_root_tag(root.tag, parse_table['tag'])
 
-        pt = parse_table[root.tag]['components']
+        # pt = parse_table[root.tag]['components']
 
-        allowed_tags = set(pt['tags'].keys())
-        callbacks = pt['tags']
+        mandatory_tags = [t['tag'] for t in parse_table.get('all', {})]
+        allowed_tags = mandatory_tags.copy()
+        allowed_tags.extend(
+            [t['tag'] for t in parse_table.get('any', {})]
+        )
+        pt_index = {t.get('tag'): t for t in parse_table.get('all', {})}
+        pt_index.update({t.get('tag'): t for t in parse_table.get('any', {})})
+
+        # allowed_tags = set(pt['tags'].keys())
+        # callbacks = pt['tags']
 
         ret = {}
         for c in root:
             c_tag = c.tag
             if c_tag not in allowed_tags:
-                msg = 'Unknown tag <{}> for <{}>'.format(c_tag, root.tag)
-                raise RundeckParseError(msg)
-            callback_type = callbacks[c_tag]['function']
+                msg = 'Unknown tag <{}> inside <{}>'.format(c_tag, root.tag)
+                raise ParseError(msg)
+            callback_type = pt_index[c_tag]['type']
             callback = self.callbacks[callback_type]
-            if (callback_type == 'list' or callback_type == 'non terminal' or
-                    callback_type == 'attribute text'):
-                args = callbacks[c_tag]['parse table']
-                ret[c_tag] = callback(c, c_tag, args)
-            elif callback_type == 'terminal' or callback_type == 'attribute':
-                ret[c_tag] = callback(c, c_tag)
+            ret[c_tag] = callback(c, pt_index[c_tag])
 
-        ret.update(root.attrib)
+        for atk, atv in root.attrib.items():
+            if atk in ret:
+                ret[atk + '_attribute'] = atv
+            else:
+                ret[atk] = atv
 
-        for elem in pt['mandatory_attributes']:
+        for elem in mandatory_tags:
             if ret.get(elem) is None:
                 msg = ('expected tag <{}> not found in tag <{}>'
                        .format(elem, root.tag))
-                raise RundeckParseError(msg)
+                raise ParseError(msg)
+
+        return ret
+
+    def alternatives_tag(self, root, parse_table):
+        """Parse a tag that can have multiple different forms.
+
+        **Example**
+
+        Parse table::
+
+           {
+             'tag': 'text_or_attribute',
+             'type': 'alternatives',
+             'parse tables': [
+               {'type': 'text'},
+               {'type': 'attribute'}
+             ]
+           }
+
+        Input::
+
+           <text_or_attribute>Example text</text_or_attribute>
+
+        Output::
+
+           "Example text"
+
+        Input::
+
+           <text_or_attribute attribute="value"/>
+
+        Output::
+
+           {'attribute': 'value'}
+        """
+        possible_pts = parse_table.get('parse tables', [])
+        ret = None
+        for pt in possible_pts:
+            try:
+                pt['tag'] = parse_table['tag']
+                callback = self.callbacks.get(pt.get('type'))
+                ret = callback(root, pt)
+            except ParseError:
+                ret = None
+
+        if ret is None:
+            msg = ("None of the alternatives could be parsed for tag "
+                   "{}".format(root.tag))
+            raise ParseError(msg)
 
         return ret
 
@@ -603,16 +503,7 @@ class ParserEngine(object):
         an error.
 
         """
-        if actual not in expected:
+        if actual != expected:
             msg = "expected one of {}, but got: '{}'".format(expected, actual)
             msg += ""
-            raise RundeckParseError(msg)
-
-# The entry point for this module
-parser = RundeckParser()
-
-
-def parse(xml_tree, cb_type='non terminal',
-          parse_table=parser.result_parse_table):
-    """Main entry point to the parser"""
-    return parser.parse(xml_tree, cb_type, parse_table)
+            raise ParseError(msg)
