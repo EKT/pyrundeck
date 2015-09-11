@@ -12,6 +12,6 @@ install:
         - "pip install coveralls"
         - "pip install -e ./"
 # command to run tests
-script: nosetests --with-coverage --cover-package=pyrundeck.api --cover-package=pyrundeck.xml2native --cover-package=pyrundeck.rundeck_parser --cover-package=pyrundeck.endpoints --cover-erase tests/unit_tests
+script: nosetests --with-coverage --cover-package=pyrundeck.api --cover-package=pyrundeck.xml2native --cover-package=pyrundeck.rundeck_parser --cover-erase tests/unit_tests
 after_success:
  - coveralls --verbose
