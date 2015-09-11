@@ -1,13 +1,7 @@
 PyRundeck
 =========
 
-.. image:: https://travis-ci.org/EKT/pyrundeck.svg?branch=master
-           :target: https://travis-ci.org/EKT/pyrundeck
-
-.. image:: https://coveralls.io/repos/EKT/pyrundeck/badge.svg?branch=master&service=github
-           :target: https://coveralls.io/github/EKT/pyrundeck?branch=master
-
-
+|buildstatus|_ |coverage|_
 
 A thin, pure Python wrapper for the Rundeck_ API_
 
@@ -17,6 +11,16 @@ A thin, pure Python wrapper for the Rundeck_ API_
 Installation
 ------------
 
-Run::
+In order to install run (preferably inside a virtual environment)::
 
-  $ pip install -e source/
+  $ git clone https://github.com/EKT/pyrundeck
+  $ pip install -e ./pyrundeck
+
+Soon there will be a package on PyPi.
+
+
+.. |buildstatus| image:: https://api.travis-ci.org/EKT/pyrundeck.svg?branch=master
+.. _buildstatus: https://travis-ci.org/EKT/pyrundeck
+
+.. |coverage| image:: https://coveralls.io/repos/EKT/pyrundeck/badge.svg?branch=master&service=github
+.. _coverage: https://coveralls.io/github/EKT/pyrundeck?branch=master
