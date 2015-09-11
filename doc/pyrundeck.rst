@@ -41,6 +41,14 @@ pyrundeck.helpers module
     :undoc-members:
     :show-inheritance:
 
+pyrundeck.rundeck_parser module
+-------------------------------
+
+.. automodule:: pyrundeck.rundeck_parser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pyrundeck.xml2native module
 ---------------------------
 

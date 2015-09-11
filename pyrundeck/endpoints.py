@@ -135,7 +135,7 @@ class EndpointMixins(object):
     def job_executions_info(self, native=True, **params):
         """Implements `Job executions`_
 
-        .. Job executions: http://rundeck.org/docs/api/#getting-executions-for-a-job
+        .. _Job executions: http://rundeck.org/docs/api/#getting-executions-for-a-job
         """
 
         try:
