@@ -7,3 +7,5 @@ __pycache__/
 *.log
 doc/_build
 .coverage
+PyRundeck.egg-info/
+dist/
