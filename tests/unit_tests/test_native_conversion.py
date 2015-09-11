@@ -751,3 +751,80 @@ class TestXMLToNativePython:
         }
 
         xmlp.parse(xml_tree, cb_type='alternatives', parse_table=parse_table)
+
+    @raises(ParseError)
+    def test_text_raises_if_xml_has_attributes(self):
+        xml_str = '<root atrribute="value"/>'
+        xml_tree = etree.fromstring(xml_str)
+
+        parse_table = {'tag': 'root', 'type': 'text'}
+        xmlp.parse(xml_tree, cb_type='text', parse_table=parse_table)
+
+    @raises(ParseError)
+    def test_attribute_raises_if_xml_has_text(self):
+        xml_str = '<root a="v">Text</root>'
+        xml_tree = etree.fromstring(xml_str)
+
+        parse_table = {'tag': 'root', 'type': 'attribute'}
+        xmlp.parse(xml_tree, cb_type='attribute', parse_table=parse_table)
+
+    @raises(ParseError)
+    def test_attribute_text_raises_if_xml_has_children(self):
+        xml_str = ('<root a="v">Text'
+                   '<child>Child text</child>'
+                   '</root>')
+        xml_tree = etree.fromstring(xml_str)
+
+        parse_table = {'tag': 'root', 'type': 'attribute text'}
+        xmlp.parse(xml_tree, cb_type='attribute text', parse_table=parse_table)
+
+    @raises(ParseError)
+    def test_composite_raises_if_xml_contains_unknown_tag(self):
+        xml_str = (
+            '<root>'
+            '<child1>Text</child1>'
+            '<child2>Text</child2>'
+            '<non-child>Text</non-child>'
+            '</root>'
+        )
+
+        xml_tree = etree.fromstring(xml_str)
+        parse_table = {
+            'tag': 'root',
+            'type': 'composite',
+            'all': [
+                {'tag': 'child1', 'type': 'text'},
+            ],
+            'any': [
+                {'tag': 'child2', 'type': 'text'},
+            ],
+        }
+        xmlp.parse(xml_tree, cb_type='composite', parse_table=parse_table)
+
+    def test_composite_renames_attribute_if_child_has_the_same_name(self):
+        xml_str = (
+            '<root child1="value">'
+            '<child1>Text</child1>'
+            '<child2>Text</child2>'
+            '</root>'
+        )
+        expected = {
+            'child1_attribute': 'value',
+            'child1': 'Text',
+            'child2': 'Text'
+        }
+        xml_tree = etree.fromstring(xml_str)
+
+        parse_table = {
+            'tag': 'root',
+            'type': 'composite',
+            'all': [
+                {'tag': 'child1', 'type': 'text'},
+            ],
+            'any': [
+                {'tag': 'child2', 'type': 'text'},
+            ],
+        }
+        result = xmlp.parse(xml_tree, cb_type='composite',
+                            parse_table=parse_table)
+        nt.assert_equal(expected, result)
