@@ -40,7 +40,7 @@ from lxml import etree
 import nose.tools as nt
 
 from pyrundeck import RundeckApiClient, __version__
-from pyrundeck.test import config
+from tests import config
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 

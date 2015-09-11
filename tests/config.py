@@ -37,13 +37,12 @@ live rundeck server is required and this file lists some configuration
 parameters that are needed for the test to run. If want to just run
 the unit tests execute:
 
-$ nosetests pyrundeck/test/core_tests.py
+$ nosetests tests/core_tests.py
 
 """
 
 # path to the token file
 rundeck_token_file = '/home/kutsurak/work/src/python/pyrundeck/rundeck_token'
-rundeck_test_data_dir = ('/home/kutsurak/work/src/python/pyrundeck/test/'
-                         'test_data')
+rundeck_test_data_dir = 'tests/test_data'
 root_url = 'http://192.168.50.2:4440'
 test_project = 'API_client_development'

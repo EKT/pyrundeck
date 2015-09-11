@@ -36,7 +36,7 @@ import nose.tools as nt
 from lxml import etree
 
 from pyrundeck import api
-from pyrundeck.test import config
+from tests import config
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 

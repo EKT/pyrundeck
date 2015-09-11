@@ -36,7 +36,7 @@ from lxml import etree
 import nose.tools as nt
 from nose.tools import raises
 
-from pyrundeck.test import config
+from tests import config
 import pyrundeck.rundeck_parser as xmlp
 from pyrundeck.xml2native import ParseError
 
