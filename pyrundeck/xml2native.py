@@ -415,7 +415,7 @@ class ParserEngine(object):
         # pt = parse_table[root.tag]['components']
 
         mandatory_tags = [t['tag'] for t in parse_table.get('all', {})]
-        allowed_tags = mandatory_tags.copy()
+        allowed_tags = list(mandatory_tags)
         allowed_tags.extend(
             [t['tag'] for t in parse_table.get('any', {})]
         )
