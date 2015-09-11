@@ -151,3 +151,17 @@ class EndpointMixins(object):
 
         except KeyError:
             raise RundeckException("job id is required for job executions")
+
+    def running_executions(self, native=True, **params):
+        """Implements `List Running Executions`_
+
+        .. _List Running Executions: http://rundeck.org/docs/api/index.html#listing-running-executions
+        """
+
+        status, xml = self.post('{}/api/1/executions/running'.format(self.root_url),
+                                params)
+
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
