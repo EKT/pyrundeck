@@ -1,0 +1,578 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyrundeck.xml2native &mdash; PyRundeck 0.1.0 alpha documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0 alpha',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PyRundeck 0.1.0 alpha documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyrundeck.xml2native</h1><div class="highlight"><pre>
+<span class="c"># Copyright (c) 2015, National Documentation Centre (EKT, www.ekt.gr)</span>
+<span class="c"># All rights reserved.</span>
+
+<span class="c"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c"># modification, are permitted provided that the following conditions are</span>
+<span class="c"># met:</span>
+
+<span class="c">#     Redistributions of source code must retain the above copyright</span>
+<span class="c">#     notice, this list of conditions and the following disclaimer.</span>
+
+<span class="c">#     Redistributions in binary form must reproduce the above copyright</span>
+<span class="c">#     notice, this list of conditions and the following disclaimer in</span>
+<span class="c">#     the documentation and/or other materials provided with the</span>
+<span class="c">#     distribution.</span>
+
+<span class="c">#     Neither the name of the National Documentation Centre nor the</span>
+<span class="c">#     names of its contributors may be used to endorse or promote</span>
+<span class="c">#     products derived from this software without specific prior written</span>
+<span class="c">#     permission.</span>
+
+<span class="c"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR</span>
+<span class="c"># A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT</span>
+<span class="c"># HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</span>
+<span class="c"># SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,</span>
+<span class="c"># DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY</span>
+<span class="c"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
+<span class="c"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
+<span class="c"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+
+<span class="sd">&quot;&quot;&quot;The classes and functions in this module convert the ``lxml.etree``</span>
+<span class="sd">representation of the server response to native objects similar to a</span>
+<span class="sd">JSON representation. The functions in this module implement a</span>
+<span class="sd">recursive descent parser based on the tags of the XML representation.</span>
+
+<span class="sd">The parser is driven by parsing tables that actually describe the</span>
+<span class="sd">grammar the parser accepts. In this sense this library resembles tools</span>
+<span class="sd">like yacc and bison.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Panagiotis Koutsourakis &lt;kutsurak@ekt.gr&gt;&quot;</span>
+
+
+<div class="viewcode-block" id="ParseError"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParseError">[docs]</a><span class="k">class</span> <span class="nc">ParseError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="s">&quot;This class represents a parse error.&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ParseError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ParserEngine"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine">[docs]</a><span class="k">class</span> <span class="nc">ParserEngine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is class converts the ``lxml.etree`` representation to native</span>
+<span class="sd">    Python objects.</span>
+
+<span class="sd">    The user does not need to interact with it.</span>
+
+<span class="sd">    Every parse table is a dictonary containing at least one two keys: The name</span>
+<span class="sd">    of the tag that we are trying to parse, specified as the string value of</span>
+<span class="sd">    the ``&#39;tag&#39;`` key and the type of the tag. This is specified as the value</span>
+<span class="sd">    of the ``&#39;type&#39;`` key inside the dict.</span>
+
+<span class="sd">    Currently the :py:class:`pyrundeck.xml2native.ParserEngine` recognizes the</span>
+<span class="sd">    following types of tags.</span>
+
+<span class="sd">    ``&#39;text&#39;``</span>
+<span class="sd">       A tag that contains only text.</span>
+
+<span class="sd">    ``&#39;attribute&#39;``</span>
+<span class="sd">       A tag that contains only attributes.</span>
+
+<span class="sd">    ``&#39;attribute text&#39;``</span>
+<span class="sd">       A tag that contains attributes and text.</span>
+
+<span class="sd">       A special parse table dict key named ``&#39;text tag&#39;`` should be</span>
+<span class="sd">       specified. It&#39;s value should be a string and it is used as the</span>
+<span class="sd">       key to the returned dictionary for the text. See</span>
+<span class="sd">       :py:meth:`RundeckParser.attribute_text_tag`</span>
+
+<span class="sd">    ``&#39;list&#39;``</span>
+<span class="sd">       A tag that is a homogeneous list of tags.</span>
+
+<span class="sd">       The value of the key ``&#39;element parse table&#39;&#39;&#39;`` should be a parse table</span>
+<span class="sd">       that specifies how each element of the list will be parsed.</span>
+
+<span class="sd">       A special parse table dict key named ``&#39;skip count&#39;`` can be set</span>
+<span class="sd">       to ``True``, to prevent the check for a count attribute in this</span>
+<span class="sd">       tag.</span>
+
+<span class="sd">    ``&#39;composite&#39;``</span>
+<span class="sd">       A tag that is composed of other tags and attributes.</span>
+
+<span class="sd">       The value of the key ``&#39;all&#39;&#39;`` should be a list that contains the parse</span>
+<span class="sd">       tables for the mandatory child tags. The optional child tags should be</span>
+<span class="sd">       specified as a list value of the ``&#39;any&#39;`` tag.</span>
+
+<span class="sd">    ``&#39;alternatives&#39;``</span>
+<span class="sd">      A tag that can be parsed in multiple ways.</span>
+
+<span class="sd">      The value of the key ``&#39;parse tables&#39;`` should be the different parse</span>
+<span class="sd">      tables that can be used to parse this tag.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;text&#39;</span><span class="p">:</span>           <span class="bp">self</span><span class="o">.</span><span class="n">text_tag</span><span class="p">,</span>
+            <span class="s">&#39;attribute&#39;</span><span class="p">:</span>      <span class="bp">self</span><span class="o">.</span><span class="n">attribute_tag</span><span class="p">,</span>
+            <span class="s">&#39;attribute text&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attribute_text_tag</span><span class="p">,</span>
+            <span class="s">&#39;list&#39;</span><span class="p">:</span>           <span class="bp">self</span><span class="o">.</span><span class="n">list_tag</span><span class="p">,</span>
+            <span class="s">&#39;composite&#39;</span><span class="p">:</span>      <span class="bp">self</span><span class="o">.</span><span class="n">composite_tag</span><span class="p">,</span>
+            <span class="s">&#39;alternatives&#39;</span><span class="p">:</span>   <span class="bp">self</span><span class="o">.</span><span class="n">alternatives_tag</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="ParserEngine.text_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.text_tag">[docs]</a>    <span class="k">def</span> <span class="nf">text_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a tag containing only text.</span>
+
+<span class="sd">        **Example**</span>
+
+<span class="sd">        Parse table::</span>
+
+<span class="sd">           {&#39;tag&#39;: &#39;name&#39;, &#39;type&#39;: &#39;text&#39;}</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;name&gt;Random text&lt;/name&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           &quot;Random text&quot;</span>
+
+<span class="sd">        :return: The text of the tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;tag &lt;{}&gt; is not a text tag &#39;</span>
+                   <span class="s">&#39;(number of children = {})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;tag &lt;{}&gt; is not a text tag &#39;</span>
+                   <span class="s">&#39;(number of attributes = {})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+                                                        <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span>
+</div>
+<div class="viewcode-block" id="ParserEngine.attribute_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.attribute_tag">[docs]</a>    <span class="k">def</span> <span class="nf">attribute_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a tag with attributes.</span>
+
+<span class="sd">        **Example**</span>
+
+<span class="sd">        Parse table::</span>
+
+<span class="sd">           {&#39;tag&#39;: &#39;name&#39;, &#39;type&#39;: &#39;attribute&#39;}</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;option name=&quot;arg1&quot; value=&quot;faf&quot;/&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           {&#39;name&#39;: &#39;arg1&#39;, &#39;value&#39;: &#39;faf&#39;}</span>
+
+<span class="sd">        :return: A dictionary containing key value pairs for all the attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;tag &lt;{}&gt; is not an attribute tag &#39;</span>
+                   <span class="s">&#39;(number of children = {})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;tag &lt;{}&gt; is not an attribute tag &#39;</span>
+                   <span class="s">&#39;({}.text = &quot;{}&quot;)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span>
+</div>
+<div class="viewcode-block" id="ParserEngine.attribute_text_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.attribute_text_tag">[docs]</a>    <span class="k">def</span> <span class="nf">attribute_text_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a tag with attributes and text.</span>
+
+<span class="sd">        **Example**</span>
+
+<span class="sd">        Parse table::</span>
+
+<span class="sd">           {</span>
+<span class="sd">             &#39;date-started&#39;: {</span>
+<span class="sd">                &#39;type&#39;: &#39;attribute text&#39;,</span>
+<span class="sd">                &#39;text tag&#39;: &#39;time&#39;</span>
+<span class="sd">             }</span>
+<span class="sd">           }</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;date-started unixtime=&quot;1437474661504&quot;&gt;</span>
+<span class="sd">             2015-07-21T10:31:01Z</span>
+<span class="sd">           &lt;/date-started&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           {</span>
+<span class="sd">             &#39;unixtime&#39;: &#39;1437474661504&#39;,</span>
+<span class="sd">             &#39;text tag&#39;: &#39;2015-07-21T10:31:01Z&#39;</span>
+<span class="sd">           }</span>
+
+<span class="sd">        :return: A dictionary containing all the attributes of the</span>
+<span class="sd">                 tag. The text of the tag is entered in the dictionary</span>
+<span class="sd">                 as a value with key a string provided by the parse</span>
+<span class="sd">                 table for this tag.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;tag &lt;{}&gt; is not a text attribute tag &#39;</span>
+                   <span class="s">&#39;(number of children = {})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span>
+
+        <span class="n">text_tag</span> <span class="o">=</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;text tag&#39;</span><span class="p">]</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">text_tag</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="ParserEngine.list_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.list_tag">[docs]</a>    <span class="k">def</span> <span class="nf">list_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a tag that is a list of elements.</span>
+
+<span class="sd">        **Example**</span>
+
+<span class="sd">        Parse table::</span>
+
+<span class="sd">           {</span>
+<span class="sd">             &#39;type&#39;: &#39;list&#39;,</span>
+<span class="sd">             &#39;element_parse_table&#39;: self.option_parse_table,</span>
+<span class="sd">             &#39;skip len&#39;: True</span>
+<span class="sd">           }</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;options&gt;</span>
+<span class="sd">             &lt;option name=&quot;arg1&quot; value=&quot;foo&quot;/&gt;</span>
+<span class="sd">             &lt;option name=&quot;arg2&quot; value=&quot;bar&quot;/&gt;</span>
+<span class="sd">           &lt;/options&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           [</span>
+<span class="sd">             {&#39;name&#39;: &#39;arg1&#39;, &#39;value&#39;: &#39;foo&#39;},</span>
+<span class="sd">             {&#39;name&#39;: &#39;arg2&#39;, &#39;value&#39;: &#39;bar&#39;}</span>
+<span class="sd">           ]</span>
+
+<span class="sd">        :param root: The actual XML object that we need to parse.</span>
+<span class="sd">        :param expected_tags: A list containing the tags this element can</span>
+<span class="sd">                              start with.</span>
+<span class="sd">        :param parse_table: The parse table for this element.</span>
+<span class="sd">        :return: A list of elements specified by the parse table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
+
+        <span class="n">element_pt</span> <span class="o">=</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;element parse table&#39;</span><span class="p">]</span>
+        <span class="n">callback_type</span> <span class="o">=</span> <span class="n">element_pt</span><span class="p">[</span><span class="s">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_type</span><span class="p">]</span>
+
+        <span class="n">lst</span> <span class="o">=</span> <span class="p">[</span><span class="n">callback</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">element_pt</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">root</span><span class="p">]</span>
+        <span class="c"># TODO maybe remove this to make the parser more general.</span>
+        <span class="n">cnt_str</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;count&#39;</span><span class="p">)</span>
+
+        <span class="n">skip_len</span> <span class="o">=</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;skip count&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">skip_len</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="n">lst</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">cnt_str</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="s">&#39;attribute @count missing from &lt;{}&gt;&#39;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+
+        <span class="n">cnt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cnt_str</span><span class="p">)</span>
+        <span class="n">ln</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">!=</span> <span class="n">ln</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="s">&#39;list len(={}) and count(={})&#39;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ln</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; are different&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="n">cnt</span><span class="p">,</span> <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="n">lst</span><span class="p">}</span>
+</div>
+<div class="viewcode-block" id="ParserEngine.composite_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.composite_tag">[docs]</a>    <span class="k">def</span> <span class="nf">composite_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a tag consisting of other tags.</span>
+
+<span class="sd">        **Example**</span>
+
+<span class="sd">        Parse table::</span>
+
+<span class="sd">           {</span>
+<span class="sd">             &#39;type&#39;: &#39;composite&#39;,</span>
+<span class="sd">             &#39;components&#39;: {</span>
+<span class="sd">               &#39;tags&#39;: {</span>
+<span class="sd">                 &#39;user&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;text&#39;,</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;date-started&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;attribute text&#39;,</span>
+<span class="sd">                   &#39;parse table&#39;: self.date_parse_table</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;job&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;composite&#39;,</span>
+<span class="sd">                   &#39;parse table&#39;: self.job_parse_table</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;description&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;argstring&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;serverUUID&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;date-ended&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;attribute text&#39;,</span>
+<span class="sd">                    &#39;parse table&#39;: self.date_parse_table</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;abortedby&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;successfulNodes&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;list&#39;,</span>
+<span class="sd">                   &#39;parse table&#39;: self.nodes_parse_table</span>
+<span class="sd">                 },</span>
+<span class="sd">                 &#39;failedNodes&#39;: {</span>
+<span class="sd">                   &#39;type&#39;: &#39;list&#39;,</span>
+<span class="sd">                   &#39;parse table&#39;: self.nodes_parse_table</span>
+<span class="sd">                 }</span>
+<span class="sd">               },</span>
+<span class="sd">               &#39;mandatory_attributes&#39;: [</span>
+<span class="sd">                 &#39;user&#39;, &#39;date-started&#39;,</span>
+<span class="sd">                 &#39;description&#39;</span>
+<span class="sd">               ]</span>
+<span class="sd">             }</span>
+<span class="sd">           }</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;execution id=&quot;117&quot;</span>
+<span class="sd">              href=&quot;http://192.168.50.2:4440/execution/follow/117&quot;</span>
+<span class="sd">              status=&quot;succeeded&quot; project=&quot;API_client_development&quot;&gt;</span>
+<span class="sd">             &lt;user&gt;admin&lt;/user&gt;</span>
+<span class="sd">             &lt;date-started unixtime=&quot;1437474661504&quot;&gt;</span>
+<span class="sd">               2015-07-21T10:31:01Z</span>
+<span class="sd">             &lt;/date-started&gt;</span>
+<span class="sd">             &lt;date-ended unixtime=&quot;1437474662344&quot;&gt;</span>
+<span class="sd">               2015-07-21T10:31:02Z</span>
+<span class="sd">             &lt;/date-ended&gt;</span>
+<span class="sd">             &lt;job id=&quot;78f491e7-714f-44c6-bddb-8b3b3a961ace&quot;</span>
+<span class="sd">                  averageDuration=&quot;2716&quot;&gt;</span>
+<span class="sd">               &lt;name&gt;test_job_1&lt;/name&gt;</span>
+<span class="sd">               &lt;group/&gt;</span>
+<span class="sd">               &lt;project&gt;API_client_development&lt;/project&gt;</span>
+<span class="sd">               &lt;description/&gt;</span>
+<span class="sd">             &lt;/job&gt;</span>
+<span class="sd">             &lt;description&gt;echo &quot;Hello&quot;&lt;/description&gt;</span>
+<span class="sd">             &lt;argstring/&gt;</span>
+<span class="sd">             &lt;successfulNodes&gt;</span>
+<span class="sd">             &lt;node name=&quot;localhost&quot;/&gt;</span>
+<span class="sd">             &lt;/successfulNodes&gt;</span>
+<span class="sd">           &lt;/execution&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           {</span>
+<span class="sd">               &#39;id&#39;: &#39;117&#39;,</span>
+<span class="sd">               &#39;href&#39;: &#39;http://192.168.50.2:4440/execution/follow/117&#39;,</span>
+<span class="sd">               &#39;status&#39;: &#39;succeeded&#39;,</span>
+<span class="sd">               &#39;project&#39;: &#39;API_client_development&#39;,</span>
+<span class="sd">               &#39;user&#39;: &#39;admin&#39;,</span>
+<span class="sd">               &#39;date-started&#39;: {</span>
+<span class="sd">                   &#39;unixtime&#39;: &#39;1437474661504&#39;,</span>
+<span class="sd">                   &#39;time&#39;: &#39;2015-07-21T10:31:01Z&#39;</span>
+<span class="sd">               },</span>
+<span class="sd">               &#39;date-ended&#39;: {</span>
+<span class="sd">                   &#39;unixtime&#39;: &#39;1437474662344&#39;,</span>
+<span class="sd">                   &#39;time&#39;: &#39;2015-07-21T10:31:02Z&#39;</span>
+<span class="sd">               },</span>
+<span class="sd">               &#39;job&#39;: {</span>
+<span class="sd">                   &#39;id&#39;: &#39;78f491e7-714f-44c6-bddb-8b3b3a961ace&#39;,</span>
+<span class="sd">                   &#39;averageDuration&#39;: &#39;2716&#39;,</span>
+<span class="sd">                   &#39;name&#39;: &#39;test_job_1&#39;,</span>
+<span class="sd">                   &#39;group&#39;: None,</span>
+<span class="sd">                   &#39;project&#39;: &#39;API_client_development&#39;,</span>
+<span class="sd">                   &#39;description&#39;: None,</span>
+<span class="sd">               },</span>
+<span class="sd">               &#39;description&#39;: &#39;echo &quot;Hello&quot;&#39;,</span>
+<span class="sd">               &#39;argstring&#39;: None,</span>
+<span class="sd">               &#39;successfulNodes&#39;: [</span>
+<span class="sd">                   {&#39;name&#39;: &#39;localhost&#39;}</span>
+<span class="sd">               ]</span>
+<span class="sd">           }</span>
+
+<span class="sd">        :return: A dictionary representing the XML object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
+
+        <span class="c"># pt = parse_table[root.tag][&#39;components&#39;]</span>
+
+        <span class="n">mandatory_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="p">{})]</span>
+        <span class="n">allowed_tags</span> <span class="o">=</span> <span class="n">mandatory_tags</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">allowed_tags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;any&#39;</span><span class="p">,</span> <span class="p">{})]</span>
+        <span class="p">)</span>
+        <span class="n">pt_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">):</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="p">{})}</span>
+        <span class="n">pt_index</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">):</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;any&#39;</span><span class="p">,</span> <span class="p">{})})</span>
+
+        <span class="c"># allowed_tags = set(pt[&#39;tags&#39;].keys())</span>
+        <span class="c"># callbacks = pt[&#39;tags&#39;]</span>
+
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
+            <span class="n">c_tag</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span>
+            <span class="k">if</span> <span class="n">c_tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_tags</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;Unknown tag &lt;{}&gt; inside &lt;{}&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c_tag</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">callback_type</span> <span class="o">=</span> <span class="n">pt_index</span><span class="p">[</span><span class="n">c_tag</span><span class="p">][</span><span class="s">&#39;type&#39;</span><span class="p">]</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">callback_type</span><span class="p">]</span>
+            <span class="n">ret</span><span class="p">[</span><span class="n">c_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">pt_index</span><span class="p">[</span><span class="n">c_tag</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">atk</span><span class="p">,</span> <span class="n">atv</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">atk</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="n">atk</span> <span class="o">+</span> <span class="s">&#39;_attribute&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">atv</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ret</span><span class="p">[</span><span class="n">atk</span><span class="p">]</span> <span class="o">=</span> <span class="n">atv</span>
+
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">mandatory_tags</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;expected tag &lt;{}&gt; not found in tag &lt;{}&gt;&#39;</span>
+                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="ParserEngine.alternatives_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.alternatives_tag">[docs]</a>    <span class="k">def</span> <span class="nf">alternatives_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a tag that can have multiple different forms.</span>
+
+<span class="sd">        **Example**</span>
+
+<span class="sd">        Parse table::</span>
+
+<span class="sd">           {</span>
+<span class="sd">             &#39;tag&#39;: &#39;text_or_attribute&#39;,</span>
+<span class="sd">             &#39;type&#39;: &#39;alternatives&#39;,</span>
+<span class="sd">             &#39;parse tables&#39;: [</span>
+<span class="sd">               {&#39;type&#39;: &#39;text&#39;},</span>
+<span class="sd">               {&#39;type&#39;: &#39;attribute&#39;}</span>
+<span class="sd">             ]</span>
+<span class="sd">           }</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;text_or_attribute&gt;Example text&lt;/text_or_attribute&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           &quot;Example text&quot;</span>
+
+<span class="sd">        Input::</span>
+
+<span class="sd">           &lt;text_or_attribute attribute=&quot;value&quot;/&gt;</span>
+
+<span class="sd">        Output::</span>
+
+<span class="sd">           {&#39;attribute&#39;: &#39;value&#39;}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">possible_pts</span> <span class="o">=</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;parse tables&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">possible_pts</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pt</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span>
+                <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">))</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">pt</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ParseError</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;None of the alternatives could be parsed for tag &quot;</span>
+                   <span class="s">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="ParserEngine.check_root_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.check_root_tag">[docs]</a>    <span class="k">def</span> <span class="nf">check_root_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that the ``actual`` tag is in the ``expected`` list or raise</span>
+<span class="sd">        an error.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">actual</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;expected one of {}, but got: &#39;{}&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s">&quot;&quot;</span>
+            <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, National Documentation Center (EKT).
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

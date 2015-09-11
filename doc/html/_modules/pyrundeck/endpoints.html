@@ -38,7 +38,7 @@
           <div class="body" role="main">
             
   <h1>Source code for pyrundeck.endpoints</h1><div class="highlight"><pre>
-<span class="c"># Copyright (c) 2007-2015, National Documentation Centre (EKT, www.ekt.gr)</span>
+<span class="c"># Copyright (c) 2015, National Documentation Centre (EKT, www.ekt.gr)</span>
 <span class="c"># All rights reserved.</span>
 
 <span class="c"># Redistribution and use in source and binary forms, with or without</span>
@@ -69,7 +69,6 @@
 <span class="c"># THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT</span>
 <span class="c"># (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
 <span class="c"># OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
-
 <span class="sd">&quot;&quot;&quot;This module contains the mappings methods to the API endpoints.</span>
 
 <span class="sd">Each endpoint of the API should have a corresponding method in the</span>
@@ -78,6 +77,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">pyrundeck.exceptions</span> <span class="kn">import</span> <span class="n">RundeckException</span>
+<span class="kn">from</span> <span class="nn">pyrundeck.rundeck_parser</span> <span class="kn">import</span> <span class="n">parse</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Panagiotis Koutsourakis &lt;kutsurak@ekt.gr&gt;&quot;</span>
 
@@ -97,21 +97,31 @@
 <span class="sd">                 directly. Trying to do so will definitely result in</span>
 <span class="sd">                 runtime errors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="EndpointMixins.import_job"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.import_job">[docs]</a>    <span class="k">def</span> <span class="nf">import_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EndpointMixins.import_job"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.import_job">[docs]</a>    <span class="k">def</span> <span class="nf">import_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">native</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Implements `import job`_</span>
 
 <span class="sd">        .. _import job: http://rundeck.org/docs/api/index.html#importing-jobs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s">&#39;{}/api/1/jobs/import&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">status</span><span class="p">,</span> <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s">&#39;{}/api/1/jobs/import&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">),</span>
+                                <span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">native</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">parse</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">xml</span>
 </div>
-<div class="viewcode-block" id="EndpointMixins.list_jobs"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.list_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">list_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="EndpointMixins.list_jobs"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.list_jobs">[docs]</a>    <span class="k">def</span> <span class="nf">list_jobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">native</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Implements `list jobs`_</span>
 
 <span class="sd">        .. _list jobs: http://rundeck.org/docs/api/index.html#listing-jobs</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/jobs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">status</span><span class="p">,</span> <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/jobs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">native</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">parse</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">xml</span>
 </div>
-<div class="viewcode-block" id="EndpointMixins.run_job"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.run_job">[docs]</a>    <span class="k">def</span> <span class="nf">run_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="EndpointMixins.run_job"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.run_job">[docs]</a>    <span class="k">def</span> <span class="nf">run_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">native</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Implements `run job`_</span>
 
 <span class="sd">        .. _run job: http://rundeck.org/docs/api/index.html#running-a-job</span>
@@ -119,12 +129,16 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">job_id</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/job/{}/run&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span>
-                                                         <span class="n">job_id</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/job/{}/run&#39;</span>
+                                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span> <span class="n">job_id</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">native</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">parse</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">xml</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RundeckException</span><span class="p">(</span><span class="s">&quot;job id is required for job execution&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="EndpointMixins.execution_info"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.execution_info">[docs]</a>    <span class="k">def</span> <span class="nf">execution_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="EndpointMixins.execution_info"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.execution_info">[docs]</a>    <span class="k">def</span> <span class="nf">execution_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">native</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Implements `execution info`_</span>
 
 <span class="sd">        .. _execution info: http://rundeck.org/docs/api/index.html#execution-info</span>
@@ -132,9 +146,14 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">execution_id</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/execution/{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span>
-                                                           <span class="n">execution_id</span><span class="p">),</span>
-                            <span class="n">params</span><span class="p">)</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/execution/{}&#39;</span>
+                                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">),</span>
+                                   <span class="n">params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">native</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">parse</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">xml</span>
+
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RundeckException</span><span class="p">(</span><span class="s">&quot;execution id is required for &quot;</span>
                                    <span class="s">&quot;execution info&quot;</span><span class="p">)</span>
@@ -147,10 +166,31 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">job_id</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s">&#39;{}/api/1/job/{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span>
-                                                        <span class="n">job_id</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s">&#39;{}/api/1/job/{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span>
+                                                               <span class="n">job_id</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">xml</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">RundeckException</span><span class="p">(</span><span class="s">&quot;job id is required for job deletion&quot;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="n">RundeckException</span><span class="p">(</span><span class="s">&quot;job id is required for job deletion&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EndpointMixins.job_executions_info"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.endpoints.EndpointMixins.job_executions_info">[docs]</a>    <span class="k">def</span> <span class="nf">job_executions_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">native</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implements `Job executions`_</span>
+
+<span class="sd">        .. _Job executions: http://rundeck.org/docs/api/#getting-executions-for-a-job</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">job_id</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+
+            <span class="n">status</span><span class="p">,</span> <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;{}/api/1/job/{}/executions&#39;</span>
+                                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_url</span><span class="p">,</span> <span class="n">job_id</span><span class="p">),</span> <span class="n">params</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">native</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">parse</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">xml</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RundeckException</span><span class="p">(</span><span class="s">&quot;job id is required for job executions&quot;</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
