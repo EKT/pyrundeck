@@ -152,7 +152,7 @@ class RundeckParser(object):
         """This method is the external interface to the ParserEngine class.
 
         The parse table for each element must contain a key named
-        ``'function'`` that should contain the type of the parse function
+        ``'type'`` that should contain the type of the parse function
         that should be called to parse this tag. This is the
         ``cb_type`` argument of the parse method.
 

@@ -65,13 +65,19 @@ class ParserEngine(object):
     following types of tags.
 
     ``'text'``
-       A tag that contains only text.
+       A tag that contains only text::
+
+          <text_tag>Text</text_tag>
 
     ``'attribute'``
-       A tag that contains only attributes.
+       A tag that contains only attributes::
+
+          <attribute_tag attrib1="foo" attrib2="bar"/>
 
     ``'attribute text'``
-       A tag that contains attributes and text.
+       A tag that contains attributes and text::
+
+          <tag attrib="value">Text</attrib>
 
        A special parse table dict key named ``'text tag'`` should be
        specified. It's value should be a string and it is used as the
@@ -79,7 +85,14 @@ class ParserEngine(object):
        :py:meth:`RundeckParser.attribute_text_tag`
 
     ``'list'``
-       A tag that is a homogeneous list of tags.
+       A tag that is a homogeneous list of tags::
+
+          <tag>
+            <child>Child 1</child>
+            <child>Child 2</child>
+            <child>Child 3</child>
+            <child>Child 4</child>
+          </tag>
 
        The value of the key ``'element parse table'''`` should be a parse table
        that specifies how each element of the list will be parsed.
