@@ -4,9 +4,13 @@ python:
   - "3.2"
   - "3.3"
   - "3.4"
-  - "nightly"
+# Right now python nightly is not able to install lxml, cryptography, and cffi.
+# Ignore it for the moment.
+# - "nightly"
 # command to install dependencies
-install: "pip install -e ./"
+install:
+        - "pip install coveralls"
+        - "pip install -e ./"
 # command to run tests
 script: nosetests --with-coverage --cover-package=pyrundeck.api --cover-package=pyrundeck.endpoints --cover-erase tests/unit_tests
 after_success:
