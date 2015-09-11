@@ -6,7 +6,7 @@ python:
   - "3.4"
   - "nightly"
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: "pip install -e ./"
 # command to run tests
 script: nosetests --with-coverage --cover-package=pyrundeck.api --cover-package=pyrundeck.endpoints --cover-erase tests/unit_tests
 after_success:
