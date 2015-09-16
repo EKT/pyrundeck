@@ -136,6 +136,27 @@ class RundeckParser(object):
             'element parse table': self.execution_parse_table
         }
 
+        self.succeeded_job_list = {
+            'tag': 'succeeded',
+            'type': 'list',
+            'element parse table': self.job_parse_table,
+
+        }
+
+        self.failed_job_list = {
+            'tag': 'failed',
+            'type': 'list',
+            'element parse table': self.job_parse_table,
+
+        }
+
+        self.skipped_job_list = {
+            'tag': 'skipped',
+            'type': 'list',
+            'element parse table': self.job_parse_table,
+
+        }
+
         self.result_parse_table = {
             'tag': 'result',
             'type': 'composite',
@@ -143,6 +164,9 @@ class RundeckParser(object):
                 self.jobs_parse_table,
                 self.executions_parse_table,
                 self.error_parse_table,
+                self.succeeded_job_list,
+                self.failed_job_list,
+                self.skipped_job_list,
             ],
         }
 
