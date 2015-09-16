@@ -200,10 +200,9 @@ class ParserEngine(object):
         Parse table::
 
            {
-             'date-started': {
-                'type': 'attribute text',
-                'text tag': 'time'
-             }
+             'tag': 'date-started'
+             'type': 'attribute text',
+             'text tag': 'time'
            }
 
         Input::
@@ -246,9 +245,10 @@ class ParserEngine(object):
 
         Parse table::
 
+           option_parse_table = {'tag': 'option', 'type': 'attribute'}
            {
              'type': 'list',
-             'element_parse_table': self.option_parse_table,
+             'element_parse_table': option_parse_table,
              'skip len': True
            }
 
@@ -304,51 +304,23 @@ class ParserEngine(object):
 
         Parse table::
 
-           {
-             'type': 'composite',
-             'components': {
-               'tags': {
-                 'user': {
-                   'type': 'text',
-                 },
-                 'date-started': {
-                   'type': 'attribute text',
-                   'parse table': self.date_parse_table
-                 },
-                 'job': {
-                   'type': 'composite',
-                   'parse table': self.job_parse_table
-                 },
-                 'description': {
-                   'type': 'text'
-                 },
-                 'argstring': {
-                   'type': 'text'
-                 },
-                 'serverUUID': {
-                   'type': 'text'
-                 },
-                 'date-ended': {
-                   'type': 'attribute text',
-                    'parse table': self.date_parse_table
-                 },
-                 'abortedby': {
-                   'type': 'text'
-                 },
-                 'successfulNodes': {
-                   'type': 'list',
-                   'parse table': self.nodes_parse_table
-                 },
-                 'failedNodes': {
-                   'type': 'list',
-                   'parse table': self.nodes_parse_table
-                 }
-               },
-               'mandatory_attributes': [
-                 'user', 'date-started',
-                 'description'
-               ]
-             }
+            {
+              'tag': 'execution',
+              'type': 'composite',
+              'all': [
+                  {'tag': 'user', 'type': 'text'},
+                  self.start_date_parse_table,
+                  {'tag': 'description', 'type': 'text'}
+              ],
+              'any': [
+                  self.job_parse_table,
+                  {'tag': 'argstring', 'type': 'text'},
+                  {'tag': 'serverUUID', 'type': 'text'},
+                  {'tag': 'abortedby', 'type': 'text'},
+                  self.date_ended_parse_table,
+                  self.successful_nodes_parse_table,
+                  self.failed_nodes_parse_table
+              ]
            }
 
         Input::
