@@ -434,7 +434,7 @@ class ParserEngine(object):
                 ret[atk] = atv
 
         for elem in mandatory_tags:
-            if ret.get(elem) is None:
+            if elem not in ret:
                 msg = ('expected tag <{}> not found in tag <{}>'
                        .format(elem, root.tag))
                 raise ParseError(msg)
