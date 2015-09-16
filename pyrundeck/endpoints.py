@@ -194,3 +194,23 @@ class EndpointMixins(object):
             return status, parse(xml)
         else:
             return status, xml
+
+    def job_definition(self, native=True, **params):
+        """Implements `Getting a Job Definition`_
+
+        .. _Getting a Job Definition: http://rundeck.org/docs/api/index.html#getting-a-job-definition
+        """
+        try:
+            job_id = params.pop('id')
+            status, res = self.get('{}/api/1/job/{}'
+                                   .format(self.root_url, job_id), params)
+
+            if params.get('format') == 'yaml':
+                return status, yaml.load(res)
+            else:
+                if native:
+                    return status, parse(res)
+                else:
+                    return status, res
+        except KeyError:
+            raise RundeckException("job id is required for job definition")
