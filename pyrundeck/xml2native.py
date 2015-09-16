@@ -41,6 +41,8 @@ like yacc and bison.
 
 """
 
+import logging
+
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
@@ -115,7 +117,8 @@ class ParserEngine(object):
       tables that can be used to parse this tag.
 
     """
-    def __init__(self):
+    def __init__(self, log_level=logging.INFO):
+        self.logger = logging.getLogger(__name__)
         self.callbacks = {
             'text':           self.text_tag,
             'attribute':      self.attribute_tag,
@@ -457,10 +460,13 @@ class ParserEngine(object):
         ret = None
         for pt in possible_pts:
             try:
-                pt['tag'] = parse_table['tag']
+                if 'tag' in parse_table:
+                    pt['tag'] = parse_table['tag']
                 callback = self.callbacks.get(pt.get('type'))
                 ret = callback(root, pt)
-            except ParseError:
+                break  # Break on the first successful parse
+            except ParseError as ex:
+                self.logger.debug("{}: {}".format(pt.get('tag'), ex))
                 ret = None
 
         if ret is None:

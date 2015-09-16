@@ -170,6 +170,58 @@ class RundeckParser(object):
             ],
         }
 
+        self.joblist_job_parse_table = {
+            'tag': 'job',
+            'type': 'composite',
+            'all': [
+                {'tag': 'id', 'type': 'text'},
+                {'tag': 'loglevel', 'type': 'text'},
+                {
+                    'tag': 'sequence',
+                    'type': 'composite',
+                    'all': [
+                        {
+                            'tag': 'command',
+                            'type': 'composite',
+                            'all': [
+                                {'tag': 'exec', 'type': 'text'}
+                            ]
+                        }
+                    ]
+                },
+                {'tag': 'name', 'type': 'text'},
+                {'tag': 'uuid', 'type': 'text'},
+                {
+                    'tag': 'context',
+                    'type': 'composite',
+                    'all': [
+                        {'tag': 'project', 'type': 'text'}
+                    ],
+                    'any': [
+                        self.options_parse_table,
+                    ],
+                }
+            ],
+            'any': [
+                {'tag': 'description', 'type': 'text'},
+            ]
+        }
+
+        self.joblist_parse_table = {
+            'tag': 'joblist',
+            'type': 'list',
+            'element parse table': self.joblist_job_parse_table,
+            'skip count': True
+        }
+
+        self.start_symbol = {
+            'type': 'alternatives',
+            'parse tables': [
+                self.result_parse_table,
+                self.joblist_parse_table
+            ]
+        }
+
         self.engine = ParserEngine()
 
     def parse(self, xml_tree, cb_type, parse_table):
@@ -192,7 +244,7 @@ class RundeckParser(object):
 _parser = RundeckParser()
 
 
-def parse(xml_tree, cb_type='composite',
-          parse_table=_parser.result_parse_table):
+def parse(xml_tree, cb_type='alternatives',
+          parse_table=_parser.start_symbol):
     """Main entry point to the parser"""
     return _parser.parse(xml_tree, cb_type, parse_table)
