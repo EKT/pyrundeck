@@ -28,6 +28,7 @@ setup(
         'requests>=2.7.0',
         'pyopenssl>=0.15.1',
         'ndg-httpsclient>=0.4.0',
-        'pyasn1>=0.1.8'
+        'pyasn1>=0.1.8',
+        'pyyaml>=3.11'
     ]
 )
