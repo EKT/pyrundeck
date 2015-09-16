@@ -282,6 +282,48 @@ class RundeckParser(object):
             ]
         }
 
+        self.deleteJobResult_parse_table = {
+            'tag': 'deleteJobResult',
+            'type': 'alternatives',
+            'parse tables': [
+                {
+                    'type': 'composite',
+                    'all': [
+                        {
+                            'tag': 'message',
+                            'type': 'text'
+                        }
+                    ]
+                },
+                {
+                    'type': 'composite',
+                    'all': [
+                        {
+                            'tag': 'error',
+                            'type': 'text'
+                        }
+                    ]
+                }
+            ]
+        }
+
+        self.delete_jobs_parse_table = {
+            'tag': 'deleteJobs',
+            'type': 'composite',
+            'any': [
+                {
+                    'tag': 'succeeded',
+                    'type': 'list',
+                    'element parse table': self.deleteJobResult_parse_table
+                },
+                {
+                    'tag': 'failed',
+                    'type': 'list',
+                    'element parse table': self.deleteJobResult_parse_table
+                }
+            ]
+        }
+
         self.result_parse_table = {
             'tag': 'result',
             'type': 'alternatives',
@@ -303,6 +345,10 @@ class RundeckParser(object):
                         self.success_parse_table,
                         self.system_info_parse_table
                     ]
+                },
+                {
+                    'type': 'composite',
+                    'all': [self.delete_jobs_parse_table]
                 },
             ],
         }

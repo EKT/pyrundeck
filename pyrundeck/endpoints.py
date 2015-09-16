@@ -214,3 +214,17 @@ class EndpointMixins(object):
                     return status, res
         except KeyError:
             raise RundeckException("job id is required for job definition")
+
+    def bulk_job_delete(self, native=True, **params):
+        """Implements `Bulk Job Delete`_
+
+        .. _Bulk Job Delete: http://rundeck.org/docs/api/index.html#bulk-job-delete
+        """
+
+        status, xml = self.delete('{}/api/5/jobs/delete'.format(self.root_url),
+                                  params)
+
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
