@@ -42,6 +42,7 @@ like yacc and bison.
 """
 
 import logging
+from lxml import etree
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
@@ -118,6 +119,7 @@ class ParserEngine(object):
 
     """
     def __init__(self, log_level=logging.INFO):
+        logging.basicConfig(level=log_level, filename='pyrundeck.log')
         self.logger = logging.getLogger(__name__)
         self.callbacks = {
             'text':           self.text_tag,
@@ -147,6 +149,9 @@ class ParserEngine(object):
 
         :return: The text of the tag.
         """
+        self.logger.debug("text tag, parsing:\n{}\nWith parse table:\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         if len(root) != 0:
@@ -181,6 +186,9 @@ class ParserEngine(object):
 
         :return: A dictionary containing key value pairs for all the attributes
         """
+        self.logger.debug("attribute tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         if len(root) != 0:
@@ -227,6 +235,9 @@ class ParserEngine(object):
                  table for this tag.
 
         """
+        self.logger.debug("attribute text tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         if len(root) != 0:
@@ -275,6 +286,9 @@ class ParserEngine(object):
         :param parse_table: The parse table for this element.
         :return: A list of elements specified by the parse table.
         """
+        self.logger.debug("list tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         element_pt = parse_table['element parse table']
@@ -385,6 +399,9 @@ class ParserEngine(object):
 
         :return: A dictionary representing the XML object.
         """
+        self.logger.debug("composite tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         # pt = parse_table[root.tag]['components']
@@ -456,6 +473,9 @@ class ParserEngine(object):
 
            {'attribute': 'value'}
         """
+        self.logger.debug("alternatives tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         possible_pts = parse_table.get('parse tables', [])
         ret = None
         for pt in possible_pts:
