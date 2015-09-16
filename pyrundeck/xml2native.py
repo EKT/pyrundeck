@@ -165,7 +165,12 @@ class ParserEngine(object):
                                                         len(root.keys())))
             raise ParseError(msg)
 
-        return root.text
+        if root.text is None:
+            ret = ''
+        else:
+            ret = root.text
+
+        return ret
 
     def attribute_tag(self, root, parse_table):
         """Parse a tag with attributes.
