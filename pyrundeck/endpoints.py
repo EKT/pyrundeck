@@ -182,3 +182,15 @@ class EndpointMixins(object):
             return status, parse(xml)
         else:
             return status, xml
+
+    def system_info(self, native=True, **params):
+        """Implements `System Info`_
+
+        .. _System Info: http://rundeck.org/docs/api/index.html#system-info
+        """
+        status, xml = self.get('{}/api/1/system/info'.format(self.root_url))
+
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml

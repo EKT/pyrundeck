@@ -157,16 +157,153 @@ class RundeckParser(object):
 
         }
 
+        self.success_parse_table = {
+            'tag': 'success',
+            'type': 'composite',
+            'all': [
+                {'tag': 'message', 'type': 'text'}
+            ]
+        }
+
+        self.timestamp_parse_table = {
+            'tag': 'timestamp',
+            'type': 'composite',
+            'all': [{'tag': 'datetime', 'type': 'text'}]
+        }
+
+        self.rundeck_info_parse_table = {
+            'tag': 'rundeck',
+            'type': 'composite',
+            'all': [
+                {'tag': 'version', 'type': 'text'},
+                {'tag': 'build', 'type': 'text'},
+                {'tag': 'node', 'type': 'text'},
+                {'tag': 'base', 'type': 'text'},
+                {'tag': 'apiversion', 'type': 'text'},
+                {'tag': 'serverUUID', 'type': 'text'},
+            ]
+        }
+
+        self.os_parse_table = {
+            'tag': 'os',
+            'type': 'composite',
+            'all': [
+                {'tag': 'arch', 'type': 'text'},
+                {'tag': 'name', 'type': 'text'},
+                {'tag': 'version', 'type': 'text'},
+            ]
+        }
+
+        self.jvm_parse_table = {
+            'tag': 'jvm',
+            'type': 'composite',
+            'all': [
+                {'tag': 'name', 'type': 'text'},
+                {'tag': 'vendor', 'type': 'text'},
+                {'tag': 'version', 'type': 'text'},
+                {'tag': 'implementationVersion', 'type': 'text'},
+            ]
+        }
+
+        self.uptime_parse_table = {
+            'tag': 'uptime',
+            'type': 'composite',
+            'all': [
+                {
+                    'tag': 'since',
+                    'type': 'composite',
+                    'all': [{'tag': 'datetime', 'type': 'text'}]
+                }
+            ]
+        }
+
+        self.cpu_parse_table = {
+            'tag': 'cpu',
+            'type': 'composite',
+            'all': [
+                {
+                    'tag': 'loadAverage',
+                    'type': 'attribute text',
+                    'text tag': 'load'
+                },
+                {'tag': 'processors', 'type': 'text'}
+            ]
+        }
+
+        self.memory_parse_table = {
+            'tag': 'memory',
+            'type': 'composite',
+            'all': [
+                {'tag': 'max', 'type': 'text'},
+                {'tag': 'free', 'type': 'text'},
+                {'tag': 'total', 'type': 'text'}
+            ]
+        }
+
+        self.scheduler_parse_table = {
+            'tag': 'scheduler',
+            'type': 'composite',
+            'all': [
+                {'tag': 'running', 'type': 'text'},
+            ]
+        }
+
+        self.threads_parse_table = {
+            'tag': 'threads',
+            'type': 'composite',
+            'all': [
+                {'tag': 'active', 'type': 'text'},
+            ]
+        }
+
+        self.stats_parse_table = {
+            'tag': 'stats',
+            'type': 'composite',
+            'all': [
+                self.uptime_parse_table,
+                self.cpu_parse_table,
+                self.memory_parse_table,
+                self.scheduler_parse_table,
+                self.threads_parse_table
+            ]
+        }
+
+        self.system_info_parse_table = {
+            'tag': 'system',
+            'type': 'composite',
+            'all': [
+                self.timestamp_parse_table,
+                self.rundeck_info_parse_table,
+                self.os_parse_table,
+                self.jvm_parse_table,
+                self.stats_parse_table,
+                {'tag': 'metrics', 'type': 'attribute'},
+                {'tag': 'threadDump', 'type': 'attribute'},
+            ]
+        }
+
         self.result_parse_table = {
             'tag': 'result',
-            'type': 'composite',
-            'any': [
-                self.jobs_parse_table,
-                self.executions_parse_table,
-                self.error_parse_table,
-                self.succeeded_job_list,
-                self.failed_job_list,
-                self.skipped_job_list,
+            'type': 'alternatives',
+            'parse tables': [
+                {'type': 'composite', 'all': [self.jobs_parse_table]},
+                {'type': 'composite', 'all': [self.error_parse_table]},
+                {'type': 'composite', 'all': [self.executions_parse_table]},
+                {
+                    'type': 'composite',
+                    'all': [
+                        self.succeeded_job_list,
+                        self.failed_job_list,
+                        self.skipped_job_list,
+                    ],
+                },
+                {
+                    'type': 'composite',
+                    'all': [
+                        self.success_parse_table,
+                        self.system_info_parse_table
+                    ]
+                },
             ],
         }
 
