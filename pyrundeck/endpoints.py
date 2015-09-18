@@ -71,7 +71,7 @@ class EndpointMixins(object):
         else:
             return status, xml
 
-    def export_jobs(self, native=False, **params):
+    def export_jobs(self, native=True, **params):
         """Implements `export jobs`_
 
         .. _export jobs: http://rundeck.org/docs/api/index.html#exporting-jobs
@@ -188,7 +188,8 @@ class EndpointMixins(object):
 
         .. _System Info: http://rundeck.org/docs/api/index.html#system-info
         """
-        status, xml = self.get('{}/api/1/system/info'.format(self.root_url))
+        status, xml = self.get('{}/api/1/system/info'.format(self.root_url),
+                               params)
 
         if native:
             return status, parse(xml)
