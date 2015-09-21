@@ -41,6 +41,9 @@ like yacc and bison.
 
 """
 
+import logging
+from lxml import etree
+
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
 
@@ -115,7 +118,9 @@ class ParserEngine(object):
       tables that can be used to parse this tag.
 
     """
-    def __init__(self):
+    def __init__(self, log_level=logging.INFO):
+        logging.basicConfig(level=log_level, filename='pyrundeck.log')
+        self.logger = logging.getLogger(__name__)
         self.callbacks = {
             'text':           self.text_tag,
             'attribute':      self.attribute_tag,
@@ -144,6 +149,9 @@ class ParserEngine(object):
 
         :return: The text of the tag.
         """
+        self.logger.debug("text tag, parsing:\n{}\nWith parse table:\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         if len(root) != 0:
@@ -157,7 +165,12 @@ class ParserEngine(object):
                                                         len(root.keys())))
             raise ParseError(msg)
 
-        return root.text
+        if root.text is None:
+            ret = ''
+        else:
+            ret = root.text
+
+        return ret
 
     def attribute_tag(self, root, parse_table):
         """Parse a tag with attributes.
@@ -178,6 +191,9 @@ class ParserEngine(object):
 
         :return: A dictionary containing key value pairs for all the attributes
         """
+        self.logger.debug("attribute tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         if len(root) != 0:
@@ -200,10 +216,9 @@ class ParserEngine(object):
         Parse table::
 
            {
-             'date-started': {
-                'type': 'attribute text',
-                'text tag': 'time'
-             }
+             'tag': 'date-started'
+             'type': 'attribute text',
+             'text tag': 'time'
            }
 
         Input::
@@ -225,6 +240,9 @@ class ParserEngine(object):
                  table for this tag.
 
         """
+        self.logger.debug("attribute text tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         if len(root) != 0:
@@ -246,9 +264,10 @@ class ParserEngine(object):
 
         Parse table::
 
+           option_parse_table = {'tag': 'option', 'type': 'attribute'}
            {
              'type': 'list',
-             'element_parse_table': self.option_parse_table,
+             'element_parse_table': option_parse_table,
              'skip len': True
            }
 
@@ -272,6 +291,9 @@ class ParserEngine(object):
         :param parse_table: The parse table for this element.
         :return: A list of elements specified by the parse table.
         """
+        self.logger.debug("list tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         element_pt = parse_table['element parse table']
@@ -304,51 +326,23 @@ class ParserEngine(object):
 
         Parse table::
 
-           {
-             'type': 'composite',
-             'components': {
-               'tags': {
-                 'user': {
-                   'type': 'text',
-                 },
-                 'date-started': {
-                   'type': 'attribute text',
-                   'parse table': self.date_parse_table
-                 },
-                 'job': {
-                   'type': 'composite',
-                   'parse table': self.job_parse_table
-                 },
-                 'description': {
-                   'type': 'text'
-                 },
-                 'argstring': {
-                   'type': 'text'
-                 },
-                 'serverUUID': {
-                   'type': 'text'
-                 },
-                 'date-ended': {
-                   'type': 'attribute text',
-                    'parse table': self.date_parse_table
-                 },
-                 'abortedby': {
-                   'type': 'text'
-                 },
-                 'successfulNodes': {
-                   'type': 'list',
-                   'parse table': self.nodes_parse_table
-                 },
-                 'failedNodes': {
-                   'type': 'list',
-                   'parse table': self.nodes_parse_table
-                 }
-               },
-               'mandatory_attributes': [
-                 'user', 'date-started',
-                 'description'
-               ]
-             }
+            {
+              'tag': 'execution',
+              'type': 'composite',
+              'all': [
+                  {'tag': 'user', 'type': 'text'},
+                  self.start_date_parse_table,
+                  {'tag': 'description', 'type': 'text'}
+              ],
+              'any': [
+                  self.job_parse_table,
+                  {'tag': 'argstring', 'type': 'text'},
+                  {'tag': 'serverUUID', 'type': 'text'},
+                  {'tag': 'abortedby', 'type': 'text'},
+                  self.date_ended_parse_table,
+                  self.successful_nodes_parse_table,
+                  self.failed_nodes_parse_table
+              ]
            }
 
         Input::
@@ -410,6 +404,9 @@ class ParserEngine(object):
 
         :return: A dictionary representing the XML object.
         """
+        self.logger.debug("composite tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         self.check_root_tag(root.tag, parse_table['tag'])
 
         # pt = parse_table[root.tag]['components']
@@ -442,7 +439,7 @@ class ParserEngine(object):
                 ret[atk] = atv
 
         for elem in mandatory_tags:
-            if ret.get(elem) is None:
+            if elem not in ret:
                 msg = ('expected tag <{}> not found in tag <{}>'
                        .format(elem, root.tag))
                 raise ParseError(msg)
@@ -481,14 +478,20 @@ class ParserEngine(object):
 
            {'attribute': 'value'}
         """
+        self.logger.debug("alternatives tag, parsing:\n{}\nWith parse table\n{}"
+                          .format(etree.tostring(root).decode(),
+                                  parse_table))
         possible_pts = parse_table.get('parse tables', [])
         ret = None
         for pt in possible_pts:
             try:
-                pt['tag'] = parse_table['tag']
+                if 'tag' in parse_table:
+                    pt['tag'] = parse_table['tag']
                 callback = self.callbacks.get(pt.get('type'))
                 ret = callback(root, pt)
-            except ParseError:
+                break  # Break on the first successful parse
+            except ParseError as ex:
+                self.logger.debug("{}: {}".format(pt.get('tag'), ex))
                 ret = None
 
         if ret is None:

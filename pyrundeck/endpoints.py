@@ -38,6 +38,7 @@ this class in order to inherit the defined methods.
 
 from pyrundeck.exceptions import RundeckException
 from pyrundeck.rundeck_parser import parse
+import yaml
 
 __author__ = "Panagiotis Koutsourakis <kutsurak@ekt.gr>"
 
@@ -69,6 +70,22 @@ class EndpointMixins(object):
             return status, parse(xml)
         else:
             return status, xml
+
+    def export_jobs(self, native=True, **params):
+        """Implements `export jobs`_
+
+        .. _export jobs: http://rundeck.org/docs/api/index.html#exporting-jobs
+        """
+        status, res = self.get('{}/api/1/jobs/export'.format(self.root_url),
+                               params)
+
+        if params.get('format') == 'yaml':
+            return status, yaml.load(res)
+        else:
+            if native:
+                return status, parse(res)
+            else:
+                return status, res
 
     def list_jobs(self, native=True, **params):
         """Implements `list jobs`_
@@ -160,6 +177,53 @@ class EndpointMixins(object):
 
         status, xml = self.post('{}/api/1/executions/running'.format(self.root_url),
                                 params)
+
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
+
+    def system_info(self, native=True, **params):
+        """Implements `System Info`_
+
+        .. _System Info: http://rundeck.org/docs/api/index.html#system-info
+        """
+        status, xml = self.get('{}/api/1/system/info'.format(self.root_url),
+                               params)
+
+        if native:
+            return status, parse(xml)
+        else:
+            return status, xml
+
+    def job_definition(self, native=True, **params):
+        """Implements `Getting a Job Definition`_
+
+        .. _Getting a Job Definition: http://rundeck.org/docs/api/index.html#getting-a-job-definition
+        """
+        try:
+            job_id = params.pop('id')
+            status, res = self.get('{}/api/1/job/{}'
+                                   .format(self.root_url, job_id), params)
+
+            if params.get('format') == 'yaml':
+                return status, yaml.load(res)
+            else:
+                if native:
+                    return status, parse(res)
+                else:
+                    return status, res
+        except KeyError:
+            raise RundeckException("job id is required for job definition")
+
+    def bulk_job_delete(self, native=True, **params):
+        """Implements `Bulk Job Delete`_
+
+        .. _Bulk Job Delete: http://rundeck.org/docs/api/index.html#bulk-job-delete
+        """
+
+        status, xml = self.delete('{}/api/5/jobs/delete'.format(self.root_url),
+                                  params)
 
         if native:
             return status, parse(xml)

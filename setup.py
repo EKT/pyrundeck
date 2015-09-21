@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="PyRundeck",
-    version="0.3.4",
+    version="0.3.5",
     description="A thin, pure Python wrapper for the Rundeck API",
     author="Panagiotis Koutsourakis",
     author_email="kutsurak@ekt.gr",
@@ -28,6 +28,7 @@ setup(
         'requests>=2.7.0',
         'pyopenssl>=0.15.1',
         'ndg-httpsclient>=0.4.0',
-        'pyasn1>=0.1.8'
+        'pyasn1>=0.1.8',
+        'pyyaml>=3.11'
     ]
 )

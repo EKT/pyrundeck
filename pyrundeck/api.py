@@ -129,7 +129,10 @@ class RundeckApiClient(EndpointMixins):
         self.logger.debug('text = {}'.format(response.text))
 
         if response.text != '':
-            return response.status_code, etree.fromstring(response.text)
+            if params.get('format') == 'yaml':
+                return response.status_code, response.text
+            else:
+                return response.status_code, etree.fromstring(response.text)
         else:
             return response.status_code, None
 

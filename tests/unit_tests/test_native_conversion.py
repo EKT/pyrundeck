@@ -57,7 +57,7 @@ class TestXMLToNativePython:
         expected = {
             'id': "ea17d859-32ff-45c8-8a0d-a16ac1ea3566",
             'name': 'long job',
-            'group': None,
+            'group': '',
             'project': 'API_client_development',
             'description': 'async testing'
         }
@@ -101,23 +101,23 @@ class TestXMLToNativePython:
                 {
                     'id': "3b8a86d5-4fc3-4cc1-95a2-8b51421c2069",
                     'name': 'job_with_args',
-                    'group': None,
+                    'group': '',
                     'project': 'API_client_development',
-                    'description': None
+                    'description': ''
                 },
                 {
                     'id': "ea17d859-32ff-45c8-8a0d-a16ac1ea3566",
                     'name': 'long job',
-                    'group': None,
+                    'group': '',
                     'project': 'API_client_development',
                     'description': 'async testing'
                 },
                 {
                     'id': "78f491e7-714f-44c6-bddb-8b3b3a961ace",
                     'name': 'test_job_1',
-                    'group': None,
+                    'group': '',
                     'project': 'API_client_development',
-                    'description': None
+                    'description': ''
                 },
             ]
         }
@@ -203,12 +203,12 @@ class TestXMLToNativePython:
                 'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
                 'averageDuration': '2716',
                 'name': 'test_job_1',
-                'group': None,
+                'group': '',
                 'project': 'API_client_development',
-                'description': None,
+                'description': '',
             },
             'description': 'echo "Hello"',
-            'argstring': None,
+            'argstring': '',
             'successfulNodes': {
                 'list': [
                     {'name': 'localhost'}
@@ -338,8 +338,8 @@ class TestXMLToNativePython:
                     'id': '53',
                     'job': {
                         'averageDuration': '1022',
-                        'description': None,
-                        'group': None,
+                        'description': '',
+                        'group': '',
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
                         'options': {
@@ -367,8 +367,8 @@ class TestXMLToNativePython:
                     'id': '52',
                     'job': {
                         'averageDuration': '1022',
-                        'description': None,
-                        'group': None,
+                        'description': '',
+                        'group': '',
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
                         'options': {
@@ -396,8 +396,8 @@ class TestXMLToNativePython:
                     'id': '49',
                     'job': {
                         'averageDuration': '1022',
-                        'description': None,
-                        'group': None,
+                        'description': '',
+                        'group': '',
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
                         'options': {
@@ -425,8 +425,8 @@ class TestXMLToNativePython:
                     'id': '48',
                     'job': {
                         'averageDuration': '1022',
-                        'description': None,
-                        'group': None,
+                        'description': '',
+                        'group': '',
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
                         'options': {
@@ -454,8 +454,8 @@ class TestXMLToNativePython:
                     'id': '46',
                     'job': {
                         'averageDuration': '1022',
-                        'description': None,
-                        'group': None,
+                        'description': '',
+                        'group': '',
                         'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                         'name': 'job_with_args',
                         'options': {
@@ -509,8 +509,8 @@ class TestXMLToNativePython:
                         'id': '53',
                         'job': {
                             'averageDuration': '1022',
-                            'description': None,
-                            'group': None,
+                            'description': '',
+                            'group': '',
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
                             'options': {
@@ -538,8 +538,8 @@ class TestXMLToNativePython:
                         'id': '52',
                         'job': {
                             'averageDuration': '1022',
-                            'description': None,
-                            'group': None,
+                            'description': '',
+                            'group': '',
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
                             'options': {
@@ -567,8 +567,8 @@ class TestXMLToNativePython:
                         'id': '49',
                         'job': {
                             'averageDuration': '1022',
-                            'description': None,
-                            'group': None,
+                            'description': '',
+                            'group': '',
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
                             'options': {
@@ -596,8 +596,8 @@ class TestXMLToNativePython:
                         'id': '48',
                         'job': {
                             'averageDuration': '1022',
-                            'description': None,
-                            'group': None,
+                            'description': '',
+                            'group': '',
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
                             'options': {
@@ -625,8 +625,8 @@ class TestXMLToNativePython:
                         'id': '46',
                         'job': {
                             'averageDuration': '1022',
-                            'description': None,
-                            'group': None,
+                            'description': '',
+                            'group': '',
                             'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                             'name': 'job_with_args',
                             'options': {
@@ -652,28 +652,28 @@ class TestXMLToNativePython:
             'apiversion': '13',
             'jobs': {'count': 5,
                      'list': [
-                         {'description': None,
-                          'group': None,
+                         {'description': '',
+                          'group': '',
                           'id': '3b8a86d5-4fc3-4cc1-95a2-8b51421c2069',
                           'name': 'job_with_args',
                           'project': 'API_client_development'},
                          {'description': 'async testing',
-                          'group': None,
+                          'group': '',
                           'id': 'ea17d859-32ff-45c8-8a0d-a16ac1ea3566',
                           'name': 'long job',
                           'project': 'API_client_development'},
-                         {'description': None,
-                          'group': None,
+                         {'description': '',
+                          'group': '',
                           'id': '78f491e7-714f-44c6-bddb-8b3b3a961ace',
                           'name': 'test_job_1',
                           'project': 'API_client_development'},
-                         {'description': None,
-                          'group': None,
+                         {'description': '',
+                          'group': '',
                           'id': '8d5ebfc8-d69a-4808-819e-9c57b7f288d2',
                           'name': 'test_job_2',
                           'project': 'API_client_development'},
-                         {'description': None,
-                          'group': None,
+                         {'description': '',
+                          'group': '',
                           'id': '734f8b9c-683d-49cd-a2f2-f317696b76f8',
                           'name': 'test_job_2',
                           'project': 'API_client_development'}

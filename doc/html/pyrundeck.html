@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyrundeck package &mdash; PyRundeck 0.3.2 beta documentation</title>
+    <title>pyrundeck package &mdash; PyRundeck 0.3.5 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3.2 beta',
+        VERSION:     '0.3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PyRundeck 0.3.2 beta documentation" href="index.html" />
+    <link rel="top" title="PyRundeck 0.3.5 documentation" href="index.html" />
     <link rel="up" title="pyrundeck" href="modules.html" />
     <link rel="prev" title="pyrundeck" href="modules.html" />
    
@@ -198,6 +198,12 @@ directly. Trying to do so will definitely result in
 runtime errors.</p>
 </div>
 <dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.bulk_job_delete">
+<code class="descname">bulk_job_delete</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.bulk_job_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.bulk_job_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#bulk-job-delete">Bulk Job Delete</a></p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyrundeck.endpoints.EndpointMixins.delete_job">
 <code class="descname">delete_job</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.delete_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.delete_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#deleting-a-job-definition">delete job</a></p>
@@ -210,9 +216,21 @@ runtime errors.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.export_jobs">
+<code class="descname">export_jobs</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.export_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.export_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#exporting-jobs">export jobs</a></p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pyrundeck.endpoints.EndpointMixins.import_job">
 <code class="descname">import_job</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.import_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.import_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#importing-jobs">import job</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.job_definition">
+<code class="descname">job_definition</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.job_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.job_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#getting-a-job-definition">Getting a Job Definition</a></p>
 </dd></dl>
 
 <dl class="method">
@@ -237,6 +255,12 @@ runtime errors.</p>
 <dt id="pyrundeck.endpoints.EndpointMixins.running_executions">
 <code class="descname">running_executions</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.running_executions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.running_executions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#listing-running-executions">List Running Executions</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyrundeck.endpoints.EndpointMixins.system_info">
+<code class="descname">system_info</code><span class="sig-paren">(</span><em>native=True</em>, <em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/endpoints.html#EndpointMixins.system_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.endpoints.EndpointMixins.system_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements <a class="reference external" href="http://rundeck.org/docs/api/index.html#system-info">System Info</a></p>
 </dd></dl>
 
 </dd></dl>
@@ -277,7 +301,7 @@ that should be called to parse this tag. This is the
 
 <dl class="function">
 <dt id="pyrundeck.rundeck_parser.parse">
-<code class="descclassname">pyrundeck.rundeck_parser.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>xml_tree, cb_type='composite', parse_table={'any': [{'element parse table': {'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'skip count': True, 'tag': 'options'}], 'type': 'composite', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}], 'tag': 'job'}, 'type': 'list', 'tag': 'jobs'}, {'element parse table': {'any': [{'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'skip count': True, 'tag': 'options'}], 'type': 'composite', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}], 'tag': 'job'}, {'type': 'text', 'tag': 'argstring'}, {'type': 'text', 'tag': 'serverUUID'}, {'type': 'text', 'tag': 'abortedby'}, {'type': 'attribute text', 'text tag': 'time', 'tag': 'date-ended'}, {'element parse table': {'type': 'attribute', 'tag': 'node'}, 'type': 'list', 'skip count': True, 'tag': 'successfulNodes'}, {'element parse table': {'type': 'attribute', 'tag': 'node'}, 'type': 'list', 'skip count': True, 'tag': 'failedNodes'}], 'type': 'composite', 'all': [{'type': 'text', 'tag': 'user'}, {'type': 'attribute text', 'text tag': 'time', 'tag': 'date-started'}, {'type': 'text', 'tag': 'description'}], 'tag': 'execution'}, 'type': 'list', 'tag': 'executions'}, {'type': 'composite', 'all': [{'type': 'text', 'tag': 'message'}], 'tag': 'error'}], 'type': 'composite', 'tag': 'result'}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/rundeck_parser.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.rundeck_parser.parse" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyrundeck.rundeck_parser.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>xml_tree, cb_type='alternatives', parse_table={'type': 'alternatives', 'parse tables': [{'type': 'alternatives', 'tag': 'result', 'parse tables': [{'type': 'composite', 'all': [{'element parse table': {'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'tag': 'options', 'skip count': True}], 'type': 'composite', 'tag': 'job', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}]}, 'type': 'list', 'tag': 'jobs'}]}, {'type': 'composite', 'all': [{'type': 'composite', 'tag': 'error', 'all': [{'type': 'text', 'tag': 'message'}]}]}, {'type': 'composite', 'all': [{'element parse table': {'any': [{'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'tag': 'options', 'skip count': True}], 'type': 'composite', 'tag': 'job', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}]}, {'type': 'text', 'tag': 'argstring'}, {'type': 'text', 'tag': 'serverUUID'}, {'type': 'text', 'tag': 'abortedby'}, {'type': 'attribute text', 'tag': 'date-ended', 'text tag': 'time'}, {'element parse table': {'type': 'attribute', 'tag': 'node'}, 'type': 'list', 'tag': 'successfulNodes', 'skip count': True}, {'element parse table': {'type': 'attribute', 'tag': 'node'}, 'type': 'list', 'tag': 'failedNodes', 'skip count': True}], 'type': 'composite', 'tag': 'execution', 'all': [{'type': 'text', 'tag': 'user'}, {'type': 'attribute text', 'tag': 'date-started', 'text tag': 'time'}, {'type': 'text', 'tag': 'description'}]}, 'type': 'list', 'tag': 'executions'}]}, {'type': 'composite', 'all': [{'element parse table': {'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'tag': 'options', 'skip count': True}], 'type': 'composite', 'tag': 'job', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}]}, 'type': 'list', 'tag': 'succeeded'}, {'element parse table': {'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'tag': 'options', 'skip count': True}], 'type': 'composite', 'tag': 'job', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}]}, 'type': 'list', 'tag': 'failed'}, {'element parse table': {'any': [{'type': 'text', 'tag': 'group'}, {'type': 'text', 'tag': 'description'}, {'type': 'text', 'tag': 'url'}, {'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'tag': 'options', 'skip count': True}], 'type': 'composite', 'tag': 'job', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'project'}]}, 'type': 'list', 'tag': 'skipped'}]}, {'type': 'composite', 'all': [{'type': 'composite', 'tag': 'success', 'all': [{'type': 'text', 'tag': 'message'}]}, {'type': 'composite', 'tag': 'system', 'all': [{'type': 'composite', 'tag': 'timestamp', 'all': [{'type': 'text', 'tag': 'datetime'}]}, {'type': 'composite', 'tag': 'rundeck', 'all': [{'type': 'text', 'tag': 'version'}, {'type': 'text', 'tag': 'build'}, {'type': 'text', 'tag': 'node'}, {'type': 'text', 'tag': 'base'}, {'type': 'text', 'tag': 'apiversion'}, {'type': 'text', 'tag': 'serverUUID'}]}, {'type': 'composite', 'tag': 'os', 'all': [{'type': 'text', 'tag': 'arch'}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'version'}]}, {'type': 'composite', 'tag': 'jvm', 'all': [{'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'vendor'}, {'type': 'text', 'tag': 'version'}, {'type': 'text', 'tag': 'implementationVersion'}]}, {'type': 'composite', 'tag': 'stats', 'all': [{'type': 'composite', 'tag': 'uptime', 'all': [{'type': 'composite', 'tag': 'since', 'all': [{'type': 'text', 'tag': 'datetime'}]}]}, {'type': 'composite', 'tag': 'cpu', 'all': [{'type': 'attribute text', 'tag': 'loadAverage', 'text tag': 'load'}, {'type': 'text', 'tag': 'processors'}]}, {'type': 'composite', 'tag': 'memory', 'all': [{'type': 'text', 'tag': 'max'}, {'type': 'text', 'tag': 'free'}, {'type': 'text', 'tag': 'total'}]}, {'type': 'composite', 'tag': 'scheduler', 'all': [{'type': 'text', 'tag': 'running'}]}, {'type': 'composite', 'tag': 'threads', 'all': [{'type': 'text', 'tag': 'active'}]}]}, {'type': 'attribute', 'tag': 'metrics'}, {'type': 'attribute', 'tag': 'threadDump'}]}]}, {'type': 'composite', 'all': [{'any': [{'element parse table': {'type': 'alternatives', 'tag': 'deleteJobResult', 'parse tables': [{'type': 'composite', 'all': [{'type': 'text', 'tag': 'message'}]}, {'type': 'composite', 'all': [{'type': 'text', 'tag': 'error'}]}]}, 'type': 'list', 'tag': 'succeeded'}, {'element parse table': {'type': 'alternatives', 'tag': 'deleteJobResult', 'parse tables': [{'type': 'composite', 'all': [{'type': 'text', 'tag': 'message'}]}, {'type': 'composite', 'all': [{'type': 'text', 'tag': 'error'}]}]}, 'type': 'list', 'tag': 'failed'}], 'type': 'composite', 'tag': 'deleteJobs'}]}]}, {'element parse table': {'any': [{'type': 'text', 'tag': 'description'}], 'type': 'composite', 'tag': 'job', 'all': [{'type': 'text', 'tag': 'id'}, {'type': 'text', 'tag': 'loglevel'}, {'type': 'composite', 'tag': 'sequence', 'all': [{'type': 'composite', 'tag': 'command', 'all': [{'type': 'text', 'tag': 'exec'}]}]}, {'type': 'text', 'tag': 'name'}, {'type': 'text', 'tag': 'uuid'}, {'any': [{'element parse table': {'type': 'attribute', 'tag': 'option'}, 'type': 'list', 'tag': 'options', 'skip count': True}], 'type': 'composite', 'tag': 'context', 'all': [{'type': 'text', 'tag': 'project'}]}]}, 'type': 'list', 'tag': 'joblist', 'skip count': True}]}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/rundeck_parser.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.rundeck_parser.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main entry point to the parser</p>
 </dd></dl>
 
@@ -299,7 +323,7 @@ like yacc and bison.</p>
 
 <dl class="class">
 <dt id="pyrundeck.xml2native.ParserEngine">
-<em class="property">class </em><code class="descclassname">pyrundeck.xml2native.</code><code class="descname">ParserEngine</code><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyrundeck.xml2native.</code><code class="descname">ParserEngine</code><span class="sig-paren">(</span><em>log_level=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyrundeck/xml2native.html#ParserEngine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyrundeck.xml2native.ParserEngine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>This is class converts the <code class="docutils literal"><span class="pre">lxml.etree</span></code> representation to native
 Python objects.</p>
@@ -428,12 +452,11 @@ tables that can be used to parse this tag.</p>
 <dd><p>Parse a tag with attributes and text.</p>
 <p><strong>Example</strong></p>
 <p>Parse table:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-  <span class="s">&#39;date-started&#39;</span><span class="p">:</span> <span class="p">{</span>
-     <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
-     <span class="s">&#39;text tag&#39;</span><span class="p">:</span> <span class="s">&#39;time&#39;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-python"><div class="highlight"><pre>{
+  &#39;tag&#39;: &#39;date-started&#39;
+  &#39;type&#39;: &#39;attribute text&#39;,
+  &#39;text tag&#39;: &#39;time&#39;
+}
 </pre></div>
 </div>
 <p>Input:</p>
@@ -475,52 +498,24 @@ an error.</p>
 <dd><p>Parse a tag consisting of other tags.</p>
 <p><strong>Example</strong></p>
 <p>Parse table:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
-  <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
-  <span class="s">&#39;components&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;tags&#39;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s">&#39;user&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">,</span>
-      <span class="p">},</span>
-      <span class="s">&#39;date-started&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
-        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_parse_table</span>
-      <span class="p">},</span>
-      <span class="s">&#39;job&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
-        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span>
-      <span class="p">},</span>
-      <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
-      <span class="p">},</span>
-      <span class="s">&#39;argstring&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
-      <span class="p">},</span>
-      <span class="s">&#39;serverUUID&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
-      <span class="p">},</span>
-      <span class="s">&#39;date-ended&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
-         <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_parse_table</span>
-      <span class="p">},</span>
-      <span class="s">&#39;abortedby&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
-      <span class="p">},</span>
-      <span class="s">&#39;successfulNodes&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
-        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_parse_table</span>
-      <span class="p">},</span>
-      <span class="s">&#39;failedNodes&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
-        <span class="s">&#39;parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_parse_table</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="s">&#39;mandatory_attributes&#39;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="s">&#39;user&#39;</span><span class="p">,</span> <span class="s">&#39;date-started&#39;</span><span class="p">,</span>
-      <span class="s">&#39;description&#39;</span>
-    <span class="p">]</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-python"><div class="highlight"><pre> {
+   &#39;tag&#39;: &#39;execution&#39;,
+   &#39;type&#39;: &#39;composite&#39;,
+   &#39;all&#39;: [
+       {&#39;tag&#39;: &#39;user&#39;, &#39;type&#39;: &#39;text&#39;},
+       self.start_date_parse_table,
+       {&#39;tag&#39;: &#39;description&#39;, &#39;type&#39;: &#39;text&#39;}
+   ],
+   &#39;any&#39;: [
+       self.job_parse_table,
+       {&#39;tag&#39;: &#39;argstring&#39;, &#39;type&#39;: &#39;text&#39;},
+       {&#39;tag&#39;: &#39;serverUUID&#39;, &#39;type&#39;: &#39;text&#39;},
+       {&#39;tag&#39;: &#39;abortedby&#39;, &#39;type&#39;: &#39;text&#39;},
+       self.date_ended_parse_table,
+       self.successful_nodes_parse_table,
+       self.failed_nodes_parse_table
+   ]
+}
 </pre></div>
 </div>
 <p>Input:</p>
@@ -596,9 +591,10 @@ an error.</p>
 <dd><p>Parse a tag that is a list of elements.</p>
 <p><strong>Example</strong></p>
 <p>Parse table:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">option_parse_table</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;option&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span><span class="p">}</span>
+<span class="p">{</span>
   <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
-  <span class="s">&#39;element_parse_table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_parse_table</span><span class="p">,</span>
+  <span class="s">&#39;element_parse_table&#39;</span><span class="p">:</span> <span class="n">option_parse_table</span><span class="p">,</span>
   <span class="s">&#39;skip len&#39;</span><span class="p">:</span> <span class="bp">True</span>
 <span class="p">}</span>
 </pre></div>
