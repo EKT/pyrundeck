@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyrundeck.rundeck_parser &mdash; PyRundeck 0.3.2 beta documentation</title>
+    <title>pyrundeck.rundeck_parser &mdash; PyRundeck 0.3.5 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.3.2 beta',
+        VERSION:     '0.3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyRundeck 0.3.2 beta documentation" href="../../index.html" />
+    <link rel="top" title="PyRundeck 0.3.5 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -176,14 +176,273 @@
             <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">execution_parse_table</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">result_parse_table</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;result&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">succeeded_job_list</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;succeeded&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span><span class="p">,</span>
+
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed_job_list</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;failed&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span><span class="p">,</span>
+
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">skipped_job_list</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;skipped&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_parse_table</span><span class="p">,</span>
+
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">success_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;success&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;message&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;timestamp&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rundeck_info_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;rundeck&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;build&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;node&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;base&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;apiversion&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;serverUUID&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">os_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;os&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;arch&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">jvm_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;jvm&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;vendor&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;version&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;implementationVersion&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uptime_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;uptime&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;since&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;datetime&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}]</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpu_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;cpu&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;loadAverage&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute text&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;text tag&#39;</span><span class="p">:</span> <span class="s">&#39;load&#39;</span>
+                <span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;processors&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;memory&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;max&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;free&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;total&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheduler_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;scheduler&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;running&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threads_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;threads&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;active&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stats_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;stats&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">uptime_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cpu_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">memory_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scheduler_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">threads_parse_table</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_info_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;system&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">timestamp_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rundeck_info_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">os_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">jvm_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stats_parse_table</span><span class="p">,</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;metrics&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;threadDump&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;attribute&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">deleteJobResult_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;deleteJobResult&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;alternatives&#39;</span><span class="p">,</span>
+            <span class="s">&#39;parse tables&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;message&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
+                        <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;error&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span>
+                        <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delete_jobs_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;deleteJobs&#39;</span><span class="p">,</span>
             <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
             <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">jobs_parse_table</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">executions_parse_table</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">error_parse_table</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;succeeded&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">deleteJobResult_parse_table</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;failed&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">deleteJobResult_parse_table</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">result_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;result&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;alternatives&#39;</span><span class="p">,</span>
+            <span class="s">&#39;parse tables&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span> <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">jobs_parse_table</span><span class="p">]},</span>
+                <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span> <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">error_parse_table</span><span class="p">]},</span>
+                <span class="p">{</span><span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span> <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">executions_parse_table</span><span class="p">]},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">succeeded_job_list</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">failed_job_list</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">skipped_job_list</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">success_parse_table</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">system_info_parse_table</span>
+                    <span class="p">]</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">delete_jobs_parse_table</span><span class="p">]</span>
+                <span class="p">},</span>
             <span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">joblist_job_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;job&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;loglevel&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;sequence&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;command&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                            <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;exec&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+                            <span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;uuid&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;context&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;composite&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;all&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;project&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">}</span>
+                    <span class="p">],</span>
+                    <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">options_parse_table</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s">&#39;any&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">joblist_parse_table</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;joblist&#39;</span><span class="p">,</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;list&#39;</span><span class="p">,</span>
+            <span class="s">&#39;element parse table&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">joblist_job_parse_table</span><span class="p">,</span>
+            <span class="s">&#39;skip count&#39;</span><span class="p">:</span> <span class="bp">True</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_symbol</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;alternatives&#39;</span><span class="p">,</span>
+            <span class="s">&#39;parse tables&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result_parse_table</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">joblist_parse_table</span>
+            <span class="p">]</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">ParserEngine</span><span class="p">()</span>
@@ -208,8 +467,8 @@
 <span class="n">_parser</span> <span class="o">=</span> <span class="n">RundeckParser</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.rundeck_parser.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">cb_type</span><span class="o">=</span><span class="s">&#39;composite&#39;</span><span class="p">,</span>
-          <span class="n">parse_table</span><span class="o">=</span><span class="n">_parser</span><span class="o">.</span><span class="n">result_parse_table</span><span class="p">):</span>
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.rundeck_parser.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">cb_type</span><span class="o">=</span><span class="s">&#39;alternatives&#39;</span><span class="p">,</span>
+          <span class="n">parse_table</span><span class="o">=</span><span class="n">_parser</span><span class="o">.</span><span class="n">start_symbol</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Main entry point to the parser&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">cb_type</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">)</span></div>
 </pre></div>

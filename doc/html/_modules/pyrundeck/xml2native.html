@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pyrundeck.xml2native &mdash; PyRundeck 0.3.2 beta documentation</title>
+    <title>pyrundeck.xml2native &mdash; PyRundeck 0.3.5 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.3.2 beta',
+        VERSION:     '0.3.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="PyRundeck 0.3.2 beta documentation" href="../../index.html" />
+    <link rel="top" title="PyRundeck 0.3.5 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   
@@ -80,6 +80,9 @@
 <span class="sd">like yacc and bison.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Panagiotis Koutsourakis &lt;kutsurak@ekt.gr&gt;&quot;</span>
 
@@ -155,7 +158,9 @@
 <span class="sd">      tables that can be used to parse this tag.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;pyrundeck.log&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s">&#39;text&#39;</span><span class="p">:</span>           <span class="bp">self</span><span class="o">.</span><span class="n">text_tag</span><span class="p">,</span>
             <span class="s">&#39;attribute&#39;</span><span class="p">:</span>      <span class="bp">self</span><span class="o">.</span><span class="n">attribute_tag</span><span class="p">,</span>
@@ -184,6 +189,9 @@
 
 <span class="sd">        :return: The text of the tag.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;text tag, parsing:</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">With parse table:</span><span class="se">\n</span><span class="s">{}&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                  <span class="n">parse_table</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -197,7 +205,12 @@
                                                         <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
             <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">text</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
 </div>
 <div class="viewcode-block" id="ParserEngine.attribute_tag"><a class="viewcode-back" href="../../pyrundeck.html#pyrundeck.xml2native.ParserEngine.attribute_tag">[docs]</a>    <span class="k">def</span> <span class="nf">attribute_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parse a tag with attributes.</span>
@@ -218,6 +231,9 @@
 
 <span class="sd">        :return: A dictionary containing key value pairs for all the attributes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;attribute tag, parsing:</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">With parse table</span><span class="se">\n</span><span class="s">{}&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                  <span class="n">parse_table</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -240,10 +256,9 @@
 <span class="sd">        Parse table::</span>
 
 <span class="sd">           {</span>
-<span class="sd">             &#39;date-started&#39;: {</span>
-<span class="sd">                &#39;type&#39;: &#39;attribute text&#39;,</span>
-<span class="sd">                &#39;text tag&#39;: &#39;time&#39;</span>
-<span class="sd">             }</span>
+<span class="sd">             &#39;tag&#39;: &#39;date-started&#39;</span>
+<span class="sd">             &#39;type&#39;: &#39;attribute text&#39;,</span>
+<span class="sd">             &#39;text tag&#39;: &#39;time&#39;</span>
 <span class="sd">           }</span>
 
 <span class="sd">        Input::</span>
@@ -265,6 +280,9 @@
 <span class="sd">                 table for this tag.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;attribute text tag, parsing:</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">With parse table</span><span class="se">\n</span><span class="s">{}&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                  <span class="n">parse_table</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -286,9 +304,10 @@
 
 <span class="sd">        Parse table::</span>
 
+<span class="sd">           option_parse_table = {&#39;tag&#39;: &#39;option&#39;, &#39;type&#39;: &#39;attribute&#39;}</span>
 <span class="sd">           {</span>
 <span class="sd">             &#39;type&#39;: &#39;list&#39;,</span>
-<span class="sd">             &#39;element_parse_table&#39;: self.option_parse_table,</span>
+<span class="sd">             &#39;element_parse_table&#39;: option_parse_table,</span>
 <span class="sd">             &#39;skip len&#39;: True</span>
 <span class="sd">           }</span>
 
@@ -312,6 +331,9 @@
 <span class="sd">        :param parse_table: The parse table for this element.</span>
 <span class="sd">        :return: A list of elements specified by the parse table.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;list tag, parsing:</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">With parse table</span><span class="se">\n</span><span class="s">{}&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                  <span class="n">parse_table</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
 
         <span class="n">element_pt</span> <span class="o">=</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;element parse table&#39;</span><span class="p">]</span>
@@ -344,51 +366,23 @@
 
 <span class="sd">        Parse table::</span>
 
-<span class="sd">           {</span>
-<span class="sd">             &#39;type&#39;: &#39;composite&#39;,</span>
-<span class="sd">             &#39;components&#39;: {</span>
-<span class="sd">               &#39;tags&#39;: {</span>
-<span class="sd">                 &#39;user&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;text&#39;,</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;date-started&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;attribute text&#39;,</span>
-<span class="sd">                   &#39;parse table&#39;: self.date_parse_table</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;job&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;composite&#39;,</span>
-<span class="sd">                   &#39;parse table&#39;: self.job_parse_table</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;description&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;argstring&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;serverUUID&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;date-ended&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;attribute text&#39;,</span>
-<span class="sd">                    &#39;parse table&#39;: self.date_parse_table</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;abortedby&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;text&#39;</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;successfulNodes&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;list&#39;,</span>
-<span class="sd">                   &#39;parse table&#39;: self.nodes_parse_table</span>
-<span class="sd">                 },</span>
-<span class="sd">                 &#39;failedNodes&#39;: {</span>
-<span class="sd">                   &#39;type&#39;: &#39;list&#39;,</span>
-<span class="sd">                   &#39;parse table&#39;: self.nodes_parse_table</span>
-<span class="sd">                 }</span>
-<span class="sd">               },</span>
-<span class="sd">               &#39;mandatory_attributes&#39;: [</span>
-<span class="sd">                 &#39;user&#39;, &#39;date-started&#39;,</span>
-<span class="sd">                 &#39;description&#39;</span>
-<span class="sd">               ]</span>
-<span class="sd">             }</span>
+<span class="sd">            {</span>
+<span class="sd">              &#39;tag&#39;: &#39;execution&#39;,</span>
+<span class="sd">              &#39;type&#39;: &#39;composite&#39;,</span>
+<span class="sd">              &#39;all&#39;: [</span>
+<span class="sd">                  {&#39;tag&#39;: &#39;user&#39;, &#39;type&#39;: &#39;text&#39;},</span>
+<span class="sd">                  self.start_date_parse_table,</span>
+<span class="sd">                  {&#39;tag&#39;: &#39;description&#39;, &#39;type&#39;: &#39;text&#39;}</span>
+<span class="sd">              ],</span>
+<span class="sd">              &#39;any&#39;: [</span>
+<span class="sd">                  self.job_parse_table,</span>
+<span class="sd">                  {&#39;tag&#39;: &#39;argstring&#39;, &#39;type&#39;: &#39;text&#39;},</span>
+<span class="sd">                  {&#39;tag&#39;: &#39;serverUUID&#39;, &#39;type&#39;: &#39;text&#39;},</span>
+<span class="sd">                  {&#39;tag&#39;: &#39;abortedby&#39;, &#39;type&#39;: &#39;text&#39;},</span>
+<span class="sd">                  self.date_ended_parse_table,</span>
+<span class="sd">                  self.successful_nodes_parse_table,</span>
+<span class="sd">                  self.failed_nodes_parse_table</span>
+<span class="sd">              ]</span>
 <span class="sd">           }</span>
 
 <span class="sd">        Input::</span>
@@ -450,6 +444,9 @@
 
 <span class="sd">        :return: A dictionary representing the XML object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;composite tag, parsing:</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">With parse table</span><span class="se">\n</span><span class="s">{}&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                  <span class="n">parse_table</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_root_tag</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">])</span>
 
         <span class="c"># pt = parse_table[root.tag][&#39;components&#39;]</span>
@@ -482,7 +479,7 @@
                 <span class="n">ret</span><span class="p">[</span><span class="n">atk</span><span class="p">]</span> <span class="o">=</span> <span class="n">atv</span>
 
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">mandatory_tags</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">elem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;expected tag &lt;{}&gt; not found in tag &lt;{}&gt;&#39;</span>
                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>
                 <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -521,14 +518,20 @@
 
 <span class="sd">           {&#39;attribute&#39;: &#39;value&#39;}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;alternatives tag, parsing:</span><span class="se">\n</span><span class="s">{}</span><span class="se">\n</span><span class="s">With parse table</span><span class="se">\n</span><span class="s">{}&quot;</span>
+                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                  <span class="n">parse_table</span><span class="p">))</span>
         <span class="n">possible_pts</span> <span class="o">=</span> <span class="n">parse_table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;parse tables&#39;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">possible_pts</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">pt</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s">&#39;tag&#39;</span> <span class="ow">in</span> <span class="n">parse_table</span><span class="p">:</span>
+                    <span class="n">pt</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parse_table</span><span class="p">[</span><span class="s">&#39;tag&#39;</span><span class="p">]</span>
                 <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">))</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">pt</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">ParseError</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c"># Break on the first successful parse</span>
+            <span class="k">except</span> <span class="n">ParseError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;{}: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;tag&#39;</span><span class="p">),</span> <span class="n">ex</span><span class="p">))</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
