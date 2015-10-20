@@ -29,6 +29,7 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import logging
 
 from pyrundeck.xml2native import ParserEngine
 
@@ -42,7 +43,7 @@ class RundeckParser(object):
     :py:class:`pyrundeck.xml2native.ParserEngine` for more details.
 
     """
-    def __init__(self):
+    def __init__(self, log_level=logging.INFO):
         self.error_parse_table = {
             'tag': 'error',
             'type': 'composite',
@@ -80,7 +81,13 @@ class RundeckParser(object):
             'skip count': True,
         }
 
-        self.option_parse_table = {'tag': 'option', 'type': 'attribute'}
+        self.option_parse_table = {
+            'tag': 'option',
+            'type': 'composite',
+            'any': [
+                {'tag': 'description', 'type': 'text'}
+            ]
+        }
 
         self.options_parse_table = {
             'tag': 'options',
@@ -101,6 +108,7 @@ class RundeckParser(object):
                 {'tag': 'group', 'type': 'text'},
                 {'tag': 'description', 'type': 'text'},
                 {'tag': 'url', 'type': 'text'},
+                {'tag': 'group', 'type': 'text'},
                 self.options_parse_table
             ]
         }
@@ -353,6 +361,25 @@ class RundeckParser(object):
             ],
         }
 
+        self.simple_command_parse_table = {
+            'tag': 'command',
+            'type': 'composite',
+            'all': [
+                {'tag': 'exec', 'type': 'text'}
+            ]
+        }
+
+        self.script_command_parse_table = {
+            'tag': 'command',
+            'type': 'composite',
+            'all': [
+                {'tag': 'script', 'type': 'text'}
+            ],
+            'any': [
+                {'tag': 'scriptargs', 'type': 'text'}
+            ]
+        }
+
         self.joblist_job_parse_table = {
             'tag': 'job',
             'type': 'composite',
@@ -365,9 +392,10 @@ class RundeckParser(object):
                     'all': [
                         {
                             'tag': 'command',
-                            'type': 'composite',
-                            'all': [
-                                {'tag': 'exec', 'type': 'text'}
+                            'type': 'alternatives',
+                            'parse tables': [
+                                self.simple_command_parse_table,
+                                self.script_command_parse_table
                             ]
                         }
                     ]
@@ -387,6 +415,7 @@ class RundeckParser(object):
             ],
             'any': [
                 {'tag': 'description', 'type': 'text'},
+                {'tag': 'group', 'type': 'text'},
             ]
         }
 
@@ -405,7 +434,7 @@ class RundeckParser(object):
             ]
         }
 
-        self.engine = ParserEngine()
+        self.engine = ParserEngine(log_level=log_level)
 
     def parse(self, xml_tree, cb_type, parse_table):
         """This method is the external interface to the ParserEngine class.
