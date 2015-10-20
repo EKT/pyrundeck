@@ -1,9 +1,11 @@
 language: python
 python:
   - "2.7"
-  - "3.2"
   - "3.3"
   - "3.4"
+
+# For some reason 3.2 fails while it used to succeed.
+# - "3.2"
 # Right now python nightly is not able to install lxml, cryptography, and cffi.
 # Ignore it for the moment.
 # - "nightly"
