@@ -372,11 +372,33 @@ class RundeckParser(object):
         self.script_command_parse_table = {
             'tag': 'command',
             'type': 'composite',
-            'all': [
-                {'tag': 'script', 'type': 'text'}
-            ],
             'any': [
-                {'tag': 'scriptargs', 'type': 'text'}
+                {'tag': 'script', 'type': 'text'},
+                {'tag': 'scriptargs', 'type': 'text'},
+                {'tag': 'scripturl', 'type': 'text'},
+                {
+                    'tag': 'errorhandler',
+                    'type': 'composite',
+                    'any': [
+                        {'tag': 'exec', 'type': 'text'},
+                        {'tag': 'scriptargs', 'type': 'text'},
+                        {'tag': 'scripturl', 'type': 'text'},
+                    ]
+                }
+            ]
+        }
+
+        self.jobref_command_parse_table = {
+            'tag': 'command',
+            'type': 'composite',
+            'all': [
+                {
+                    'tag': 'jobref',
+                    'type': 'composite',
+                    'any': [
+                        {'tag': 'arg', 'type': 'attribute'}
+                    ],
+                },
             ]
         }
 
@@ -395,7 +417,8 @@ class RundeckParser(object):
                             'type': 'alternatives',
                             'parse tables': [
                                 self.simple_command_parse_table,
-                                self.script_command_parse_table
+                                self.script_command_parse_table,
+                                self.jobref_command_parse_table
                             ]
                         }
                     ]
@@ -416,6 +439,53 @@ class RundeckParser(object):
             'any': [
                 {'tag': 'description', 'type': 'text'},
                 {'tag': 'group', 'type': 'text'},
+                {
+                    'tag': 'dispatch',
+                    'type': 'composite',
+                    'any': [
+                        {'tag': 'threadcount', 'type': 'text'},
+                        {'tag': 'keepgoing', 'type': 'text'},
+                        {'tag': 'excludePrecedence', 'type': 'text'},
+                        {'tag': 'rankOrder', 'type': 'text'},
+                    ]
+                },
+                {
+                    'tag': 'nodefilters',
+                    'type': 'list',
+                    'element parse table': {
+                        'tag': 'filter',
+                        'type': 'text'
+                    },
+                    'skip count': True
+                },
+                {'tag': 'multipleExecutions', 'type': 'text'},
+                {
+                    'tag': 'schedule',
+                    'type': 'composite',
+                    'any': [
+                        {'tag': 'time', 'type': 'attribute'},
+                        {'tag': 'weekday', 'type': 'attribute'},
+                        {'tag': 'month', 'type': 'attribute'},
+                        {'tag': 'year', 'type': 'attribute'},
+                    ]
+                },
+                {
+                    'tag': 'notification',
+                    'type': 'composite',
+                    'any': [
+                        {
+                            'tag': 'onfailure',
+                            'type': 'composite',
+                            'any': [{'tag': 'email', 'type': 'attribute'}]
+                        },
+                        {
+                            'tag': 'onsuccess',
+                            'type': 'composite',
+                            'any': [{'tag': 'email', 'type': 'attribute'}]
+                        },
+
+                    ]
+                }
             ]
         }
 
