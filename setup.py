@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="PyRundeck",
-    version="0.3.6",
+    version="0.3.7",
     description="A thin, pure Python wrapper for the Rundeck API",
     author="Panagiotis Koutsourakis",
     author_email="kutsurak@ekt.gr",
